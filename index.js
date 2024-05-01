@@ -1,9 +1,8 @@
 // const fs = require("fs");
-import { promises as fs } from "fs";
+import fs from "fs";
 import express from "express";
 // const swaggerUi = require("swagger-ui-express");
 import swaggerUi from "swagger-ui-express";
-import swaggerJsDoc from "swagger-jsdoc";
 // // const YAML = require("js-yaml");
 import YAML from "js-yaml";
 const app = express();
@@ -11,15 +10,7 @@ const app = express();
 import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
-async function loadYAML() {
-  try {
-    const fileContents = await fs.readFile("./swagger.yaml", "utf8");
-    return YAML.load(fileContents); // Usando .load para js-yaml
-  } catch (error) {
-    console.error("Error reading or parsing the YAML file:", error);
-    return null;
-  }
-}
+
 // const fileContents = fs.readFileSync("./swagger.yaml", "utf8");
 // const swaggerDocument = YAML.load(fileContents);
 // JSON Nível 1
@@ -818,21 +809,24 @@ app.get("/json_9", (req, res) => {
 // app.listen(PORT, () => {});
 async function setupSwagger() {
   try {
-      const yamlFile = fs.readFileSync('./swagger.yaml', 'utf8');
-      const swaggerDocument = YAML.load(yamlFile);
+    // Garantindo que o caminho esteja correto e usando path para resolver problemas de diretório
+    const yamlFile = fs.readFileSync("./swagger.yaml", "utf8");
+    const swaggerDocument = YAML.load(yamlFile);
 
-      app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-      console.log("Swagger UI is set up at /docs");
+    // Configurando a rota do Swagger UI
+    app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    console.log("Swagger UI is set up at /docs");
   } catch (error) {
-      console.error('Failed to load or parse the Swagger YAML file:', error);
+    console.error("Failed to load or parse the Swagger YAML file:", error);
   }
 }
 
-setupSwagger();
-
-const PORT = 4000;
-app.get("/", (req, res) => {
-  res.send("API OK");
+await setupSwagger().then(()=>{
+  const PORT = 4000;
+  app.get("/", (req, res) => {
+    res.send("API OK");
+  });
+  app.listen(PORT, () => {});
 });
-app.listen(PORT, () => {});
+
+
