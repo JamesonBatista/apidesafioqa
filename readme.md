@@ -1,0 +1,11 @@
+# API Desafio QA Automation
+
+### Start API and Swagger
+```
+npm run dev
+```
+
+### Endpoint access
+
+localhost:3000/json_1
+localhost:3000/json_2 ....... 9
