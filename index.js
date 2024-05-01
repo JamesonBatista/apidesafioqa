@@ -11,7 +11,8 @@ const app = express();
 import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
-const swaggerDocument = YAML.load("./swagger.yaml");
+const fileContents = fs.readFileSync('./swagger.yaml', 'utf8');
+const swaggerDocument = YAML.load(fileContents);
 // JSON Nível 1
 // Desafio de Validação: Verificar que todos os nomes dentro do array de objetos no arrayDeObjetos começam com letra maiúscula e que os valores sejam todos positivos.
 const json_1 = {
@@ -659,25 +660,7 @@ const json_8 = {
     },
   ],
 };
-// Desafio de Validação Complexo:
-// Total de Gols:
-// Calcule o total de gols marcados pelo Brasil ao longo dos sete jogos da Copa do Mundo.
-// Total de Faltas:
-// Determine o total de faltas cometidas pela equipe brasileira durante toda a competição.
-// Total de Cartões:
-// Conte quantos cartões amarelos e vermelhos foram recebidos pelos jogadores do Brasil durante os sete jogos.
-// Desafio de Relatórios Detalhados:
-// Crie uma função que processe o JSON dos jogos do Brasil na Copa do Mundo e retorne um relatório detalhado para cada jogo, incluindo:
-// Total de gols marcados pelo Brasil e pelos adversários.
-// Nomes dos jogadores que marcaram gols para o Brasil e para os adversários, juntamente com os minutos em que os gols foram marcados.
-// Total de faltas cometidas pelo Brasil e pelos adversários.
-// Nomes dos jogadores que cometeram faltas para o Brasil e para os adversários, juntamente com os minutos em que as faltas ocorreram.
-// Total de cartões (amarelos e vermelhos) recebidos pelo Brasil e pelos adversários.
-// Nomes dos jogadores que receberam cartões para o Brasil e para os adversários, juntamente com os minutos em que os cartões foram mostrados.
-// Desafio de Estatísticas:
-// Calcule a média de gols por jogo marcados pelo Brasil e pelos adversários.
-// Identifique o jogo com o maior número de gols.
-// Determine o jogador brasileiro com mais gols ao longo da competição.
+
 const json_9 = {
   copaDoMundo: {
     jogosDoBrasil: [
