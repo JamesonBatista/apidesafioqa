@@ -118,15 +118,20 @@ const swaggerDocument = {
     },
   },
 };
+import fs from "fs";
 import express from "express";
 // const swaggerUi = require("swagger-ui-express");
 import swaggerUi from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
 // // const YAML = require("js-yaml");
+import YAML from "js-yaml";
 const app = express();
 // const bodyParser = require("body-parser");
 import bodyParser from "body-parser";
+const port = 3000;
 app.use(bodyParser.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(express.static('public'));
 
 // const file = fs.readFileSync("./swagger.yaml");
 // const swaggerDocument = YAML.load(file);
