@@ -131,6 +131,7 @@ import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(express.static('public'));
 
 // const file = fs.readFileSync("./swagger.yaml");
 // const swaggerDocument = YAML.load(file);
