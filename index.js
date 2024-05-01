@@ -12,7 +12,6 @@ import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
 const swaggerDocument = YAML.load(fs.readFileSync("./swagger.yaml", "utf8"));
-var swaggerSpec = swaggerJsDoc(swaggerDocument)
 // JSON Nível 1
 // Desafio de Validação: Verificar que todos os nomes dentro do array de objetos no arrayDeObjetos começam com letra maiúscula e que os valores sejam todos positivos.
 const json_1 = {
@@ -822,7 +821,7 @@ app.get("/json_9", (req, res) => {
 // app.get("/json_10", (req, res) => {
 //   res.send(json_10);
 // });
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
