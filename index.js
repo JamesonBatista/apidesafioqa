@@ -933,6 +933,6 @@ app.get("/", (req, res) => {
 // app.listen(PORT, () => {});
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {});
