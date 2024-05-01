@@ -14,10 +14,10 @@ app.use(bodyParser.json());
 async function loadYAML() {
   try {
     const fileContents = await fs.readFile("./swagger.yaml", "utf8");
-    const swaggerDocument = YAML.load(fileContents);
-    return swaggerDocument; // Você pode retornar o documento para uso externo
+    return YAML.load(fileContents); // Usando .load para js-yaml
   } catch (error) {
     console.error("Error reading or parsing the YAML file:", error);
+    return null;
   }
 }
 // const fileContents = fs.readFileSync("./swagger.yaml", "utf8");
@@ -816,13 +816,20 @@ app.get("/json_9", (req, res) => {
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
-await loadYAML().then((documentSwagger) => {
-  console.log(documentSwagger)
-  app.use("/docs", swaggerUi.serve, swaggerUi.setup(documentSwagger));
+async function setupSwagger() {
+  const swaggerDocument = await loadYAML();
+  if (swaggerDocument) {
+    console.log(swaggerDocument);
+    app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  } else {
+    console.error("Failed to load Swagger document.");
+  }
+}
 
-  const PORT = 4000;
-  app.get("/", (req, res) => {
-    res.send("API OK");
-  });
-  app.listen(PORT, () => {});
+setupSwagger();
+
+const PORT = 4000;
+app.get("/", (req, res) => {
+  res.send("API OK");
 });
+app.listen(PORT, () => {});
