@@ -4,7 +4,7 @@ import express from "express";
 // const swaggerUi = require("swagger-ui-express");
 import swaggerUi from "swagger-ui-express";
 // // const YAML = require("js-yaml");
-// import YAML from "js-yaml";
+import YAML from "js-yaml";
 const app = express();
 // // const bodyParser = require("body-parser");
 // import bodyParser from "body-parser";
