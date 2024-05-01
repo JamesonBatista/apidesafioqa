@@ -126,8 +126,6 @@ const app = express();
 // const bodyParser = require("body-parser");
 import bodyParser from "body-parser";
 app.use(bodyParser.json());
-app.use(express.static('public'));
-
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // const file = fs.readFileSync("./swagger.yaml");
