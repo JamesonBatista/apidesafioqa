@@ -820,7 +820,7 @@ const app = express();
 // // app.get("/json_10", (req, res) => {
 // //   res.send(json_10);
 // // });
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
