@@ -6,7 +6,10 @@ import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 // // const YAML = require("js-yaml");
 import YAML from "js-yaml";
-import path from 'path'
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const app = express();
 // const bodyParser = require("body-parser");
 import bodyParser from "body-parser";
