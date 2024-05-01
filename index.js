@@ -817,12 +817,15 @@ app.get("/json_9", (req, res) => {
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
 async function setupSwagger() {
-  const swaggerDocument = await loadYAML();
-  if (swaggerDocument) {
-    console.log(swaggerDocument);
-    app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  } else {
-    console.error("Failed to load Swagger document.");
+  try {
+      const yamlFile = fs.readFileSync('./swagger.yaml', 'utf8');
+      const swaggerDocument = YAML.load(yamlFile);
+
+      app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+      console.log("Swagger UI is set up at /docs");
+  } catch (error) {
+      console.error('Failed to load or parse the Swagger YAML file:', error);
   }
 }
 
