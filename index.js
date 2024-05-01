@@ -1,6 +1,6 @@
 // const fs = require("fs");
 const swaggerDocument = {
-  swagger: "3.0",
+  swagger: "3.1.0",
   info: {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
