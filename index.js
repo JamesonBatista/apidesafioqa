@@ -818,9 +818,9 @@ app.get("/json_8", (req, res) => {
 app.get("/json_9", (req, res) => {
   res.send(json_9);
 });
-app.get("/json_10", (req, res) => {
-  res.send(json_10);
-});
+// app.get("/json_10", (req, res) => {
+//   res.send(json_10);
+// });
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
