@@ -1,5 +1,5 @@
 // const fs = require("fs");
-import fs from "fs";
+import { promises as fs } from "fs";
 import express from "express";
 // const swaggerUi = require("swagger-ui-express");
 import swaggerUi from "swagger-ui-express";
@@ -11,8 +11,17 @@ const app = express();
 import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
-const fileContents = fs.readFileSync("./swagger.yaml", "utf8");
-const swaggerDocument = YAML.load(fileContents);
+async function loadYAML() {
+  try {
+    const fileContents = await fs.readFile("./swagger.yaml", "utf8");
+    const swaggerDocument = YAML.parse(fileContents);
+    return swaggerDocument; // Você pode retornar o documento para uso externo
+  } catch (error) {
+    console.error("Error reading or parsing the YAML file:", error);
+  }
+}
+// const fileContents = fs.readFileSync("./swagger.yaml", "utf8");
+// const swaggerDocument = YAML.load(fileContents);
 // JSON Nível 1
 // Desafio de Validação: Verificar que todos os nomes dentro do array de objetos no arrayDeObjetos começam com letra maiúscula e que os valores sejam todos positivos.
 const json_1 = {
@@ -807,7 +816,9 @@ app.get("/json_9", (req, res) => {
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+loadYAML().then((documentSwagger) => {
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(documentSwagger));
+});
 
 const PORT = 4000;
 app.get("/", (req, res) => {
