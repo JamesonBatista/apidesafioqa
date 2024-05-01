@@ -17,7 +17,7 @@ const port = 3000;
 app.use(bodyParser.json());
 const yamlPath = path.resolve(__dirname, 'swagger.yaml');
 const fileContents = fs.readFileSync(yamlPath, 'utf8');
-const swaggerDocument = YAML.load(fileContents);
+const swaggerDocument = YAML.parse(fileContents);
 // JSON Nível 1
 // Desafio de Validação: Verificar que todos os nomes dentro do array de objetos no arrayDeObjetos começam com letra maiúscula e que os valores sejam todos positivos.
 const json_1 = {
