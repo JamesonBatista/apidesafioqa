@@ -6,12 +6,14 @@ import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 // // const YAML = require("js-yaml");
 import YAML from "js-yaml";
+import path from 'path'
 const app = express();
 // const bodyParser = require("body-parser");
 import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
-const fileContents = fs.readFileSync('./swagger.yaml', 'utf8');
+const yamlPath = path.resolve(__dirname, 'swagger.yaml');
+const fileContents = fs.readFileSync(yamlPath, 'utf8');
 const swaggerDocument = YAML.load(fileContents);
 // JSON Nível 1
 // Desafio de Validação: Verificar que todos os nomes dentro do array de objetos no arrayDeObjetos começam com letra maiúscula e que os valores sejam todos positivos.
