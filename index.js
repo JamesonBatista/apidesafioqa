@@ -822,7 +822,7 @@ app.get("/json_9", (req, res) => {
 // app.get("/json_10", (req, res) => {
 //   res.send(json_10);
 // });
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
