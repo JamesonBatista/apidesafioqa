@@ -128,6 +128,7 @@ import bodyParser from "body-parser";
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // const file = fs.readFileSync("./swagger.yaml");
 // const swaggerDocument = YAML.load(file);
@@ -930,7 +931,6 @@ app.get("/", (req, res) => {
 // app.listen(PORT, () => {});
 
 const PORT = 4000;
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {});
 
