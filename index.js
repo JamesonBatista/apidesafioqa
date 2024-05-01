@@ -920,6 +920,9 @@ app.get("/json_8", (req, res) => {
 app.get("/json_9", (req, res) => {
   res.send(json_9);
 });
+app.get("/", (req, res) => {
+  res.send("API OK");
+});
 // app.get("/json_10", (req, res) => {
 //   res.send(json_10);
 // });
@@ -929,9 +932,7 @@ app.get("/json_9", (req, res) => {
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = 4000;
-app.get("/", (req, res) => {
-  res.send("API OK");
-});
+
 app.listen(PORT, () => {});
 
 
