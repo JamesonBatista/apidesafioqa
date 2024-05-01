@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 async function loadYAML() {
   try {
     const fileContents = await fs.readFile("./swagger.yaml", "utf8");
-    const swaggerDocument = YAML.parse(fileContents);
+    const swaggerDocument = YAML.load(fileContents);
     return swaggerDocument; // Você pode retornar o documento para uso externo
   } catch (error) {
     console.error("Error reading or parsing the YAML file:", error);
