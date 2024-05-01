@@ -818,4 +818,5 @@ app.get("/json_9", (req, res) => {
 // });
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // init api
-app.listen(port, () => {});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {});
