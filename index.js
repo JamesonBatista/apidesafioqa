@@ -816,12 +816,13 @@ app.get("/json_9", (req, res) => {
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
-loadYAML().then((documentSwagger) => {
+await loadYAML().then((documentSwagger) => {
+  console.log(documentSwagger)
   app.use("/docs", swaggerUi.serve, swaggerUi.setup(documentSwagger));
-});
 
-const PORT = 4000;
-app.get("/", (req, res) => {
-  res.send("API OK");
+  const PORT = 4000;
+  app.get("/", (req, res) => {
+    res.send("API OK");
+  });
+  app.listen(PORT, () => {});
 });
-app.listen(PORT, () => {});
