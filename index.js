@@ -130,6 +130,8 @@ const app = express();
 import bodyParser from "body-parser";
 const port = 3000;
 app.use(bodyParser.json());
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // const file = fs.readFileSync("./swagger.yaml");
 // const swaggerDocument = YAML.load(file);
 // JSON Nível 1
@@ -929,7 +931,6 @@ app.get("/", (req, res) => {
 // // init api
 // const PORT = process.env.PORT || 3000;
 // app.listen(PORT, () => {});
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = 4000;
 
