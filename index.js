@@ -1,6 +1,7 @@
 import swaggerDocument from "./swaggerConfig.js";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
+import { body, validationResult } from "express-validator";
 const app = express();
 import bodyParser from "body-parser";
 import Joi from "joi";
@@ -21,6 +22,10 @@ import {
   json_12,
   json_13,
   json_14,
+  independent,
+  brasil,
+  big_json,
+  crud_get,
 } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -268,6 +273,93 @@ app.get("/deep-validation", (req, res) => {
 // Others
 app.get("/germany-api", (req, res) => {
   res.send(germany_json);
+});
+app.get("/independent", (req, res) => {
+  res.send(independent);
+});
+app.get("/brasil", (req, res) => {
+  res.send(brasil);
+});
+app.get("/big-json", (req, res) => {
+  res.send(big_json);
+});
+// CRUD
+app.get("/crud-get", (req, res) => {
+  res.send(crud_get);
+});
+function generateId() {
+  const maxId =
+    crud_get.users.length > 0
+      ? Math.max(...crud_get.users.map((user) => user.id))
+      : 0;
+  return maxId + 1;
+}
+app.post(
+  "/crud-post",
+  [
+    body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
+    body("email")
+      .isEmail()
+      .withMessage("Deve ser um email válido")
+      .notEmpty()
+      .withMessage("O campo email é obrigatório"),
+    body("idade")
+      .isInt({ min: 1 })
+      .withMessage("A idade deve ser um número inteiro válido")
+      .notEmpty()
+      .withMessage("O campo idade é obrigatório"),
+    body("telefone").notEmpty().withMessage("O campo telefone é obrigatório"),
+    body("endereco").notEmpty().withMessage("O campo endereço é obrigatório"),
+    body("profissao").notEmpty().withMessage("O campo profissão é obrigatório"),
+    body("empresa").notEmpty().withMessage("O campo empresa é obrigatório"),
+    body("status").notEmpty().withMessage("O campo status é obrigatório"),
+    body("dataCadastro")
+      .notEmpty()
+      .withMessage("O campo dataCadastro é obrigatório no formato 2023-10-01"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const newUser = {
+      id: generateId(),
+      nome: req.body.nome,
+      email: req.body.email,
+      idade: req.body.idade,
+      telefone: req.body.telefone,
+      endereço: req.body.endereço,
+      profissão: req.body.profissão,
+      empresa: req.body.empresa,
+      status: req.body.status,
+      dataCadastro: req.body.dataCadastro,
+    };
+
+    crud_get.users.push(newUser);
+    res.status(201).json(crud_get);
+  }
+);
+app.get("/crud-id/:id", (req, res) => {
+  const id = parseInt(req.params.id); // Converte o id de string para inteiro
+  const user = crud_get.users.find((u) => u.id === id);
+
+  if (!user) {
+    return res.status(404).send({ message: "Usuário não encontrado" });
+  }
+
+  res.status(200).json(user);
+});
+app.delete("/crud-delete/:id", (req, res) => {
+  const id = parseInt(req.params.id); // Converte o id de string para inteiro
+    const originalLength = crud_get.users.length;
+    crud_get.users = crud_get.users.filter(user => user.id !== id);
+
+    if (crud_get.users.length === originalLength) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.status(200).json(crud_get.users);
 });
 
 app.get("/", (req, res) => {
