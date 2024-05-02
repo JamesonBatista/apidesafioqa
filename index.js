@@ -2694,7 +2694,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/germany-apy": {
+    "/germany-api": {
       get: {
         tags: ["Others"],
         summary: "JSON com profundidade de validações",
@@ -4042,7 +4042,7 @@ app.get("/deep-validation", (req, res) => {
   res.send(json_11);
 });
 // Others
-app.get("/germany_api", (req, res) => {
+app.get("/germany-api", (req, res) => {
   res.send(germany_json);
 });
 
