@@ -59,7 +59,7 @@ app.post("/login", (req, res) => {
     res.status(401).send({ error: "Credenciais inválidas" });
   }
 });
-app.post("/login_hard", (req, res) => {
+app.post("/login-hard", (req, res) => {
   const { username, password } = req.body;
 
   // Simulação de validação de usuário
@@ -297,17 +297,21 @@ function generateId() {
 app.post(
   "/crud-post",
   [
-    body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
+    body("nome")
+      .notEmpty().withMessage("O campo nome é obrigatório")
+      .custom((value) => {
+        const userExists = crud_get.users.some(user => user.nome === value);
+        if (userExists) {
+          throw new Error('Nome já existe');
+        }
+        return true;
+      }),
     body("email")
-      .isEmail()
-      .withMessage("Deve ser um email válido")
-      .notEmpty()
-      .withMessage("O campo email é obrigatório"),
+      .isEmail().withMessage("Deve ser um email válido")
+      .notEmpty().withMessage("O campo email é obrigatório"),
     body("idade")
-      .isInt({ min: 1 })
-      .withMessage("A idade deve ser um número inteiro válido")
-      .notEmpty()
-      .withMessage("O campo idade é obrigatório"),
+      .isInt({ min: 1 }).withMessage("A idade deve ser um número inteiro válido")
+      .notEmpty().withMessage("O campo idade é obrigatório"),
     body("telefone").notEmpty().withMessage("O campo telefone é obrigatório"),
     body("endereco").notEmpty().withMessage("O campo endereço é obrigatório"),
     body("profissao").notEmpty().withMessage("O campo profissão é obrigatório"),
@@ -315,7 +319,7 @@ app.post(
     body("status").notEmpty().withMessage("O campo status é obrigatório"),
     body("dataCadastro")
       .notEmpty()
-      .withMessage("O campo dataCadastro é obrigatório no formato 2023-10-01"),
+      .withMessage("O campo dataCadastro é obrigatório no formato AAAA-MM-DD"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -329,15 +333,15 @@ app.post(
       email: req.body.email,
       idade: req.body.idade,
       telefone: req.body.telefone,
-      endereço: req.body.endereço,
-      profissão: req.body.profissão,
+      endereço: req.body.endereco,
+      profissão: req.body.profissao,
       empresa: req.body.empresa,
       status: req.body.status,
       dataCadastro: req.body.dataCadastro,
     };
 
     crud_get.users.push(newUser);
-    res.status(201).json(crud_get);
+    res.status(201).json(crud_get.users);
   }
 );
 app.get("/crud-id/:id", (req, res) => {

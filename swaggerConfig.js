@@ -70,7 +70,7 @@ const swaggerDocument = {
         ],
       },
     },
-    "/login_hard": {
+    "/login-hard": {
       post: {
         tags: ["APIs"],
         summary: "Generate new Bearer token hard validation",
@@ -41322,13 +41322,6 @@ const swaggerDocument = {
         tags: ["CRUD"],
         summary: "JSON CRUD validações",
         description: "JSON para treino de validação",
-        parameters: [
-          {
-            name: "body",
-            in: "body",
-            schema: {},
-          },
-        ],
         operationId: "getUserById",
         parameters: [
           {
@@ -41354,7 +41347,7 @@ const swaggerDocument = {
         tags: ["CRUD"],
         summary: "JSON CRUD validações",
         description: "JSON para treino de validação",
-        operationId: "getUserById",
+        operationId: "deleteUserById",
         parameters: [
           {
             name: "id",
