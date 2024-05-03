@@ -4,7 +4,7 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Se desafie aqui, valide todos os JSONs que vão aumentando a complexidade a cada json, depois disso, você está pronto para uma API :)\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)",
+      "Se desafie aqui, valide todos os JSONs que vão aumentando a complexidade a cada json, depois disso, você está pronto para uma API :)\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password",
   },
   components: {
     securitySchemes: {
@@ -47,54 +47,168 @@ const swaggerDocument = {
       post: {
         tags: ["APIs"],
         summary: "Generate new Bearer token",
-        description: "endppoint generate new token",
-        parameters: [
-          {
-            name: "body",
-            in: "body",
-            schema: {
-              $schema: "http://json-schema.org/draft-07/schema#",
-              title: "Generated schema for Root",
-              type: "object",
-              properties: {
-                username: {
-                  type: "string",
+        description: "Endpoint to generate a new token",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  username: {
+                    type: "string",
+                    default: "admin",
+                    description: "Nome de usuário para autenticação",
+                  },
+                  password: {
+                    type: "string",
+                    default: "password",
+                    description: "Senha para autenticação",
+                  },
                 },
-                password: {
-                  type: "string",
+                required: ["username", "password"],
+                example: {
+                  username: "admin",
+                  password: "password",
                 },
               },
-              required: ["username", "password"],
             },
           },
-        ],
+        },
+        responses: {
+          201: {
+            description: "Authentication successful",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    token: {
+                      type: "string",
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Invalid username or password",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: {
+                      type: "string",
+                      example: "Invalid credentials provided.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: {
+                      type: "string",
+                      example: "Authentication failed.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     "/login-hard": {
       post: {
         tags: ["APIs"],
-        summary: "Generate new Bearer token hard validation",
-        description: "endppoint generate new token",
-        parameters: [
-          {
-            name: "body",
-            in: "body",
-            schema: {
-              $schema: "http://json-schema.org/draft-07/schema#",
-              title: "Generated schema for Root",
-              type: "object",
-              properties: {
-                username: {
-                  type: "string",
+        summary: "Generate new Bearer token",
+        description: "Endpoint to generate a new token",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  username: {
+                    type: "string",
+                    default: "admin",
+                    description: "Nome de usuário para autenticação",
+                  },
+                  password: {
+                    type: "string",
+                    default: "password",
+                    description: "Senha para autenticação",
+                  },
                 },
-                password: {
-                  type: "string",
+                required: ["username", "password"],
+                example: {
+                  username: "admin",
+                  password: "password",
                 },
               },
-              required: ["username", "password"],
             },
           },
-        ],
+        },
+        responses: {
+          201: {
+            description: "Authentication successful",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    token: {
+                      type: "string",
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Invalid username or password",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: {
+                      type: "string",
+                      example: "Invalid credentials provided.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "Unauthorized",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: {
+                      type: "string",
+                      example: "Authentication failed.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     "/json_1": {
@@ -41311,7 +41425,7 @@ const swaggerDocument = {
           },
         },
         responses: {
-          200: {
+          201: {
             description: "success",
           },
         },
