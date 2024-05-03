@@ -2,6 +2,8 @@ import swaggerDocument from "./swaggerConfig.js";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { body, validationResult } from "express-validator";
+import isValidCPF from "./functions.js";
+import enviarEmail from "./email.js";
 const app = express();
 import bodyParser from "body-parser";
 import Joi from "joi";
@@ -26,6 +28,9 @@ import {
   brasil,
   big_json,
   crud_get,
+  loja,
+  usuarios,
+  produtosDeLuxo,
 } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -287,31 +292,39 @@ app.get("/big-json", (req, res) => {
 app.get("/crud-get", (req, res) => {
   res.send(crud_get);
 });
-function generateId() {
-  const maxId =
-    crud_get.users.length > 0
-      ? Math.max(...crud_get.users.map((user) => user.id))
-      : 0;
-  return maxId + 1;
+function generateId(param) {
+  let newId =
+    param.length > 0 ? Math.max(...param.map((user) => user.id)) + 1 : 1;
+
+  while (param.some((user) => user.id === newId)) {
+    newId++;
+  }
+
+  return newId;
 }
 app.post(
   "/crud-post",
   [
     body("nome")
-      .notEmpty().withMessage("O campo nome é obrigatório")
+      .notEmpty()
+      .withMessage("O campo nome é obrigatório")
       .custom((value) => {
-        const userExists = crud_get.users.some(user => user.nome === value);
+        const userExists = crud_get.users.some((user) => user.nome === value);
         if (userExists) {
-          throw new Error('Nome já existe');
+          throw new Error("Nome já existe");
         }
         return true;
       }),
     body("email")
-      .isEmail().withMessage("Deve ser um email válido")
-      .notEmpty().withMessage("O campo email é obrigatório"),
+      .isEmail()
+      .withMessage("Deve ser um email válido")
+      .notEmpty()
+      .withMessage("O campo email é obrigatório"),
     body("idade")
-      .isInt({ min: 1 }).withMessage("A idade deve ser um número inteiro válido")
-      .notEmpty().withMessage("O campo idade é obrigatório"),
+      .isInt({ min: 1 })
+      .withMessage("A idade deve ser um número inteiro válido")
+      .notEmpty()
+      .withMessage("O campo idade é obrigatório"),
     body("telefone").notEmpty().withMessage("O campo telefone é obrigatório"),
     body("endereco").notEmpty().withMessage("O campo endereço é obrigatório"),
     body("profissao").notEmpty().withMessage("O campo profissão é obrigatório"),
@@ -328,7 +341,7 @@ app.post(
     }
 
     const newUser = {
-      id: generateId(),
+      id: generateId(crud_get.users),
       nome: req.body.nome,
       email: req.body.email,
       idade: req.body.idade,
@@ -340,7 +353,14 @@ app.post(
       dataCadastro: req.body.dataCadastro,
     };
 
+    // Adiciona o novo usuário ao array
     crud_get.users.push(newUser);
+
+    // Verifica se o array atingiu 50 usuários e remove os 10 primeiros se necessário
+    if (crud_get.users.length > 50) {
+      crud_get.users.splice(0, 10); // Remove os 10 primeiros
+    }
+
     res.status(201).json(crud_get.users);
   }
 );
@@ -356,15 +376,286 @@ app.get("/crud-id/:id", (req, res) => {
 });
 app.delete("/crud-delete/:id", (req, res) => {
   const id = parseInt(req.params.id); // Converte o id de string para inteiro
-    const originalLength = crud_get.users.length;
-    crud_get.users = crud_get.users.filter(user => user.id !== id);
+  const originalLength = crud_get.users.length;
+  crud_get.users = crud_get.users.filter((user) => user.id !== id);
 
-    if (crud_get.users.length === originalLength) {
-        return res.status(404).json({ message: "Usuário não encontrado" });
+  if (crud_get.users.length === originalLength) {
+    return res.status(404).json({ message: "Usuário não encontrado" });
+  }
+
+  res.status(200).json(crud_get.users);
+});
+
+app.get("/produtos", (req, res) => {
+  res.send(loja);
+});
+app.get("/produtos/:id", (req, res) => {
+  const id = req.params.id;
+  const produto = loja.produtos.find((p) => p.id === id);
+
+  if (!produto) {
+    return res.status(404).send({ message: "Produto não encontrado" });
+  }
+
+  res.status(200).json(produto);
+});
+
+app.post(
+  "/comprar-produto",
+  [
+    body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
+    body("cpf")
+      .notEmpty()
+      .withMessage("O campo CPF é obrigatório")
+      .custom((value) => {
+        if (!isValidCPF(value)) {
+          throw new Error("CPF inválido");
+        }
+        return true;
+      }),
+    body("id_produto")
+      .notEmpty()
+      .withMessage("O campo id do produto é obrigatório"),
+    body("valor_na_carteira")
+      .notEmpty()
+      .withMessage("O campo valor na carteira é obrigatório")
+      .isFloat({ min: 0 })
+      .withMessage("O valor na carteira deve ser um número válido"),
+    body("receber_email")
+      .optional()
+      .isString()
+      .withMessage("O campo receber_email deve ser booleano"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    res.status(200).json(crud_get.users);
+    const { nome, cpf, id_produto, valor_na_carteira, receber_email } =
+      req.body;
+    const produto = loja.produtos.find((p) => p.id === id_produto);
+    if (!produto) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+
+    if (valor_na_carteira < produto.preco) {
+      const diferenca = produto.preco - valor_na_carteira;
+      return res.status(400).json({
+        message: "O valor na carteira é insuficiente, preciaria de: R$",
+        diferenca,
+        valor_produto: produto.preco,
+      });
+    }
+
+    if (receber_email) {
+      let html = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Confirmação de Compra</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              padding: 20px;
+              background-color: #f4f4f4;
+              border: 1px solid #ddd;
+              margin: 20px auto;
+              width: 80%;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          .header {
+              background-color: #007bff;
+              color: white;
+              padding: 10px;
+              text-align: center;
+          }
+          .content {
+              padding: 20px;
+              background-color: white;
+          }
+          .footer {
+              text-align: center;
+              padding: 10px;
+              font-size: 0.8em;
+              background-color: #eee;
+          }
+      </style>
+      </head>
+      <body>
+      <div class="container">
+          <div class="header">
+              <h1>Parabéns pela sua compra!</h1>
+          </div>
+          <div class="content">
+              <h2>Detalhes do Produto</h2>
+              <p><strong>Produto:</strong> ${produto.nome}</p>
+              <p><strong>Marca:</strong>${produto.marca}</p>
+              <p><strong>Preço:</strong> R$${produto.preco}</p>
+          </div>
+          <div class="footer">
+              Obrigado por comprar conosco!.
+          </div>
+      </div>
+      </body>
+      </html>
+       `;
+      enviarEmail(
+        receber_email,
+        `Parabéns senhor(a): ${nome || "Cliente"} pela compra do produto ${
+          produto.nome
+        }`,
+        html
+      );
+      console.log("Usuário optou por receber emails.");
+    }
+
+    res.status(201).send({
+      produto: produto,
+      message: "Parabéns pela compra! Você adquiriu o " + produto.nome,
+    });
+  }
+);
+
+// BANK
+app.get("/lista-clientes", (req, res) => {
+  res.send(usuarios);
 });
+
+app.post(
+  "/clientes",
+  [
+    body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
+    body("cpf").notEmpty().withMessage("O campo CPF é obrigatório"),
+    body("contato.email")
+      .isEmail()
+      .withMessage("O campo email deve ser um email válido"),
+    body("contato.telefone")
+      .notEmpty()
+      .withMessage("O campo telefone é obrigatório"),
+    body("contato.endereco")
+      .notEmpty()
+      .withMessage("O campo endereço é obrigatório"),
+    body("bank.credito")
+      .notEmpty()
+      .withMessage("O campo de crédito é obrigatório"),
+    body("bank.debito")
+      .notEmpty()
+      .withMessage("O campo de débito é obrigatório"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { nome, cpf, contato, bank } = req.body;
+    const novoCliente = {
+      id: generateId(usuarios),
+      nome,
+      cpf,
+      contato,
+      bank,
+    };
+    if (usuarios.length >= 50) {
+      usuarios = usuarios.slice(10);
+    }
+
+    usuarios.push(novoCliente);
+    res.status(201).json(novoCliente);
+  }
+);
+app.post("/emprestimo", (req, res) => {
+  const { id_cliente, valor_emprestimo } = req.body;
+
+  const cliente = usuarios.find((user) => user.id === id_cliente);
+
+  if (!cliente) {
+    return res.status(404).json({ error: "Cliente não encontrado" });
+  }
+  if (!isValidCPF(cliente.cpf)) {
+    return res.status(400).json({ error: "CPF inválido" });
+  }
+  if (valor_emprestimo <= 0) {
+    return res.status(400).json({ error: "Valor de empréstimo inválido" });
+  }
+  if (valor_emprestimo < cliente.bank.debito) {
+    return res
+      .status(400)
+      .json({ error: "Valor de empréstimo menor que débito disponível" });
+  }
+  cliente.bank.credito = valor_emprestimo;
+  cliente.emprestimo = true;
+  const clienteAtualizado = { ...cliente };
+
+  const index = usuarios.findIndex((user) => user.id === id_cliente);
+  usuarios[index] = clienteAtualizado;
+
+  res.status(201).json(clienteAtualizado);
+});
+app.get("/financiamento-produtos", (req, res) => {
+  res.send(produtosDeLuxo.produtosDeLuxo);
+});
+app.post(
+  "/contratar-financiamento",
+  [
+    body("id_cliente")
+      .notEmpty()
+      .withMessage("O campo id_cliente é obrigatório"),
+    body("id_produto")
+      .notEmpty()
+      .withMessage("O campo id_produto é obrigatório"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id_cliente, id_produto } = req.body;
+
+    // Verificar se o cliente existe
+    const cliente = usuarios.find((user) => user.id === id_cliente);
+    if (!cliente) {
+      return res.status(404).json({ message: "Cliente não encontrado." });
+    }
+
+    // Verificar se o produto existe
+    const produto = produtosDeLuxo.produtosDeLuxo.find(
+      (produto) => produto.id === id_produto
+    );
+    if (!produto) {
+      return res.status(404).json({ message: "Produto não encontrado." });
+    }
+
+    // Verificar se o cliente possui o campo emprestimo
+    if (!cliente.emprestimo) {
+      return res
+        .status(400)
+        .json({ message: "Cliente não passou pelo endpoint /emprestimo." });
+    }
+
+    // Verificar se o cliente tem crédito suficiente
+    if (cliente.bank.credito < produto.preco) {
+      const diferenca = produto.preco - cliente.bank.credito;
+      return res
+        .status(400)
+        .json({ message: "Crédito insuficiente.", diferenca });
+    }
+
+    // Atualizar o crédito do cliente
+    cliente.bank.credito -= produto.preco;
+
+    // Retornar mensagem de sucesso
+    const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
+    res.status(200).json({ message: mensagem , produto: produto, valor_credito_atual: cliente.bank.credito});
+  }
+);
 
 app.get("/", (req, res) => {
   res.send("API OK");

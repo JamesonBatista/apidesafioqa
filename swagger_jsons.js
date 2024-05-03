@@ -74914,5 +74914,142 @@ export const crud_get = {
     },
   ],
 };
+export const loja = {
+  loja: "Loja QA Tester",
+  produtos: [
+    { id: "TVS", nome: "TV Smart 4K", marca: "Samsung", preco: 4500 },
+    { id: "TVL", nome: "OLED 55' 4K", marca: "LG", preco: 6200 },
+    { id: "TVP", nome: "QLED 8K", marca: "Sony", preco: 13000 },
+    { id: "IPH", nome: "iPhone 13 Pro Max", marca: "Apple", preco: 7500 },
+    { id: "IPN", nome: "iPhone 12", marca: "Apple", preco: 6000 },
+    { id: "IPC", nome: "iPhone 13", marca: "Apple", preco: 6800 },
+    { id: "MAC", nome: "MacBook Pro 14'", marca: "Apple", preco: 22000 },
+    { id: "MAB", nome: "MacBook Air", marca: "Apple", preco: 12000 },
+    { id: "MAP", nome: "MacBook Pro 16'", marca: "Apple", preco: 28000 },
+    { id: "TAB", nome: "Galaxy Tab S7", marca: "Samsung", preco: 4500 },
+    { id: "TAA", nome: "iPad Pro", marca: "Apple", preco: 9500 },
+    { id: "TAS", nome: "Surface Pro", marca: "Microsoft", preco: 8900 },
+    { id: "JBL", nome: "JBL Flip 5", marca: "JBL", preco: 900 },
+    { id: "JBB", nome: "JBL Boombox", marca: "JBL", preco: 2500 },
+    { id: "JBC", nome: "JBL Charge 4", marca: "JBL", preco: 1100 },
+    { id: "OCV", nome: "Oculus Quest 2", marca: "Oculus", preco: 3000 },
+    { id: "OCX", nome: "Oculus Rift S", marca: "Oculus", preco: 3500 },
+    { id: "OCY", nome: "HTC Vive Pro", marca: "HTC", preco: 6000 },
+    { id: "OCC", nome: "Sony PlayStation VR", marca: "Sony", preco: 2500 },
+    { id: "OCA", nome: "Samsung Gear VR", marca: "Samsung", preco: 1000 },
+  ],
+};
+
+export const usuarios = [
+  {
+    id: 1,
+    nome: "Jam Batista",
+    cpf: "99999999999",
+    contato: {
+      email: "jam.batista@email.com",
+      telefone: "(11) 99999-8888",
+      endereco: "Rua das Laranjeiras, 123, São Paulo - SP",
+    },
+    bank: {
+      credito: 1200,
+      debito: 300,
+    },
+  },
+  {
+    id: 2,
+    nome: "Calita Almeida",
+    cpf: "99999999999",
+    contato: {
+      email: "calita.almeida@email.com",
+      telefone: "(21) 98888-7777",
+      endereco: "Av. das Palmeiras, 456, Rio de Janeiro - RJ",
+    },
+    bank: {
+      credito: 1500,
+      debito: 500,
+    },
+  },
+  {
+    id: 3,
+    nome: "Gabriel Lopes",
+    cpf: "99999999999",
+    contato: {
+      email: "gabriel.lopes@email.com",
+      telefone: "(31) 97777-6666",
+      endereco: "Praça do Mercado, 789, Belo Horizonte - MG",
+    },
+    bank: {
+      credito: 1000,
+      debito: 200,
+    },
+  },
+  {
+    id: 4,
+    nome: "Ana Sophia",
+    cpf: "99999999999",
+    contato: {
+      email: "ana.sophia@email.com",
+      telefone: "(41) 95555-4444",
+      endereco: "Rua das Flores, 210, Curitiba - PR",
+    },
+    bank: {
+      credito: 1800,
+      debito: 400,
+    },
+  },
+  {
+    id: 5,
+    nome: "Louíse Almeida de Lima",
+    cpf: "99999999999",
+    contato: {
+      email: "lucas.martins@email.com",
+      telefone: "(51) 93333-2222",
+      endereco: "Av. Borges de Medeiros, 530, Porto Alegre - RS",
+    },
+    bank: {
+      credito: 1600,
+      debito: 350,
+    },
+  },
+];
+export const produtosDeLuxo = {
+  produtosDeLuxo: [
+    {
+      id: "RRP01",
+      nome: "Rolls-Royce Phantom",
+      marca: "Rolls-Royce",
+      preco: 6000000,
+      tipo: "Carro",
+    },
+    {
+      id: "DUC01",
+      nome: "Ducati Panigale V4 R",
+      marca: "Ducati",
+      preco: 200000,
+      tipo: "Moto",
+    },
+    {
+      id: "GULF01",
+      nome: "Gulfstream G650ER",
+      marca: "Gulfstream Aerospace",
+      preco: 250000000,
+      tipo: "Jatinho",
+    },
+    {
+      id: "FER01",
+      nome: "Ferrari LaFerrari",
+      marca: "Ferrari",
+      preco: 12000000,
+      tipo: "Carro",
+    },
+    {
+      id: "HD01",
+      nome: "Harley Davidson CVO Limited",
+      marca: "Harley Davidson",
+      preco: 160000,
+      tipo: "Moto",
+    },
+  ],
+};
 
 export default germany_json;

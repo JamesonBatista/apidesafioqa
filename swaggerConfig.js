@@ -41,6 +41,16 @@ const swaggerDocument = {
       description: "praticando automação de testes em apis",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
+    {
+      name: "Shop",
+      description: "praticando automação de testes em apis",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
+    {
+      name: "Bank",
+      description: "praticando automação de testes em apis",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
   ],
   paths: {
     "/login": {
@@ -41477,6 +41487,623 @@ const swaggerDocument = {
         responses: {
           200: {
             description: "success",
+          },
+        },
+      },
+    },
+    "/produtos": {
+      get: {
+        tags: ["Shop"],
+        summary: "Listar todos os produtos",
+        description: "Retorna uma lista de todos os produtos disponíveis.",
+        responses: {
+          200: {
+            description: "Lista de produtos",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "string",
+                        description: "ID do produto",
+                      },
+                      nome: {
+                        type: "string",
+                        description: "Nome do produto",
+                      },
+                      marca: {
+                        type: "string",
+                        description: "Marca do produto",
+                      },
+                      preço: {
+                        type: "number",
+                        format: "float",
+                        description: "Preço do produto",
+                      },
+                    },
+                  },
+                  example: [
+                    {
+                      id: "TVS",
+                      nome: "TV Smart 4K",
+                      marca: "Samsung",
+                      preço: 4500,
+                    },
+                    {
+                      id: "MAC",
+                      nome: "MacBook Pro 16'",
+                      marca: "Apple",
+                      preço: 28000,
+                    },
+                    // mais produtos podem ser adicionados aqui
+                  ],
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example:
+                        "Não foi possível recuperar a lista de produtos.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/produtos/{id_produto}": {
+      get: {
+        tags: ["Shop"],
+        summary: "Obter detalhes do produto",
+        description: "Retorna detalhes de um produto específico pelo ID.",
+        parameters: [
+          {
+            name: "id_produto",
+            in: "path",
+            required: true,
+            description: "ID único do produto",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Detalhes do produto",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "ID do produto",
+                    },
+                    nome: {
+                      type: "string",
+                      description: "Nome do produto",
+                    },
+                    marca: {
+                      type: "string",
+                      description: "Marca do produto",
+                    },
+                    preço: {
+                      type: "number",
+                      format: "float",
+                      description: "Preço do produto",
+                    },
+                  },
+                  example: {
+                    id: "MAC",
+                    nome: "MacBook Pro 16'",
+                    marca: "Apple",
+                    preço: 28000,
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Produto não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Produto com o ID fornecido não foi encontrado.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/comprar-produto": {
+      post: {
+        tags: ["Shop"],
+        summary: "Processa a compra de um produto",
+        description:
+          "Valida a compra de um produto baseando-se no CPF, valor na carteira, e existência do produto.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nome: {
+                    type: "string",
+                    description: "Nome completo do comprador.",
+                  },
+                  cpf: {
+                    type: "string",
+                    description: "CPF do comprador.",
+                    pattern: "^[0-9]{11}$",
+                  },
+                  id_produto: {
+                    type: "string",
+                    description: "ID do produto desejado.",
+                  },
+                  valor_na_carteira: {
+                    type: "number",
+                    description: "Valor disponível na carteira do comprador.",
+                  },
+                  receber_email: {
+                    type: "boolean",
+                    description:
+                      "Se o comprador opta por receber emails promocionais.",
+                  },
+                },
+                required: ["nome", "cpf", "id_produto", "valor_na_carteira"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Compra realizada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example:
+                        "Parabéns pela compra! Você adquiriu o MacBook Pro 16'.",
+                    },
+                    produto: {
+                      type: "string",
+                      example: "MacBook Pro 16'",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação nos dados de entrada",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example:
+                        "O valor na carteira é insuficiente ou CPF inválido.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Produto não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Produto não encontrado.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/lista-clientes": {
+      get: {
+        tags: ["Bank"],
+        summary: "Lista de Usuários",
+        description: "Retorna uma lista de usuários.",
+        responses: {
+          200: {
+            description: "Lista de usuários retornada com sucesso.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      nome: {
+                        type: "string",
+                      },
+                      cpf: {
+                        type: "string",
+                      },
+                      contato: {
+                        type: "object",
+                        properties: {
+                          email: {
+                            type: "string",
+                          },
+                          telefone: {
+                            type: "string",
+                          },
+                          endereco: {
+                            type: "string",
+                          },
+                        },
+                      },
+                      bank: {
+                        type: "object",
+                        properties: {
+                          credito: {
+                            type: "number",
+                          },
+                          debito: {
+                            type: "number",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/clientes": {
+      post: {
+        tags: ["Bank"],
+        summary: "Criar novo cliente",
+        description: "Endpoint para criar um novo cliente",
+        parameters: [],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nome: {
+                    type: "string",
+                  },
+                  cpf: {
+                    type: "string",
+                  },
+                  contato: {
+                    type: "object",
+                    properties: {
+                      email: {
+                        type: "string",
+                        format: "email",
+                      },
+                      telefone: {
+                        type: "string",
+                      },
+                      endereco: {
+                        type: "string",
+                      },
+                    },
+                  },
+                  bank: {
+                    type: "object",
+                    properties: {
+                      credito: {
+                        type: "number",
+                      },
+                      debito: {
+                        type: "number",
+                      },
+                    },
+                  },
+                },
+                required: ["nome", "cpf", "contato", "bank"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Novo cliente criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                    },
+                    nome: {
+                      type: "string",
+                    },
+                    cpf: {
+                      type: "string",
+                    },
+                    contato: {
+                      type: "object",
+                      properties: {
+                        email: {
+                          type: "string",
+                          format: "email",
+                        },
+                        telefone: {
+                          type: "string",
+                        },
+                        endereco: {
+                          type: "string",
+                        },
+                      },
+                    },
+                    bank: {
+                      type: "object",
+                      properties: {
+                        credito: {
+                          type: "number",
+                        },
+                        debito: {
+                          type: "number",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    errors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          param: {
+                            type: "string",
+                          },
+                          msg: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/financiamento-produtos": {
+      get: {
+        tags: ["Bank"],
+        summary: "Obter lista de produtos de luxo",
+        description: "Endpoint para obter a lista de produtos de luxo.",
+        responses: {
+          200: {
+            description: "Lista de produtos de luxo recuperada com sucesso.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    produtosDeLuxo: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          nome: { type: "string" },
+                          marca: { type: "string" },
+                          preco: { type: "number" },
+                          tipo: { type: "string" },
+                        },
+                        required: ["id", "nome", "marca", "preco", "tipo"],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno do servidor.",
+          },
+        },
+      },
+    },
+    "/emprestimo": {
+      post: {
+        tags: ["Bank"],
+        summary: "Solicitar Empréstimo",
+        description: "Solicita um empréstimo para um cliente.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  id_cliente: {
+                    type: "string",
+                    description: "ID do cliente que solicita o empréstimo.",
+                  },
+                  emprestimo: {
+                    type: "integer",
+                    description: "Valor do empréstimo solicitado.",
+                  },
+                },
+                required: ["id_cliente", "emprestimo"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description:
+              "Empréstimo aprovado. Retorna o objeto do cliente com o valor de crédito atualizado.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    nome: {
+                      type: "string",
+                    },
+                    cpf: {
+                      type: "string",
+                    },
+                    contato: {
+                      type: "object",
+                      properties: {
+                        email: {
+                          type: "string",
+                        },
+                        telefone: {
+                          type: "string",
+                        },
+                        endereco: {
+                          type: "string",
+                        },
+                      },
+                    },
+                    bank: {
+                      type: "object",
+                      properties: {
+                        credito: {
+                          type: "number",
+                        },
+                        debito: {
+                          type: "number",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro ao processar a solicitação.",
+          },
+        },
+      },
+    },
+    "/contratar-financiamento": {
+      post: {
+        tags: ["Bank"],
+        summary: "Contratar financiamento",
+        description:
+          "Endpoint para contratar financiamento de produtos de luxo.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $schema: "http://json-schema.org/draft-07/schema#",
+                title: "ContratarFinanciamento",
+                type: "object",
+                properties: {
+                  id_cliente: {
+                    type: "string",
+                    description: "ID do cliente.",
+                  },
+                  id_produto: {
+                    type: "string",
+                    description: "ID do produto a ser financiado.",
+                  },
+                },
+                required: ["id_cliente", "id_produto"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $schema: "http://json-schema.org/draft-07/schema#",
+                  title: "MensagemSucesso",
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description: "Mensagem de sucesso.",
+                    },
+                  },
+                  required: ["message"],
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro",
+            content: {
+              "application/json": {
+                schema: {
+                  $schema: "http://json-schema.org/draft-07/schema#",
+                  title: "MensagemErro",
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description: "Mensagem de erro.",
+                    },
+                    diferenca: {
+                      type: "integer",
+                      description:
+                        "Diferença entre o preço do produto e o crédito do cliente.",
+                    },
+                  },
+                  required: ["message"],
+                },
+              },
+            },
           },
         },
       },
