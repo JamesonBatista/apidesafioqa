@@ -75051,5 +75051,17 @@ export const produtosDeLuxo = {
     },
   ],
 };
-
+const today = new Date();
+today.setDate(today.getDate() + 1);
+export const projects = [
+  {
+    id: 1,
+    name: "Bank S.A",
+    description: "Criação de um novo banco digital",
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: today.toISOString().split("T")[0],
+    members: [],
+  },
+];
+export const membersProjet = []
 export default germany_json;

@@ -31,6 +31,8 @@ import {
   loja,
   usuarios,
   produtosDeLuxo,
+  projects,
+  membersProjet,
 } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -38,7 +40,7 @@ const users = [
   { id: 1, username: "admin", password: "password" }, // Usuário exemplo
 ];
 const secretKey = "your_secret_key"; // Mantenha esta chave segura
-
+let code_emprestimo_bank = null;
 // Função para gerar token JWT
 function generateToken(user) {
   const payload = {
@@ -524,6 +526,16 @@ app.post(
 );
 
 // BANK
+function generateCode() {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    code += characters.charAt(randomIndex);
+  }
+  return code;
+}
 app.get("/lista-clientes", (req, res) => {
   res.send(usuarios);
 });
@@ -571,6 +583,7 @@ app.post(
   }
 );
 app.post("/emprestimo", (req, res) => {
+  code_emprestimo_bank = generateCode();
   const { id_cliente, valor_emprestimo } = req.body;
 
   const cliente = usuarios.find((user) => user.id === id_cliente);
@@ -590,8 +603,7 @@ app.post("/emprestimo", (req, res) => {
       .json({ error: "Valor de empréstimo menor que débito disponível" });
   }
   cliente.bank.credito = valor_emprestimo;
-  cliente.emprestimo = true;
-  const clienteAtualizado = { ...cliente };
+  const clienteAtualizado = { ...cliente, emprestimo: code_emprestimo_bank };
 
   const index = usuarios.findIndex((user) => user.id === id_cliente);
   usuarios[index] = clienteAtualizado;
@@ -610,6 +622,11 @@ app.post(
     body("id_produto")
       .notEmpty()
       .withMessage("O campo id_produto é obrigatório"),
+    body("code_emprestimo")
+      .notEmpty()
+      .withMessage("O campo code_emprestimo é obrigatório")
+      .isString()
+      .withMessage("O campo code_emprestimo é uma string"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -617,7 +634,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { id_cliente, id_produto } = req.body;
+    const { id_cliente, id_produto, code_emprestimo, receber_email } = req.body;
 
     // Verificar se o cliente existe
     const cliente = usuarios.find((user) => user.id === id_cliente);
@@ -634,7 +651,7 @@ app.post(
     }
 
     // Verificar se o cliente possui o campo emprestimo
-    if (!cliente.emprestimo) {
+    if (code_emprestimo !== code_emprestimo_bank) {
       return res
         .status(400)
         .json({ message: "Cliente não passou pelo endpoint /emprestimo." });
@@ -651,11 +668,348 @@ app.post(
     // Atualizar o crédito do cliente
     cliente.bank.credito -= produto.preco;
 
+    if (receber_email) {
+      let html = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Confirmação de Compra</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              padding: 20px;
+              background-color: #f4f4f4;
+              border: 1px solid #ddd;
+              margin: 20px auto;
+              width: 80%;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          .header {
+              background-color: #007bff;
+              color: white;
+              padding: 10px;
+              text-align: center;
+          }
+          .content {
+              padding: 20px;
+              background-color: white;
+          }
+          .footer {
+              text-align: center;
+              padding: 10px;
+              font-size: 0.8em;
+              background-color: #eee;
+          }
+      </style>
+      </head>
+      <body>
+      <div class="container">
+          <div class="header">
+              <h1>Parabéns pela sua compra!</h1>
+          </div>
+          <div class="content">
+              <h2>Detalhes do Produto</h2>
+              <p><strong>Produto:</strong> ${produto.nome}</p>
+              <p><strong>Marca:</strong>${produto.marca}</p>
+              <p><strong>Preço:</strong> R$${produto.preco}</p>
+          </div>
+          <div class="footer">
+              Obrigado por comprar conosco!.
+          </div>
+      </div>
+      </body>
+      </html>
+       `;
+      enviarEmail(
+        receber_email,
+        `Parabéns pela compra do produto ${produto.nome}`,
+        html
+      );
+      console.log("Usuário optou por receber emails.");
+    }
     // Retornar mensagem de sucesso
     const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
-    res.status(200).json({ message: mensagem , produto: produto, valor_credito_atual: cliente.bank.credito});
+    res.status(200).json({
+      message: mensagem,
+      produto: produto,
+      valor_credito_atual: cliente.bank.credito,
+    });
   }
 );
+// PROJECT
+app.get("/projects", (req, res) => {
+  res.send(projects);
+});
+app.post(
+  "/create-project",
+  [
+    body("name")
+      .not()
+      .isEmpty()
+      .withMessage("O nome é obrigatório")
+      .isString()
+      .withMessage("O campo name é uma string"),
+    body("leader")
+      .not()
+      .isEmail()
+      .withMessage("Campo líder é obrigatório")
+      .isString()
+      .withMessage("O campo leader é uma string"),
+    body("description")
+      .not()
+      .isEmpty()
+      .withMessage("A descrição é obrigatória")
+      .isString()
+      .withMessage("O campo description é uma string"),
+    body("endDate")
+      .isISO8601()
+      .withMessage("Data de término inválida")
+      .custom((value, { req }) => {
+        const endDate = new Date(value);
+        const today = new Date();
+        if (endDate <= today) {
+          throw new Error("A data de término deve ser maior que a data atual");
+        }
+        return true;
+      }),
+    body("members").isArray().withMessage("Membros devem ser um array"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, description, endDate, members, leader } = req.body;
+
+    // Definindo startDate para a data atual
+    const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+
+    // Criar um novo projeto com ID único
+    const newProject = {
+      id: generateId(projects), // Gerar um ID simples baseado no tamanho do array
+      name,
+      leader,
+      description,
+      startDate,
+      endDate,
+      members,
+    };
+    if (projects.length >= 50) {
+      projects = projects.slice(10);
+    }
+    const project = projects.find((p) => p.name.trim() === name.trim());
+    if (project) {
+      return res
+        .status(400)
+        .json({ errors: `${name} já existe na lista de projetos.` });
+    }
+
+    // Adicionar o projeto à lista de projetos
+    projects.push(newProject);
+
+    // Responder com sucesso
+    res.status(201).json({
+      message: "Projeto criado com sucesso!",
+      project: newProject,
+    });
+  }
+);
+app.get("/projects/:id", (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const project = projects.find((p) => p.id === projectId);
+  if (!project) {
+    return res.status(404).json({ message: "Projeto não encontrado" });
+  }
+  res.status(200).json(project);
+});
+app.put("/projects/:id", (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const { name, description, startDate, endDate, members } = req.body;
+
+  // Encontrar o projeto pelo ID
+  const project = projects.find((p) => p.id === projectId);
+  if (!project) {
+    return res.status(404).json({ message: "Projeto não encontrado" });
+  }
+
+  // Atualizar os detalhes do projeto
+  if (name) project.name = name;
+  if (description) project.description = description;
+  if (startDate) project.startDate = startDate;
+  if (endDate) project.endDate = endDate;
+  if (members) project.members = members;
+
+  // Responder com o projeto atualizado
+  res.status(200).json({
+    message: "Projeto atualizado com sucesso",
+    project,
+  });
+});
+app.get("/projects/:id/members", (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const project = projects.find((p) => p.id === projectId);
+  if (!project) {
+    return res.status(404).json({ message: `Projeto com id ${projectId} não encontrado.` });
+  }
+  res.status(200).json(project.members);
+});
+app.delete("/delete-projects/:id", (req, res) => {
+  const projectId = parseInt(req.params.id);
+  const projectIndex = projects.findIndex((p) => p.id === projectId);
+  const project = projects.find((p) => p.id === projectId);
+
+  if (projectIndex === -1) {
+    return res.status(404).json({ message: "Projeto não encontrado" });
+  }
+
+  // Remove o projeto da lista
+  projects.splice(projectIndex, 1);
+  res
+    .status(200)
+    .json({ message: `Projeto ${project.name} deletado com sucesso!` });
+});
+app.get("/members", (req, res) => {
+  res.send(membersProjet);
+});
+app.post(
+  "/add-member",
+  [
+    body("name").not().isEmpty().withMessage("O nome do membro é obrigatório"),
+    body("office")
+      .not()
+      .isEmpty()
+      .withMessage("O cargo do membro é obrigatório"),
+    body("projectId").isInt({ gt: 0 }).withMessage("ID do projeto inválido"),
+    body("send_email")
+      .optional()
+      .isString()
+      .withMessage("O campo send_email deve ser uma string"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, office, projectId, send_email } = req.body;
+
+    // Encontrar o projeto pelo ID
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Projeto não encontrado" });
+    }
+
+    let id_member = generateId(membersProjet);
+    // Criar o novo membro
+    const newMember = { id_member, name, office, send_email };
+    if (membersProjet.length >= 50) {
+      membersProjet = membersProjet.slice(10);
+    }
+    membersProjet.push(newMember);
+    // Adicionar o novo membro ao array de membros do projeto
+    project.members.push(newMember);
+
+    // Se o campo send_email estiver presente, fazer o log (simula o envio de um e-mail)
+    if (send_email) {
+      let html = `
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Projeto</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            padding: 20px;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            margin: 20px auto;
+            width: 80%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+            background-color: white;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8em;
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Bem-vindo ao Projeto ${project.name}!</h1>
+    </div>
+    <div class="content">
+        <h2>Detalhes da Adesão</h2>
+        <p><strong>Nome:</strong> ${newMember.name}</p>
+        <p><strong>Cargo:</strong> ${newMember.office}</p>
+        <p><strong>Projeto:</strong> ${project.name}</p>
+        <p><strong>Líder:</strong> ${project.leader}</p>
+    </div>
+    <div class="footer">
+        Obrigado por juntar-se a nós!
+    </div>
+</div>
+</body>
+</html>
+
+      `;
+      enviarEmail(
+        newMember.send_email,
+        `Integração do(a) ${newMember.name} no projeto ${project.name}`,
+        html
+      );
+    }
+
+    // Responder com sucesso
+    res.status(201).json({
+      message: "Membro adicionado com sucesso ao projeto",
+      project,
+    });
+  }
+);
+app.delete("/delete-member/:projectId/:memberName", (req, res) => {
+  const { projectId, memberName } = req.params;
+  const project = projects.find((p) => p.id === parseInt(projectId));
+  if (!project) {
+    return res.status(404).json({ message: "Projeto não encontrado" });
+  }
+
+  const memberIndex = project.members.findIndex((m) => m.name === memberName);
+  if (memberIndex === -1) {
+    return res.status(404).json({ message: "Membro não encontrado" });
+  }
+
+  // Remove o membro do array de membros do projeto
+  project.members.splice(memberIndex, 1);
+  res.status(200).json({ message: "Membro deletado com sucesso" });
+});
+
+//
 
 app.get("/", (req, res) => {
   res.send("API OK");

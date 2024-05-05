@@ -28,27 +28,32 @@ const swaggerDocument = {
   tags: [
     {
       name: "APIs",
-      description: "praticando automação de testes em apis",
+      description: "Desafios praticando automação de testes em apis",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
     {
       name: "Others",
-      description: "praticando automação de testes em apis",
+      description: "JSONs variados para validações",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
     {
       name: "CRUD",
-      description: "praticando automação de testes em apis",
+      description: "GET, POST, GET:ID, DELETE",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
     {
       name: "Shop",
-      description: "praticando automação de testes em apis",
+      description: "Simulação de compra",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
     {
       name: "Bank",
-      description: "praticando automação de testes em apis",
+      description: "Simulação de pedido de emprestimo e compra de item de luxo",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
+    {
+      name: "Projetos",
+      description: "Simulação de criação de configuração um projeto",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
   ],
@@ -41640,7 +41645,7 @@ const swaggerDocument = {
         tags: ["Shop"],
         summary: "Processa a compra de um produto",
         description:
-          "Valida a compra de um produto baseando-se no CPF, valor na carteira, e existência do produto.",
+          "Valida a compra de um produto baseando-se no CPF, valor na carteira, e existência do produto. Em caso do campo receber_email estiver preenchido e com e-mail válido, enviará descrição do produto por e-mail.",
         requestBody: {
           required: true,
           content: {
@@ -41666,7 +41671,7 @@ const swaggerDocument = {
                     description: "Valor disponível na carteira do comprador.",
                   },
                   receber_email: {
-                    type: "boolean",
+                    type: "string",
                     description:
                       "Se o comprador opta por receber emails promocionais.",
                   },
@@ -41738,10 +41743,10 @@ const swaggerDocument = {
       get: {
         tags: ["Bank"],
         summary: "Lista de Usuários",
-        description: "Retorna uma lista de usuários.",
+        description: "Retorna uma lista de clientes com cpf inválido.",
         responses: {
           200: {
-            description: "Lista de usuários retornada com sucesso.",
+            description: "Lista de clientes retornada com sucesso.",
             content: {
               "application/json": {
                 schema: {
@@ -41793,7 +41798,8 @@ const swaggerDocument = {
       post: {
         tags: ["Bank"],
         summary: "Criar novo cliente",
-        description: "Endpoint para criar um novo cliente",
+        description:
+          "Endpoint para criar um novo cliente. Criar um novo cliente para efetuar um pedido de /emprestimo",
         parameters: [],
         requestBody: {
           required: true,
@@ -41959,7 +41965,8 @@ const swaggerDocument = {
       post: {
         tags: ["Bank"],
         summary: "Solicitar Empréstimo",
-        description: "Solicita um empréstimo para um cliente.",
+        description:
+          "Solicita um empréstimo para um cliente. informando id do cliente criado, ou da lista existente, e o valor do emprestimo (tipo inteiro)",
         requestBody: {
           required: true,
           content: {
@@ -42055,6 +42062,11 @@ const swaggerDocument = {
                     type: "string",
                     description: "ID do produto a ser financiado.",
                   },
+                  receber_email: {
+                    type: "string",
+                    description:
+                      "Se o comprador opta por receber emails promocionais.",
+                  },
                 },
                 required: ["id_cliente", "id_produto"],
               },
@@ -42104,6 +42116,542 @@ const swaggerDocument = {
                 },
               },
             },
+          },
+        },
+      },
+    },
+    "/create-projects": {
+      post: {
+        tags: ["Projetos"],
+        summary: "Cria um novo projeto",
+        description:
+          "Este endpoint cria um novo projeto com um nome, descrição, data de término e membros.",
+        operationId: "createProject",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome do projeto",
+                  },
+                  leader: {
+                    type: "string",
+                    description: "Líder do projeto",
+                  },
+                  description: {
+                    type: "string",
+                    description: "Descrição do projeto",
+                  },
+                  endDate: {
+                    type: "string",
+                    format: "date",
+                    description: "Data de término do projeto",
+                  },
+                  members: {
+                    type: "array",
+                    items: {
+                      type: "string",
+                    },
+                    description: "Lista de membros do projeto",
+                  },
+                },
+                required: [
+                  "name",
+                  "description",
+                  "endDate",
+                  "members",
+                  "leader",
+                ],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Projeto criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    project: {
+                      type: "object",
+                      properties: {
+                        id: {
+                          type: "integer",
+                        },
+                        name: {
+                          type: "string",
+                        },
+                        description: {
+                          type: "string",
+                        },
+                        startDate: {
+                          type: "string",
+                          format: "date",
+                        },
+                        endDate: {
+                          type: "string",
+                          format: "date",
+                        },
+                        members: {
+                          type: "array",
+                          items: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+        },
+      },
+    },
+    "/projects": {
+      get: {
+        tags: ["Projetos"],
+        summary: "Obtém todos os projetos",
+        description:
+          "Este endpoint retorna uma lista de todos os projetos cadastrados.",
+        operationId: "getProjects",
+        responses: {
+          200: {
+            description: "Lista de projetos recuperada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "integer",
+                      },
+                      name: {
+                        type: "string",
+                      },
+                      description: {
+                        type: "string",
+                      },
+                      startDate: {
+                        type: "string",
+                        format: "date",
+                      },
+                      endDate: {
+                        type: "string",
+                        format: "date",
+                      },
+                      members: {
+                        type: "array",
+                        items: {
+                          type: "string",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Nenhum projeto encontrado",
+          },
+        },
+      },
+    },
+    "/projects/{id}": {
+      get: {
+        tags: ["Projetos"],
+        summary: "Busca um projeto por ID",
+        description:
+          "Retorna detalhes de um projeto específico baseado no ID fornecido.",
+        operationId: "getProjectById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do projeto a ser buscado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Projeto encontrado e retornado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: { type: "integer" },
+                    name: { type: "string" },
+                    description: { type: "string" },
+                    startDate: { type: "string", format: "date" },
+                    endDate: { type: "string", format: "date" },
+                    members: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          name: { type: "string" },
+                          office: { type: "string" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Projeto não encontrado",
+          },
+        },
+      },
+    },
+    "/projects/{id}": {
+      put: {
+        tags: ["Projetos"],
+        summary: "Atualiza um projeto existente",
+        description:
+          "Atualiza os detalhes de um projeto específico pelo ID. Permite atualização parcial.",
+        operationId: "updateProject",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do projeto a ser atualizado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome do projeto",
+                  },
+                  description: {
+                    type: "string",
+                    description: "Descrição detalhada do projeto",
+                  },
+                  startDate: {
+                    type: "string",
+                    format: "date",
+                    description: "Data de início do projeto",
+                  },
+                  endDate: {
+                    type: "string",
+                    format: "date",
+                    description: "Data de término do projeto",
+                  },
+                  members: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: {
+                          type: "string",
+                          description: "Nome do membro",
+                        },
+                        office: {
+                          type: "string",
+                          description: "Cargo do membro no projeto",
+                        },
+                      },
+                    },
+                    description: "Lista de membros do projeto",
+                  },
+                },
+                required: [],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Projeto atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    project: {
+                      type: "object",
+                      properties: {
+                        id: {
+                          type: "integer",
+                        },
+                        name: {
+                          type: "string",
+                        },
+                        description: {
+                          type: "string",
+                        },
+                        startDate: {
+                          type: "string",
+                          format: "date",
+                        },
+                        endDate: {
+                          type: "string",
+                          format: "date",
+                        },
+                        members: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              name: {
+                                type: "string",
+                              },
+                              office: {
+                                type: "string",
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Projeto não encontrado",
+          },
+        },
+      },
+    },
+    "/projects/{id}/members": {
+      get: {
+        tags: ["Projetos"],
+        summary: "Busca membros de um projeto por ID do projeto",
+        description:
+          "Retorna uma lista de membros de um projeto específico baseado no ID do projeto.",
+        operationId: "getMembersByProjectId",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do projeto cujos membros serão buscados",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description:
+              "Membros do projeto encontrados e retornados com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      name: { type: "string" },
+                      office: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Projeto não encontrado",
+          },
+        },
+      },
+    },
+
+    "/delete-projects/{id}": {
+      delete: {
+        tags: ["Projetos"],
+        summary: "Deleta um projeto",
+        description: "Deleta um projeto específico pelo ID.",
+        operationId: "deleteProject",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do projeto a ser deletado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Projeto deletado com sucesso",
+          },
+          404: {
+            description: "Projeto não encontrado",
+          },
+        },
+      },
+    },
+    "/add-member": {
+      post: {
+        tags: ["Projetos"],
+        summary: "Adiciona um novo membro ao projeto",
+        description:
+          "Este endpoint adiciona um novo membro a um projeto existente, identificado pelo ID do projeto. O membro adicionado inclui informações como nome e cargo, e opcionalmente um endereço de email para notificação.",
+        operationId: "addMember",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome do novo membro",
+                  },
+                  office: {
+                    type: "string",
+                    description: "Cargo do novo membro",
+                  },
+                  projectId: {
+                    type: "integer",
+                    description:
+                      "ID do projeto ao qual o membro será adicionado",
+                  },
+                  send_email: {
+                    type: "string",
+                    description:
+                      "Endereço de email opcional para enviar notificação de adesão",
+                    nullable: true,
+                  },
+                },
+                required: ["name", "office", "projectId"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Membro adicionado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    project: {
+                      type: "object",
+                      properties: {
+                        id: {
+                          type: "integer",
+                        },
+                        name: {
+                          type: "string",
+                        },
+                        description: {
+                          type: "string",
+                        },
+                        startDate: {
+                          type: "string",
+                          format: "date",
+                        },
+                        endDate: {
+                          type: "string",
+                          format: "date",
+                        },
+                        members: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              name: {
+                                type: "string",
+                              },
+                              office: {
+                                type: "string",
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Projeto não encontrado",
+          },
+        },
+      },
+    },
+    "/delete-member/{projectId}/{memberName}": {
+      delete: {
+        tags: ["Projetos"],
+        summary: "Deleta um membro de um projeto",
+        description:
+          "Deleta um membro específico de um projeto pelo nome do membro e ID do projeto.",
+        operationId: "deleteMember",
+        parameters: [
+          {
+            name: "projectId",
+            in: "path",
+            required: true,
+            description: "ID do projeto do qual o membro será deletado",
+            schema: {
+              type: "integer",
+            },
+          },
+          {
+            name: "memberName",
+            in: "path",
+            required: true,
+            description: "Nome do membro a ser deletado",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Membro deletado com sucesso",
+          },
+          404: {
+            description: "Projeto ou membro não encontrado",
           },
         },
       },
