@@ -75063,5 +75063,154 @@ export const projects = [
     members: [],
   },
 ];
-export const membersProjet = []
+export const clients = [
+  {
+    id: 1,
+    name: "Jam Batista",
+    cpf: "12345678901",
+    card: { flag: "VISA", credit: 5000 },
+  },
+  {
+    id: 2,
+    name: "Calita  Almeida",
+    cpf: "23456789012",
+    card: { flag: "MASTER", credit: 7000 },
+  },
+  {
+    id: 3,
+    name: "Sophia Louíse",
+    cpf: "34567890123",
+    card: { flag: "VISA", credit: 4500 },
+  },
+];
+function priceProducts() {
+  return Math.floor(Math.random() * (15000 - 2000 + 1) + 2000);
+}
+export const productsGamers = () => {
+  return [
+    {
+      id: 1,
+      name: "Gaming Keyboard",
+      description: "Mechanical RGB backlit keyboard",
+      price: priceProducts(),
+    },
+    {
+      id: 2,
+      name: "Gaming Mouse",
+      description: "High precision optical mouse",
+      price: priceProducts(),
+    },
+    {
+      id: 3,
+      name: "Gaming Headset",
+      description: "Surround sound gaming headset",
+      price: priceProducts(),
+    },
+    {
+      id: 4,
+      name: "Gaming Monitor",
+      description: "27 inch 144Hz gaming monitor",
+      price: priceProducts(),
+    },
+    {
+      id: 5,
+      name: "Gamepad",
+      description: "Wireless game controller",
+      price: priceProducts(),
+    },
+    {
+      id: 6,
+      name: "Gaming Chair",
+      description: "Ergonomic high-back chair",
+      price: priceProducts(),
+    },
+    {
+      id: 7,
+      name: "Gaming Desk",
+      description: "Adjustable desk with RGB lighting",
+      price: priceProducts(),
+    },
+    {
+      id: 8,
+      name: "SSD",
+      description: "1TB NVMe solid state drive",
+      price: priceProducts(),
+    },
+    {
+      id: 9,
+      name: "Graphics Card",
+      description: "High-end gaming graphics card",
+      price: priceProducts(),
+    },
+    {
+      id: 10,
+      name: "RAM",
+      description: "16GB DDR4 memory kit",
+      price: priceProducts(),
+    },
+    {
+      id: 11,
+      name: "CPU",
+      description: "Latest generation processor",
+      price: priceProducts(),
+    },
+    {
+      id: 12,
+      name: "Motherboard",
+      description: "Motherboard with overclocking capabilities",
+      price: priceProducts(),
+    },
+    {
+      id: 13,
+      name: "PC Case",
+      description: "Mid-tower case with glass side panel",
+      price: priceProducts(),
+    },
+    {
+      id: 14,
+      name: "Power Supply",
+      description: "750W 80+ Gold PSU",
+      price: priceProducts(),
+    },
+    {
+      id: 15,
+      name: "Cooling System",
+      description: "Liquid cooling system",
+      price: priceProducts(),
+    },
+    {
+      id: 16,
+      name: "Mouse Pad",
+      description: "Extended mouse pad",
+      price: 1499,
+    },
+    {
+      id: 17,
+      name: "VR Headset",
+      description: "Virtual reality headset",
+      price: priceProducts(),
+    },
+    {
+      id: 18,
+      name: "Streaming Mic",
+      description: "Studio-quality microphone",
+      price: priceProducts(),
+    },
+    {
+      id: 19,
+      name: "Webcam",
+      description: "1080p streaming webcam",
+      price: priceProducts(),
+    },
+    {
+      id: 20,
+      name: "Cable Management Accessories",
+      description: "Cable organizers and ties",
+      price: priceProducts(),
+    },
+  ];
+};
+
+export const encryptedDataUser = [];
+export const membersProjet = [];
 export default germany_json;

@@ -4,8 +4,9 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Se desafie aqui, valide todos os JSONs que vão aumentando a complexidade a cada json, depois disso, você está pronto para uma API :)\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password",
+      "Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n`Esse projeto não tem fins lucrativos, apenas intenção de ajudar no desenvolvimento.`\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)",
   },
+
   components: {
     securitySchemes: {
       bearerAuth: {
@@ -27,8 +28,8 @@ const swaggerDocument = {
   ],
   tags: [
     {
-      name: "APIs",
-      description: "Desafios praticando automação de testes em apis",
+      name: "Challenger",
+      description: "Desafios praticando automação de testes em endpoints",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
     {
@@ -56,11 +57,21 @@ const swaggerDocument = {
       description: "Simulação de criação de configuração um projeto",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
+    {
+      name: "Payments",
+      description: "Simulação de compra e pagamento em cartão",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
+    {
+      name: "Criptografia",
+      description: "Simulação de criptografia de dados certo e errados",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
   ],
   paths: {
     "/login": {
       post: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Generate new Bearer token",
         description: "Endpoint to generate a new token",
         requestBody: {
@@ -144,7 +155,7 @@ const swaggerDocument = {
     },
     "/login-hard": {
       post: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Generate new Bearer token",
         description: "Endpoint to generate a new token",
         requestBody: {
@@ -228,7 +239,7 @@ const swaggerDocument = {
     },
     "/json_1": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 1 ",
         description:
           "Este endpoint valida um JSON contendo informações de usuário e interações em um sistema de e-commerce, conforme as seguintes regras:\n§\nProdutos:\nCada produto deve ter um 'id' único e um 'nome' não vazio.\nO 'preco' de cada produto deve ser um número positivo.\nO campo 'disponivel' deve ser um booleano indicando se o produto está disponível ou não.\n\nUsuário:\nO usuário deve ter um 'nome' não vazio.\nA 'idade' do usuário deve ser um número positivo.\nO 'email' do usuário deve estar em um formato válido.\n\nConfigurações:\nO campo 'notificacoes' deve ser um booleano.\nO campo 'tema' deve ser uma string não vazia.\nO campo 'idioma' deve ser uma string não vazia.\n\nEndereço:\nO campo 'rua' deve ser uma string não vazia.\nO campo 'numero' deve ser um número positivo.\nO campo 'cidade' deve ser uma string não vazia.\nO campo 'estado' deve ser uma string de dois caracteres representando a sigla do estado.\nO campo 'cep' deve estar em um formato válido.\n\nHistórico de Pedidos:\nCada pedido deve ter um 'pedidoId' único.\nO campo 'produto' deve corresponder ao nome de um dos produtos listados.\nO campo 'quantidade' deve ser um número inteiro positivo.\nO campo 'precoTotal' deve ser um número positivo.\n\nCarrinho Atual:\nCada produto no carrinho deve ter um 'produtoId' correspondente a um dos produtos listados.\nA 'quantidade' de cada produto no carrinho deve ser um número inteiro positivo.\nO 'precoTotal' do carrinho deve ser um número positivo.\n\nMétodo de Pagamento:\nPara o método de pagamento por cartão, o 'numero' do cartão deve estar em um formato válido.\nA 'validade' do cartão deve estar em um formato válido (MM/AAAA).\nO 'cvv' do cartão deve ser um código de três ou quatro dígitos.\n\nContato:\nO campo 'telefone' deve estar em um formato válido.\nO campo 'emailSecundario', se fornecido, deve estar em um formato válido.\n\nÚltima Compra:\nA 'data' da última compra deve estar em um formato válido (AAAA-MM-DD).\nO 'valor' da última compra deve ser um número positivo.\nO campo 'produto' deve corresponder ao nome de um dos produtos listados.\n\nRecomendações:\nO campo 'preco' de cada recomendação deve ser um número positivo.\n\nEstatísticas de Uso:\nO campo 'horasConectado' deve ser um número positivo.\nO campo 'diasAtivo' deve ser um número positivo.\n\nAmigos:\nCada amigo deve ter um 'nome' não vazio.\nO campo 'contato' de cada amigo, se fornecido, deve estar em um formato válido.\n\nPreferências:\nO campo 'categoriasFavoritas' deve ser uma lista não vazia de strings.\nO campo 'notificarPromocoes' deve ser um booleano.",
@@ -386,7 +397,7 @@ const swaggerDocument = {
     },
     "/json_2": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 2 ",
         description:
           "Desafio de Validação:\n\n1. Verifique se o nome do usuário está presente e não está vazio.\n2. Certifique-se de que a idade do usuário é um número positivo.\n3. Valide os endereços de e-mail do usuário principal e secundário.\n4. Garanta que o número de telefone do usuário esteja em um formato válido.\n5. Verifique se a rua, cidade e estado do endereço estão preenchidos e não vazios.\n6. Certifique-se de que o número do endereço é um número positivo.\n7. Valide o formato do CEP.\n8. Verifique se o tema e idioma das preferências estão preenchidos e não vazios.\n9. Certifique-se de que há pelo menos uma categoria favorita nas preferências.\n10. Verifique se a opção de notificar promoções está definida como um booleano.\n11. Valide os pedidos no histórico de compras:\n    a. Garanta que cada pedido tenha um ID único.\n    b. Verifique se cada item de pedido tem um ID de produto, nome, quantidade e preço.\n    c. Certifique-se de que o total do pedido é um número positivo.\n    d. Valide o formato da data do pedido.\n12. Verifique se a assinatura da newsletter está definida como um booleano.\n13. Certifique-se de que a opção de receber SMS está definida como um booleano.\n14. Valide os métodos de pagamento:\n    a. Para o cartão de crédito, verifique se o número do cartão está em um formato válido.\n    b. Verifique se a data de validade do cartão está em um formato válido.\n    c. Certifique-se de que o CVV do cartão é um código de três ou quatro dígitos.\n    d. Para o PayPal, verifique se o e-mail está em um formato válido.\n15. Certifique-se de que as horas conectadas e os dias ativos nas estatísticas de uso são números positivos.\n16. Valide o formato da data do último login.\n17. Certifique-se de que cada amigo tenha um nome não vazio e um formato de contato válido.\n18. Verifique se cada recomendação de produto tem um ID de produto, nome e preço.\n\nSe todas essas validações forem bem-sucedidas, o JSON estará corretamente estruturado e pronto para ser processado pelo sistema de e-commerce.",
@@ -673,7 +684,7 @@ const swaggerDocument = {
     },
     "/json_3": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 3 ",
         description:
           "Validação do JSON para a 'Conferência de Tecnologia 2024'. Verifique: \n1. Estrutura: Confirmação de todas as chaves principais e sub-chaves corretas em cada seção do JSON. \n2. Conteúdo e Dados: Verificação da exatidão dos dados de local, data, organizadores, programação, participantes, feedbacks e sustentabilidade. \n3. Relações e Lógica: Confirmação de que participantes estão inscritos em sessões existentes, feedbacks associados corretamente, e avaliações dentro da escala válida. \n4. Sustentabilidade: Verificar a corretude das políticas e parceiros listados. ",
@@ -891,7 +902,7 @@ const swaggerDocument = {
     },
     "/json_4": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 4 ",
         description:
           "4 - Desafio de Validação Verificar a consistência das linguas e tradicionalVestimenta entre as culturas para garantir que não haja duplicatas no mesmo continente e que cada cultura esteja associada a apenas uma região.",
@@ -1087,7 +1098,7 @@ const swaggerDocument = {
     },
     "/json_5": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 5 ",
         description:
           "5 - Desafio de Validação Assegurar que cada id nos projetos, equipes, e tarefas seja único dentro de toda a estrutura do JSON e que o status de cada tarefa esteja em concordância com as dependências de outras tarefas dentro da mesma equipe.",
@@ -1248,7 +1259,7 @@ const swaggerDocument = {
     },
     "/json_6": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 6 ",
         description:
           "Validação de lógica e consistência para a 'Agência Espacial Internacional'. O desafio inclui: \n1. Consistência de Lançamentos: Verificação de que cada satélite está associado a um veículo lançador com capacidade suficiente e que veículos 'ativos' têm missões associadas. \n2. Temporalidade e Status: Garantir que todas as missões 'ativas' têm datas passadas e que itens 'em preparação' têm lançamentos futuros. \n3. Relações de Dados: Coerência entre satélites e missões quanto aos veículos usados, e uso de veículos lançadores ativos para operações planejadas. \n4. Coerência de Missão: As missões tripuladas devem ter astronautas apropriados; missões não tripuladas devem ter objetivos compatíveis.",
@@ -1395,7 +1406,7 @@ const swaggerDocument = {
     },
     "/json_7": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 7 ",
         description:
           "Consistência de Equipes: Assegurar que todas as equipes mencionadas nos jogos estejam listadas nas equipes participantes do torneio correspondente. Isso envolve verificar se as equipes de cada jogo realmente pertencem ao grupo listado para o ano correspondente. \n\n Resultados Corretos: Validar que os resultados dos jogos refletem de forma precisa os gols marcados, verificando também que não existam discrepâncias nos dados dos jogos, como uma equipe sendo listada como vencedora mas com menos gols que o adversário.\n\nCapacidade dos Estádios: Verificar que a capacidade dos estádios listada para cada Copa do Mundo seja consistente ou maior do que a capacidade registrada em Copas anteriores, assegurando uma validação temporal de dados.",
@@ -1527,7 +1538,7 @@ const swaggerDocument = {
     },
     "/json_8": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 8 ",
         description:
           "Disponibilidade de Quartos: Certificar que os quartos de hotel listados nas reservas estejam disponíveis nas datas especificadas pela reserva do cliente, sem sobreposição com outras reservas.\n\nCompatibilidade de Reservas: Garantir que as datas e locais de voos, hotéis, e veículos se alinhem de forma lógica. Por exemplo, um cliente não pode reservar um voo que chega em Londres e imediatamente depois um carro em Paris sem um voo intermediário.\n\nPreço Total da Reserva: Verificar o preço total de cada reserva, incluindo todos os voos, estadias em hotéis e locações de veículos para garantir que o total cobrado está correto e que todas as taxas estão incluídas.",
@@ -1712,7 +1723,7 @@ const swaggerDocument = {
     },
     "/json_9": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 9 ",
         description:
           "Desafio de Validação Complexo: Total de Gols: Calcule o total de gols marcados pelo Brasil ao longo dos sete jogos da Copa do Mundo.\n\n Total de Faltas: Determine o total de faltas cometidas pela equipe brasileira durante toda a competição.\n\n Total de Cartões: Conte quantos cartões amarelos e vermelhos foram recebidos pelos jogadores do Brasil durante os sete jogos.\n\nDesafio de Relatórios Detalhados: Crie uma função que processe o JSON dos jogos do Brasil na Copa do Mundo e retorne um relatório detalhado para cada jogo, incluindo: - Total de gols marcados pelo Brasil e pelos adversários. - Nomes dos jogadores que marcaram gols para o Brasil e para os adversários, juntamente com os minutos em que os gols foram marcados. - Total de faltas cometidas pelo Brasil e pelos adversários. - Nomes dos jogadores que cometeram faltas para o Brasil e para os adversários, juntamente com os minutos em que as faltas ocorreram. - Total de cartões (amarelos e vermelhos) recebidos pelo Brasil e pelos adversários. - Nomes dos jogadores que receberam cartões para o Brasil e para os adversários, juntamente com os minutos em que os cartões foram mostrados.\nDesafio de Estatísticas: - Calcule a média de gols por jogo marcados pelo Brasil e pelos adversários. - Identifique o jogo com o maior número de gols. - Determine o jogador brasileiro com mais gols ao longo da competição.",
@@ -1826,7 +1837,7 @@ const swaggerDocument = {
     },
     "/json_10": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 10 ",
         description: "Desafio de Validação Complexo: Encontrar todos os campos",
         parameters: [
@@ -2060,7 +2071,7 @@ const swaggerDocument = {
     },
     "/json_11": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 11 ",
         description: "Desafio de Validação Complexo: Encontrar todos os campos",
         parameters: [
@@ -2199,7 +2210,7 @@ const swaggerDocument = {
     },
     "/json_12": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 12 ",
         description:
           "Imprimir de acordo com o valor quais carros cada usuário pode comprar ex: Eu sou Wood tenho 400000 e posso comprar um Dynamics Pink MAS, se ele for VIP Informe quais carro ele também tem direito. Fazer isso para Todos. Validar os endereços da Loja e o ceo.",
@@ -2475,7 +2486,7 @@ const swaggerDocument = {
     },
     "/validate-json_9": {
       post: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Open challenger 9 validate ",
         description:
           "Desafio de Validação envie os dados extraídos do json_9 para validação de extração e resultado.",
@@ -2538,7 +2549,7 @@ const swaggerDocument = {
     },
     "/all-jsons-data": {
       post: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "Valida os dados de entrada",
         description:
           "Verifica se os dados enviados correspondem aos conjuntos de dados válidos e pré-definidos. Extrair e enviar via post um dado pedido de cada JSON anterior. json_1, json_2 ...",
@@ -2651,7 +2662,7 @@ const swaggerDocument = {
     },
     "/infinity-array": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "JSON 10 camadas de aray",
         description: "JSON para treino de validação",
         parameters: [
@@ -2716,7 +2727,7 @@ const swaggerDocument = {
     },
     "/deep-validation": {
       get: {
-        tags: ["APIs"],
+        tags: ["Challenger"],
         summary: "JSON com profundidade de validações",
         description: "JSON para treino de validação",
         parameters: [
@@ -42044,7 +42055,7 @@ const swaggerDocument = {
         tags: ["Bank"],
         summary: "Contratar financiamento",
         description:
-          "Endpoint para contratar financiamento de produtos de luxo.",
+          "Endpoint para contratar financiamento de produtos de luxo. Podendo enviar email da aquisição.",
         requestBody: {
           required: true,
           content: {
@@ -42491,7 +42502,6 @@ const swaggerDocument = {
         },
       },
     },
-
     "/delete-projects/{id}": {
       delete: {
         tags: ["Projetos"],
@@ -42522,7 +42532,8 @@ const swaggerDocument = {
     "/add-member": {
       post: {
         tags: ["Projetos"],
-        summary: "Adiciona um novo membro ao projeto",
+        summary:
+          "Adiciona um novo membro ao projeto, e usando o campo send_email, você enviará email de teste.",
         description:
           "Este endpoint adiciona um novo membro a um projeto existente, identificado pelo ID do projeto. O membro adicionado inclui informações como nome e cargo, e opcionalmente um endereço de email para notificação.",
         operationId: "addMember",
@@ -42652,6 +42663,644 @@ const swaggerDocument = {
           },
           404: {
             description: "Projeto ou membro não encontrado",
+          },
+        },
+      },
+    },
+    "/new-client": {
+      post: {
+        tags: ["Payments"],
+        summary: "Cria um novo cliente",
+        description:
+          "Adiciona um novo cliente à lista com informações como nome, CPF, bandeira do cartão e crédito disponível.",
+        operationId: "addNewClient",
+        requestBody: {
+          description: "Dados do cliente necessários para registro",
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome completo do cliente",
+                  },
+                  cpf: {
+                    type: "string",
+                    pattern: "^\\d{11}$",
+                    description: "CPF do cliente sem pontos ou traços",
+                  },
+                  card: {
+                    type: "object",
+                    required: ["flag", "credit"],
+                    properties: {
+                      flag: {
+                        type: "string",
+                        enum: ["MASTER", "VISA"],
+                        description: "Bandeira do cartão de crédito do cliente",
+                      },
+                      credit: {
+                        type: "number",
+                        format: "float",
+                        minimum: 0,
+                        description:
+                          "Valor de crédito disponível para o cliente",
+                      },
+                    },
+                  },
+                },
+                required: ["name", "cpf", "card"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Cliente criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    client: {
+                      $ref: "#/components/schemas/Client",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação ou dados incorretos fornecidos",
+          },
+        },
+      },
+    },
+    "/clients": {
+      get: {
+        tags: ["Payments"],
+        summary: "Obtém a lista de todos os clientes",
+        description:
+          "Retorna uma lista contendo todos os clientes registrados, incluindo informações detalhadas como nome, CPF, bandeira do cartão e crédito disponível.",
+        operationId: "getClients",
+        responses: {
+          200: {
+            description: "Lista de clientes recuperada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    $ref: "#/components/schemas/Client",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Nenhum cliente encontrado",
+          },
+        },
+      },
+    },
+    "/clients/{id}": {
+      get: {
+        tags: ["Payments"],
+        summary: "Obtém informações detalhadas de um cliente específico por ID",
+        description:
+          "Retorna um cliente específico baseado no ID fornecido, incluindo nome, CPF, bandeira do cartão e crédito disponível.",
+        operationId: "getClientById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID único do cliente",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Cliente encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Client",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Cliente não encontrado",
+          },
+        },
+      },
+    },
+    "/clients/{id}": {
+      put: {
+        tags: ["Payments"],
+        summary: "Atualiza um cliente existente",
+        description:
+          "Atualiza as informações de um cliente específico com base no ID fornecido.",
+        operationId: "updateClientById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID único do cliente a ser atualizado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome completo do cliente",
+                  },
+                  cpf: {
+                    type: "string",
+                    pattern: "^\\d{11}$",
+                    description: "CPF do cliente sem pontos ou traços",
+                  },
+                  card: {
+                    type: "object",
+                    properties: {
+                      flag: {
+                        type: "string",
+                        enum: ["MASTER", "VISA"],
+                        description: "Bandeira do cartão de crédito do cliente",
+                      },
+                      credit: {
+                        type: "number",
+                        format: "float",
+                        description:
+                          "Valor de crédito disponível para o cliente",
+                      },
+                    },
+                  },
+                },
+                required: [],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Cliente atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Client",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação ou dados incorretos fornecidos",
+          },
+          404: {
+            description: "Cliente não encontrado",
+          },
+        },
+      },
+    },
+    "/clients/{id}": {
+      delete: {
+        tags: ["Payments"],
+        summary: "Deleta um cliente específico",
+        description: "Remove um cliente do registro com base no ID fornecido.",
+        operationId: "deleteClientById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID único do cliente a ser deletado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Cliente deletado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Cliente não encontrado",
+          },
+        },
+      },
+    },
+    "/products-gamers": {
+      get: {
+        tags: ["Payments"],
+        summary: "Lista todos os produtos gamers",
+        description:
+          "Retorna uma lista completa de produtos gamers disponíveis.",
+        operationId: "getProductsGamers",
+        responses: {
+          200: {
+            description: "Uma lista de produtos gamers",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    $ref: "#/components/schemas/Product",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/products-purchase-gamers": {
+      post: {
+        tags: ["Payments"],
+        summary: "Realiza uma compra de produto gamer",
+        description:
+          "Permite ao cliente comprar um produto, verificando se o cliente e o produto existem, e se o crédito é suficiente. Os valores dos produtos mudam a cada requisção, fazendo com que o tester precise calcular o valor necessário. Podendo enviar email da aquisição.",
+        operationId: "buyProduct",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  id_client: {
+                    type: "integer",
+                    description: "ID do cliente",
+                  },
+                  id_product: {
+                    type: "integer",
+                    description: "ID do produto",
+                  },
+                  send_email: {
+                    type: "string",
+                    description: "caso queira enviar email para o comprador",
+                  },
+                },
+                required: ["id_client", "id_product"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Compra realizada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    product: {
+                      type: "string",
+                    },
+                    remainingCredit: {
+                      type: "integer",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro na compra, como crédito insuficiente",
+          },
+          404: {
+            description: "Cliente ou produto não encontrado",
+          },
+        },
+      },
+    },
+    "/credit": {
+      post: {
+        tags: ["Payments"],
+        summary: "Solicitação de crédito adicional",
+        description:
+          "Permite ao cliente solicitar crédito adicional para a compra de um produto, tente via automação garantir que o crédito seja apenas suficiente e não  a mais.",
+        operationId: "requestAdditionalCredit",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  id_client: {
+                    type: "integer",
+                    description: "ID do cliente",
+                  },
+                  id_product: {
+                    type: "integer",
+                    description: "ID do produto",
+                  },
+                  value_credit: {
+                    type: "integer",
+                    description: "Valor do crédito adicional solicitado",
+                  },
+                },
+                required: ["id_client", "id_product", "value_credit"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Crédito adicionado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    newCredit: {
+                      type: "integer",
+                      description: "Novo total de crédito do cliente",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Solicitação de crédito inválida ou excessiva",
+          },
+          404: {
+            description: "Cliente ou produto não encontrado",
+          },
+        },
+      },
+    },
+    "/encrypt-data": {
+      post: {
+        tags: ["Criptografia"],
+        summary: "Criptografa dados de identificação",
+        description:
+          "Recebe múltiplos IDs e tenta criptografar os dados, mesmo se alguns IDs forem inválidos. Retorna os dados criptografados junto com informações sobre quais IDs eram inválidos, se houver.",
+        operationId: "purchaseProduct",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  id_product: {
+                    type: "integer",
+                    description:
+                      "ID do produto, deve ser um número inteiro positivo.",
+                  },
+                  id_financiamento_produtos: {
+                    type: "integer",
+                    description:
+                      "ID do financiamento de produtos, deve ser um número inteiro positivo.",
+                  },
+                  id_projetos: {
+                    type: "integer",
+                    description:
+                      "ID do projeto, deve ser um número inteiro positivo.",
+                  },
+                  id_product_gamers: {
+                    type: "integer",
+                    description:
+                      "ID do produto gamer, deve ser um número inteiro positivo.",
+                  },
+                },
+                required: [
+                  "id_product",
+                  "id_financiamento_produtos",
+                  "id_projetos",
+                  "id_product_gamers",
+                ],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description:
+              "Dados criptografados retornados com sucesso, incluindo detalhes sobre quaisquer IDs inválidos.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    crypto: {
+                      type: "string",
+                      description: "Dados criptografados.",
+                    },
+                    invalidIds: {
+                      type: "array",
+                      items: {
+                        type: "integer",
+                      },
+                      description: "Lista de IDs inválidos, se houver.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação dos dados de entrada",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: {
+                      type: "string",
+                      description:
+                        "Mensagem de erro detalhando a natureza do erro de validação.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/decrypt-validate": {
+      post: {
+        tags: ["Criptografia"],
+        summary: "Descriptografa e valida dados",
+        description:
+          "Recebe dados criptografados, descriptografa e valida a existência dos IDs dentro dos dados.",
+        operationId: "decryptAndValidateData",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  crypto: {
+                    type: "object",
+                    description:
+                      "Contém o vetor de inicialização (IV) e os dados criptografados.",
+                    properties: {
+                      iv: {
+                        type: "string",
+                        description:
+                          "Vetor de inicialização para a descriptografia.",
+                        example: "e659ea738cb352032f49b2cc9a7eccac",
+                      },
+                      encryptedData: {
+                        type: "string",
+                        description:
+                          "Dados criptografados em formato hexadecimal.",
+                        example:
+                          "aca42392f03cd86bf18fd310692898d33d48922f79767eff33cd051070a4aec45bfa148456d86192bca9addf0c3931a2668d86a2e5435eb610d61539dc52732ad91d340fc6b944ac64fbdf43b0f44e3a5552d21f15f128c81a15cb39b2d8baa0",
+                      },
+                    },
+                    required: ["iv", "encryptedData"],
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description:
+              "Dados descriptografados e validados com sucesso. Retorna os detalhes dos IDs validados.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id_product: {
+                      type: "string",
+                      description: "Status do ID do produto.",
+                    },
+                    id_financiamento_produtos: {
+                      type: "string",
+                      description: "Status do ID do financiamento.",
+                    },
+                    id_projetos: {
+                      type: "string",
+                      description: "Status do ID do projeto.",
+                    },
+                    id_product_gamers: {
+                      type: "string",
+                      description: "Status do ID do produto gamer.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação ou descriptografia dos dados",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    error: {
+                      type: "string",
+                      description: "Mensagem de erro explicando o problema.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  components: {
+    schemas: {
+      Client: {
+        type: "object",
+        properties: {
+          id: {
+            type: "integer",
+            format: "int64",
+            description: "ID único do cliente",
+          },
+          name: {
+            type: "string",
+            description: "Nome completo do cliente",
+          },
+          cpf: {
+            type: "string",
+            description: "CPF do cliente sem pontos ou traços",
+          },
+          card: {
+            type: "object",
+            properties: {
+              flag: {
+                type: "string",
+                enum: ["MASTER", "VISA"],
+                description: "Bandeira do cartão de crédito do cliente",
+              },
+              credit: {
+                type: "number",
+                format: "float",
+                description: "Valor de crédito disponível para o cliente",
+              },
+            },
+          },
+        },
+      },
+      Products: {
+        type: "object",
+        required: ["id", "name", "description", "price"],
+        properties: {
+          id: {
+            type: "integer",
+            format: "int64",
+            description: "Identificador único do produto",
+          },
+          name: {
+            type: "string",
+            description: "Nome do produto",
+          },
+          description: {
+            type: "string",
+            description: "Descrição do produto",
+          },
+          price: {
+            type: "integer",
+            description:
+              "Preço do produto em centavos, representando custos associados",
           },
         },
       },

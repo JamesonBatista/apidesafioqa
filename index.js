@@ -2,13 +2,14 @@ import swaggerDocument from "./swaggerConfig.js";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { body, validationResult } from "express-validator";
-import isValidCPF from "./functions.js";
+import isValidCPF, { decrypt, encrypt } from "./functions.js";
+
 import enviarEmail from "./email.js";
 const app = express();
 import bodyParser from "body-parser";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import germany_json from "./swagger_jsons.js";
+import germany_json, { productsGamers } from "./swagger_jsons.js";
 import {
   json_1,
   json_2,
@@ -33,6 +34,8 @@ import {
   produtosDeLuxo,
   projects,
   membersProjet,
+  clients,
+  encryptedDataUser,
 } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -598,9 +601,11 @@ app.post("/emprestimo", (req, res) => {
     return res.status(400).json({ error: "Valor de empréstimo inválido" });
   }
   if (valor_emprestimo < cliente.bank.debito) {
-    return res
-      .status(400)
-      .json({ error: "Valor de empréstimo menor que débito disponível" });
+    return res.status(400).json({
+      error: "Valor de empréstimo menor que débito disponível",
+      debit_value: cliente.bank.debito,
+      loan: valor_emprestimo,
+    });
   }
   cliente.bank.credito = valor_emprestimo;
   const clienteAtualizado = { ...cliente, emprestimo: code_emprestimo_bank };
@@ -660,9 +665,10 @@ app.post(
     // Verificar se o cliente tem crédito suficiente
     if (cliente.bank.credito < produto.preco) {
       const diferenca = produto.preco - cliente.bank.credito;
-      return res
-        .status(400)
-        .json({ message: "Crédito insuficiente.", diferenca });
+      return res.status(400).json({
+        message: "Crédito insuficiente.",
+        actual_credit: diferenca,
+      });
     }
 
     // Atualizar o crédito do cliente
@@ -731,7 +737,6 @@ app.post(
         `Parabéns pela compra do produto ${produto.nome}`,
         html
       );
-      console.log("Usuário optou por receber emails.");
     }
     // Retornar mensagem de sucesso
     const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
@@ -747,7 +752,7 @@ app.get("/projects", (req, res) => {
   res.send(projects);
 });
 app.post(
-  "/create-project",
+  "/create-projects",
   [
     body("name")
       .not()
@@ -856,7 +861,9 @@ app.get("/projects/:id/members", (req, res) => {
   const projectId = parseInt(req.params.id);
   const project = projects.find((p) => p.id === projectId);
   if (!project) {
-    return res.status(404).json({ message: `Projeto com id ${projectId} não encontrado.` });
+    return res
+      .status(404)
+      .json({ message: `Projeto com id ${projectId} não encontrado.` });
   }
   res.status(200).json(project.members);
 });
@@ -912,6 +919,16 @@ app.post(
     if (membersProjet.length >= 50) {
       membersProjet = membersProjet.slice(10);
     }
+    const project_members = project.members.find(
+      (p) => p.name.trim() === name.trim()
+    );
+
+    if (project_members) {
+      return res
+        .status(404)
+        .json({ message: `Membro ${name} já se encontra na equipe.` });
+    }
+
     membersProjet.push(newMember);
     // Adicionar o novo membro ao array de membros do projeto
     project.members.push(newMember);
@@ -1006,11 +1023,359 @@ app.delete("/delete-member/:projectId/:memberName", (req, res) => {
 
   // Remove o membro do array de membros do projeto
   project.members.splice(memberIndex, 1);
-  res.status(200).json({ message: "Membro deletado com sucesso" });
+  res.status(200).json({
+    message: `Membro ${memberName} retirado do projeto ${project.name}`,
+  });
 });
 
 //
+// PAYMENTS
+app.post(
+  "/new-client",
+  [
+    body("name").not().isEmpty().withMessage("O nome é obrigatório"),
+    body("cpf")
+      .matches(/^\d{11}$/)
+      .withMessage("CPF inválido. Deve conter 11 dígitos sem pontos ou traços"),
+    body("card.flag")
+      .isIn(["MASTER", "VISA"])
+      .withMessage("A bandeira do cartão deve ser MASTER ou VISA"),
+    body("card.credit")
+      .isFloat({ min: 1000 })
+      .withMessage("O crédito deve ser um número válido maior ou igual a 1000"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const clients_name = clients.find(
+      (p) => p.name.trim() === req.body.name.trim()
+    );
+    if (clients_name) {
+      return res
+        .status(400)
+        .json({ errors: `${req.body.name} já existe na lista de Clientes.` });
+    }
 
+    // Cria um novo cliente e adiciona ao array de clientes
+    const newClient = {
+      id: generateId(clients),
+      name: req.body.name,
+      cpf: req.body.cpf,
+      card: {
+        flag: req.body.card.flag,
+        credit: parseFloat(req.body.card.credit),
+      },
+    };
+
+    clients.push(newClient);
+    res
+      .status(201)
+      .json({ message: "Cliente registrado com sucesso!", client: newClient });
+  }
+);
+app.get("/clients", (req, res) => {
+  res.send(clients);
+});
+app.get("/clients/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const client = clients.find((client) => client.id === id);
+  if (!client) {
+    return res.status(404).json({ message: "Cliente não encontrado" });
+  }
+  res.status(200).json(client);
+});
+app.put(
+  "/clients/:id",
+  [
+    body("name")
+      .optional()
+      .not()
+      .isEmpty()
+      .withMessage("O nome não pode ser vazio"),
+    body("cpf")
+      .optional()
+      .matches(/^\d{11}$/)
+      .withMessage("CPF inválido. Deve conter 11 dígitos sem pontos ou traços"),
+    body("card.flag")
+      .optional()
+      .isIn(["MASTER", "VISA"])
+      .withMessage("A bandeira do cartão deve ser MASTER ou VISA"),
+    body("card.credit")
+      .optional()
+      .isFloat({ min: 0 })
+      .withMessage("O crédito deve ser um número válido maior ou igual a zero"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = parseInt(req.params.id);
+    const clientIndex = clients.findIndex((client) => client.id === id);
+    if (clientIndex === -1) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
+
+    const client = clients[clientIndex];
+    const updateData = req.body;
+
+    // Atualizando os dados do cliente
+    client.name = updateData.name || client.name;
+    client.cpf = updateData.cpf || client.cpf;
+    if (updateData.card) {
+      client.card.flag = updateData.card.flag || client.card.flag;
+      client.card.credit = updateData.card.credit || client.card.credit;
+    }
+
+    res.status(200).json({
+      message: "Cliente atualizado com sucesso",
+      client,
+    });
+  }
+);
+app.delete("/clients/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+  const clientIndex = clients.findIndex((client) => client.id === id);
+  if (clientIndex === -1) {
+    return res.status(404).json({ message: "Cliente não encontrado" });
+  }
+
+  // Remove o cliente do array
+  clients.splice(clientIndex, 1);
+  res.status(200).json({ message: "Cliente deletado com sucesso" });
+});
+
+app.get("/products-gamers", (req, res) => {
+  res.json(productsGamers());
+});
+
+app.post(
+  "/products-purchase-gamers",
+  [
+    body("id_client").isInt({ min: 1 }).withMessage("ID do cliente inválido"),
+    body("id_product").isInt({ min: 1 }).withMessage("ID do produto inválido"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id_client, id_product, send_email } = req.body;
+    const client = clients.find((c) => c.id === id_client);
+    const product = productsGamers().find((p) => p.id === id_product);
+
+    if (!client) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
+    if (!product) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+
+    if (client.card.credit >= product.price) {
+      client.card.credit -= product.price;
+      res.status(201).json({
+        message: "Compra realizada com sucesso",
+        product: product.name,
+        remainingCredit: client.card.credit,
+      });
+      if (send_email) {
+        let html = `
+        <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Bem-vindo ao Projeto</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              padding: 20px;
+              background-color: #f4f4f4;
+              border: 1px solid #ddd;
+              margin: 20px auto;
+              width: 80%;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          .header {
+              background-color: #007bff;
+              color: white;
+              padding: 10px;
+              text-align: center;
+          }
+          .content {
+              padding: 20px;
+              background-color: white;
+          }
+          .footer {
+              text-align: center;
+              padding: 10px;
+              font-size: 0.8em;
+              background-color: #eee;
+          }
+      </style>
+  </head>
+  <body>
+  <div class="container">
+      <div class="header">
+          <h1>${client.name}, parabéns pela compra ${product.name}!</h1>
+      </div>
+      <div class="content">
+          <h2>Detalhes  da Compra</h2>
+          <p><strong>Nome:</strong> ${product.name}</p>
+          <p><strong>Descrição:</strong> ${product.description}</p>
+          <p><strong>Valor:</strong> ${product.price}</p>
+      </div>
+      <div class="footer">
+          Obrigado por comprar no conosco!
+      </div>
+  </div>
+  </body>
+  </html>
+  
+        `;
+        enviarEmail(
+          send_email,
+          `Parabéns ${client.name} você adquiriu ${product.name}}`,
+          html
+        );
+      }
+    } else {
+      res.status(400).json({
+        message: "Crédito insuficiente",
+        requiredCredit: product.price,
+        currentCredit: client.card.crdit,
+      });
+    }
+  }
+);
+app.post(
+  "/credit",
+  [
+    body("id_client").isInt({ min: 1 }).withMessage("ID do cliente inválido"),
+    body("id_product").isInt({ min: 1 }).withMessage("ID do produto inválido"),
+    body("value_credit")
+      .isInt({ min: 1, max: 15000 })
+      .withMessage("O valor de crédito solicitado deve ser um número positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id_client, id_product, value_credit } = req.body;
+    const client = clients.find((c) => c.id === id_client);
+    const product = productsGamers().find((p) => p.id === id_product);
+
+    if (!client) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
+    if (!product) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+
+    const creditNeeded = product.price - client.card.credit;
+
+    if (client.card.credit >= product.price) {
+      return res.status(400).json({
+        message: "Crédito atual já é suficiente para comprar o produto",
+      });
+    }
+
+    const value_sum = (client.card.credit += value_credit);
+    if (product.price > value_sum) {
+      res.status(400).json({
+        message: `O valor do produto ${product.price} ainda é maior que o crédito atual somado ao emprestimo ${value_sum}, ${client.name} faça um novo emprestimo`,
+      });
+    }
+
+    client.card.credit += value_credit;
+    res.status(200).json({
+      message: "Crédito adicionado com sucesso",
+      newCredit: client.card.credit,
+    });
+  }
+);
+// CRIPTO
+app.post(
+  "/encrypt-data",
+  [
+    body("id_product"),
+    body("id_financiamento_produtos"),
+    body("id_projetos").isInt({ min: 1 }),
+    body("id_product_gamers").isInt({ min: 1 }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {
+      id_product,
+      id_financiamento_produtos,
+      id_projetos,
+      id_product_gamers,
+    } = req.body;
+    const dataToEncrypt = {
+      id_product,
+      id_financiamento_produtos,
+      id_projetos,
+      id_product_gamers,
+    };
+
+    // Usar a função de criptografia aqui
+    const encryptedData = encrypt(dataToEncrypt);
+
+    res.json({ crypto: encryptedData });
+  }
+);
+app.post("/decrypt-validate", (req, res) => {
+  const  {crypto}  = req.body;
+  // Descriptografar os dados recebidos
+  const decryptedData = decrypt(crypto);
+
+  // Verificar a existência dos IDs
+  const dataValidation = {
+    id_product: loja.produtos.some((p) => p.id === decryptedData.id_product),
+    id_financiamento_produtos: produtosDeLuxo.produtosDeLuxo.some(
+      (f) => f.id === decryptedData.id_financiamento_produtos
+    ),
+    id_projetos: projects.some((p) => p.id === decryptedData.id_projetos),
+    id_product_gamers: productsGamers().some(
+      (p) => p.id === decryptedData.id_product_gamers
+    ),
+  };
+
+  // Organizar os dados para resposta
+  const responseData = {
+    id_product: dataValidation.id_product
+      ? `Produto ${decryptedData.id_product} encontrado.`
+      : `Produto ${decryptedData.id_product} não encontrado.`,
+    id_financiamento_produtos: dataValidation.id_financiamento_produtos
+      ? `Financiamento ${decryptedData.id_financiamento_produtos} encontrado.`
+      : `Financiamento ${decryptedData.id_financiamento_produtos} não encontrado.`,
+    id_projetos: dataValidation.id_projetos
+      ? `Projeto ${decryptedData.id_projetos} encontrado.`
+      : `Projeto ${decryptedData.id_projetos} não encontrado.`,
+    id_product_gamers: dataValidation.id_product_gamers
+      ? `Produto Gamer ${decryptedData.id_product_gamers} encontrado.`
+      : `Produto Gamer ${decryptedData.id_product_gamers} não encontrado.`,
+  };
+
+  res.json(responseData);
+});
+
+//
 app.get("/", (req, res) => {
   res.send("API OK");
 });
