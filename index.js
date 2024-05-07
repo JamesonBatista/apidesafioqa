@@ -447,7 +447,7 @@ app.post(
     if (valor_na_carteira < produto.preco) {
       const diferenca = produto.preco - valor_na_carteira;
       return res.status(400).json({
-        message: "O valor na carteira é insuficiente, preciaria de: R$",
+        message: "O valor na carteira é insuficiente, preciaria de: ",
         diferenca,
         valor_produto: produto.preco,
       });
@@ -1340,18 +1340,18 @@ app.post(
   }
 );
 app.post("/decrypt-validate", (req, res) => {
-  const  {crypto}  = req.body;
+  const { crypto } = req.body;
   // Descriptografar os dados recebidos
   const decryptedData = decrypt(crypto);
 
   // Verificar a existência dos IDs
   const dataValidation = {
-    id_product: loja.produtos.some((p) => p.id === decryptedData.id_product),
-    id_financiamento_produtos: produtosDeLuxo.produtosDeLuxo.some(
+    id_product: loja.produtos.find((p) => p.id === decryptedData.id_product),
+    id_financiamento_produtos: produtosDeLuxo.produtosDeLuxo.find(
       (f) => f.id === decryptedData.id_financiamento_produtos
     ),
-    id_projetos: projects.some((p) => p.id === decryptedData.id_projetos),
-    id_product_gamers: productsGamers().some(
+    id_projetos: projects.find((p) => p.id === decryptedData.id_projetos),
+    id_product_gamers: productsGamers().find(
       (p) => p.id === decryptedData.id_product_gamers
     ),
   };
@@ -1359,16 +1359,16 @@ app.post("/decrypt-validate", (req, res) => {
   // Organizar os dados para resposta
   const responseData = {
     id_product: dataValidation.id_product
-      ? `Produto ${decryptedData.id_product} encontrado.`
+      ? `Produto [ ${dataValidation.id_product.nome} ] encontrado.`
       : `Produto ${decryptedData.id_product} não encontrado.`,
     id_financiamento_produtos: dataValidation.id_financiamento_produtos
-      ? `Financiamento ${decryptedData.id_financiamento_produtos} encontrado.`
+      ? `Financiamento [ ${dataValidation.id_financiamento_produtos.nome} ] encontrado.`
       : `Financiamento ${decryptedData.id_financiamento_produtos} não encontrado.`,
     id_projetos: dataValidation.id_projetos
-      ? `Projeto ${decryptedData.id_projetos} encontrado.`
+      ? `Projeto [ ${dataValidation.id_projetos.name} ] encontrado.`
       : `Projeto ${decryptedData.id_projetos} não encontrado.`,
     id_product_gamers: dataValidation.id_product_gamers
-      ? `Produto Gamer ${decryptedData.id_product_gamers} encontrado.`
+      ? `Produto Gamer [ ${dataValidation.id_product_gamers.name} ] encontrado.`
       : `Produto Gamer ${decryptedData.id_product_gamers} não encontrado.`,
   };
 
