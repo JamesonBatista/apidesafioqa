@@ -345,7 +345,7 @@ app.post(
       .notEmpty()
       .withMessage("O campo nome é obrigatório")
       .custom((value) => {
-        const userExists = crud_get.users.some((user) => user.nome === value);
+        const userExists = crud_get.users.some((user) => user.nome.trim() === value.trim());
         if (userExists) {
           throw new Error("Nome já existe");
         }
@@ -357,7 +357,7 @@ app.post(
       .notEmpty()
       .withMessage("O campo email é obrigatório"),
     body("idade")
-      .isInt({ min: 1 })
+      .isInt({ min: 18 })
       .withMessage("A idade deve ser um número inteiro válido")
       .notEmpty()
       .withMessage("O campo idade é obrigatório"),
@@ -365,10 +365,6 @@ app.post(
     body("endereco").notEmpty().withMessage("O campo endereço é obrigatório"),
     body("profissao").notEmpty().withMessage("O campo profissão é obrigatório"),
     body("empresa").notEmpty().withMessage("O campo empresa é obrigatório"),
-    body("status").notEmpty().withMessage("O campo status é obrigatório"),
-    body("dataCadastro")
-      .notEmpty()
-      .withMessage("O campo dataCadastro é obrigatório no formato AAAA-MM-DD"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -376,17 +372,18 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
+    // Atribuição automática de 'status' como 'ativo' e 'dataCadastro' para a data atual
     const newUser = {
       id: generateId(crud_get.users),
       nome: req.body.nome,
       email: req.body.email,
       idade: req.body.idade,
       telefone: req.body.telefone,
-      endereço: req.body.endereco,
-      profissão: req.body.profissao,
+      endereco: req.body.endereco,
+      profissao: req.body.profissao,
       empresa: req.body.empresa,
-      status: req.body.status,
-      dataCadastro: req.body.dataCadastro,
+      status: "ativo", // Status definido automaticamente como 'ativo'
+      dataCadastro: new Date().toISOString().split('T')[0], // Data de cadastro definida como a data atual
     };
 
     // Adiciona o novo usuário ao array
@@ -400,6 +397,7 @@ app.post(
     res.status(201).json(crud_get.users);
   }
 );
+
 app.get("/crud-id/:id", (req, res) => {
   const id = parseInt(req.params.id); // Converte o id de string para inteiro
   const user = crud_get.users.find((u) => u.id === id);
