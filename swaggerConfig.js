@@ -41352,12 +41352,6 @@ const swaggerDocument = {
                   empresa: {
                     type: "string",
                   },
-                  status: {
-                    type: "string",
-                  },
-                  dataCadastro: {
-                    type: "string",
-                  },
                 },
                 required: [
                   "nome",
@@ -41367,14 +41361,12 @@ const swaggerDocument = {
                   "endereco",
                   "profissao",
                   "empresa",
-                  "status",
-                  "dataCadastro",
                 ],
               },
             },
           },
           responses: {
-            200: {
+            201: {
               description:
                 "Validação bem-sucedida, todos os dados estão corretos.",
               content: {
@@ -41405,12 +41397,6 @@ const swaggerDocument = {
                       empresa: {
                         type: "string",
                       },
-                      status: {
-                        type: "string",
-                      },
-                      dataCadastro: {
-                        type: "string",
-                      },
                     },
                     required: [
                       "nome",
@@ -41420,8 +41406,6 @@ const swaggerDocument = {
                       "endereco",
                       "profissao",
                       "empresa",
-                      "status",
-                      "dataCadastro",
                     ],
                   },
                 },
