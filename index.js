@@ -394,7 +394,7 @@ app.post(
       crud_get.users.splice(0, 10); // Remove os 10 primeiros
     }
 
-    res.status(201).json(crud_get.users);
+    res.status(201).json(newUser);
   }
 );
 
