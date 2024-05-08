@@ -173,49 +173,80 @@ app.get("/json_11", (req, res) => {
 app.get("/json_12", (req, res) => {
   res.send(json_14);
 });
-app.post("/validate-json_9", (req, res) => {
-  const jogos = req.body.jogos;
-  let resultados = [];
-
-  jogos.forEach(({ jogoId, totalGols, totalFaltas, totalCartoes }) => {
-    const jogo = json_9.copaDoMundo.jogosDoBrasil.find((j) => j.id === jogoId);
-    if (!jogo) {
-      resultados.push({ jogoId, error: "Jogo não encontrado" });
-      return;
+app.post(
+  "/validate-json_9",
+  [
+    body("jogoId")
+      .notEmpty()
+      .withMessage(
+        "O campo jogoId é obrigatório e deverá ser buscado no /json_9"
+      ),
+    body("totalGols")
+      .notEmpty()
+      .withMessage(
+        "O campo totalGols é obrigatório e deverá ser buscado no /json_9"
+      ),
+    body("totalFaltas")
+      .notEmpty()
+      .withMessage(
+        "O campo totalFaltas é obrigatório e deverá ser buscado no /json_9"
+      ),
+    body("totalCartoes")
+      .notEmpty()
+      .withMessage(
+        "O campo totalCartoes é obrigatório e deverá ser buscado no /json_9"
+      ),
+  ],
+  (req, res) => {
+    const jogos = req.body.jogos;
+    let resultados = [];
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    const golsReais = jogo.detalhes.gols.length;
-    const faltasReais = jogo.detalhes.faltas.length;
-    const cartoesReais = jogo.detalhes.cartoes.length;
+    jogos.forEach(({ jogoId, totalGols, totalFaltas, totalCartoes }) => {
+      const jogo = json_9.copaDoMundo.jogosDoBrasil.find(
+        (j) => j.id === jogoId
+      );
+      if (!jogo) {
+        resultados.push({ jogoId, error: "Jogo não encontrado" });
+        return;
+      }
 
-    let erroDetalhes = {};
-    let hasError = false;
+      const golsReais = jogo.detalhes.gols.length;
+      const faltasReais = jogo.detalhes.faltas.length;
+      const cartoesReais = jogo.detalhes.cartoes.length;
 
-    if (totalGols !== golsReais) {
-      erroDetalhes.gols = `Esperado: ${golsReais}, Recebido: ${totalGols}`;
-      hasError = true;
-    }
-    if (totalFaltas !== faltasReais) {
-      erroDetalhes.faltas = `Esperado: ${faltasReais}, Recebido: ${totalFaltas}`;
-      hasError = true;
-    }
-    if (totalCartoes !== cartoesReais) {
-      erroDetalhes.cartoes = `Esperado: ${cartoesReais}, Recebido: ${totalCartoes}`;
-      hasError = true;
-    }
+      let erroDetalhes = {};
+      let hasError = false;
 
-    resultados.push({
-      jogoId,
-      sucesso: !hasError,
-      mensagem: hasError
-        ? "Algumas estatísticas estão incorretas."
-        : "Todas as estatísticas estão corretas!",
-      erroDetalhes: hasError ? erroDetalhes : {},
+      if (totalGols !== golsReais) {
+        erroDetalhes.gols = `Esperado: ${golsReais}, Recebido: ${totalGols}`;
+        hasError = true;
+      }
+      if (totalFaltas !== faltasReais) {
+        erroDetalhes.faltas = `Esperado: ${faltasReais}, Recebido: ${totalFaltas}`;
+        hasError = true;
+      }
+      if (totalCartoes !== cartoesReais) {
+        erroDetalhes.cartoes = `Esperado: ${cartoesReais}, Recebido: ${totalCartoes}`;
+        hasError = true;
+      }
+
+      resultados.push({
+        jogoId,
+        sucesso: !hasError,
+        mensagem: hasError
+          ? "Algumas estatísticas estão incorretas."
+          : "Todas as estatísticas estão corretas!",
+        erroDetalhes: hasError ? erroDetalhes : {},
+      });
     });
-  });
 
-  res.status(201).send(resultados);
-});
+    res.status(201).send(resultados);
+  }
+);
 
 const dados = {
   produtos: [{ id: 1 }, { id: 2 }, { id: 3 }],
@@ -265,7 +296,7 @@ app.post("/all-jsons-data", (req, res) => {
   if (error) {
     return res
       .status(400)
-      .send(`Erro de validação: ${error.details[0].message}`);
+      .send({ errors: `Erro de validação: ${error.details[0].message}` });
   }
 
   res.send({
@@ -429,7 +460,7 @@ app.post(
     body("receber_email")
       .optional()
       .isString()
-      .withMessage("O campo receber_email deve ser booleano"),
+      .withMessage("O campo receber_email deve ser string"),
   ],
   (req, res) => {
     const errors = validationResult(req);
