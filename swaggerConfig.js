@@ -41298,7 +41298,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/crud-get": {
+    "/crud": {
       get: {
         tags: ["CRUD"],
         summary: "JSON CRUD validações",
@@ -41316,8 +41316,7 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/crud-post": {
+
       post: {
         tags: ["CRUD"],
         summary: "JSON CRUD validações",
@@ -41441,7 +41440,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/crud-id/{id}": {
+    "/crud/{id}": {
       get: {
         tags: ["CRUD"],
         summary: "JSON CRUD validações",
@@ -41465,8 +41464,6 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/crud-delete/{id}": {
       delete: {
         tags: ["CRUD"],
         summary: "JSON CRUD validações",
@@ -41734,7 +41731,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/lista-clientes": {
+    "/clientes": {
       get: {
         tags: ["Bank"],
         summary: "Lista de Usuários",
@@ -41788,8 +41785,6 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/clientes": {
       post: {
         tags: ["Bank"],
         summary: "Criar novo cliente",
@@ -41918,6 +41913,7 @@ const swaggerDocument = {
         },
       },
     },
+
     "/financiamento-produtos": {
       get: {
         tags: ["Bank"],
@@ -42115,7 +42111,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/create-projects": {
+    "/projects": {
       post: {
         tags: ["Projetos"],
         summary: "Cria um novo projeto",
@@ -42201,8 +42197,6 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/projects": {
       get: {
         tags: ["Projetos"],
         summary: "Obtém todos os projetos",
@@ -42429,6 +42423,31 @@ const swaggerDocument = {
           },
         },
       },
+      delete: {
+        tags: ["Projetos"],
+        summary: "Deleta um projeto",
+        description: "Deleta um projeto específico pelo ID.",
+        operationId: "deleteProject",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do projeto a ser deletado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Projeto deletado com sucesso",
+          },
+          404: {
+            description: "Projeto não encontrado",
+          },
+        },
+      },
     },
     "/projects/{id}/members": {
       get: {
@@ -42473,34 +42492,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/delete-projects/{id}": {
-      delete: {
-        tags: ["Projetos"],
-        summary: "Deleta um projeto",
-        description: "Deleta um projeto específico pelo ID.",
-        operationId: "deleteProject",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            description: "ID do projeto a ser deletado",
-            schema: {
-              type: "integer",
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: "Projeto deletado com sucesso",
-          },
-          404: {
-            description: "Projeto não encontrado",
-          },
-        },
-      },
-    },
-    "/add-member": {
+    "/member": {
       post: {
         tags: ["Projetos"],
         summary:
@@ -42601,7 +42593,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/delete-member/{projectId}/{memberName}": {
+    "/member/{projectId}/{memberName}": {
       delete: {
         tags: ["Projetos"],
         summary: "Deleta um membro de um projeto",
@@ -42638,7 +42630,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/new-client": {
+    "/clients": {
       post: {
         tags: ["Payments"],
         summary: "Cria um novo cliente",
@@ -42710,8 +42702,6 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/clients": {
       get: {
         tags: ["Payments"],
         summary: "Obtém a lista de todos os clientes",
@@ -42772,8 +42762,43 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/clients/{id}": {
+      delete: {
+        tags: ["Payments"],
+        summary: "Deleta um cliente específico",
+        description: "Remove um cliente do registro com base no ID fornecido.",
+        operationId: "deleteClientById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID único do cliente a ser deletado",
+            schema: {
+              type: "integer",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Cliente deletado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Cliente não encontrado",
+          },
+        },
+      },
       put: {
         tags: ["Payments"],
         summary: "Atualiza um cliente existente",
@@ -42849,45 +42874,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/clients/{id}": {
-      delete: {
-        tags: ["Payments"],
-        summary: "Deleta um cliente específico",
-        description: "Remove um cliente do registro com base no ID fornecido.",
-        operationId: "deleteClientById",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            description: "ID único do cliente a ser deletado",
-            schema: {
-              type: "integer",
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: "Cliente deletado com sucesso",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Cliente não encontrado",
-          },
-        },
-      },
-    },
+
     "/products-gamers": {
       get: {
         tags: ["Payments"],

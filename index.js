@@ -325,7 +325,7 @@ app.get("/big-json", (req, res) => {
   res.send(big_json);
 });
 // CRUD
-app.get("/crud-get", (req, res) => {
+app.get("/crud", (req, res) => {
   res.send(crud_get);
 });
 function generateId(param) {
@@ -339,7 +339,7 @@ function generateId(param) {
   return newId;
 }
 app.post(
-  "/crud-post",
+  "/crud",
   [
     body("nome")
       .notEmpty()
@@ -400,7 +400,7 @@ app.post(
   }
 );
 
-app.get("/crud-id/:id", (req, res) => {
+app.get("/crud/:id", (req, res) => {
   const id = parseInt(req.params.id); // Converte o id de string para inteiro
   const user = crud_get.users.find((u) => u.id === id);
 
@@ -410,7 +410,7 @@ app.get("/crud-id/:id", (req, res) => {
 
   res.status(200).json(user);
 });
-app.delete("/crud-delete/:id", (req, res) => {
+app.delete("/crud/:id", (req, res) => {
   const id = parseInt(req.params.id); // Converte o id de string para inteiro
   const originalLength = crud_get.users.length;
   crud_get.users = crud_get.users.filter((user) => user.id !== id);
@@ -461,6 +461,10 @@ app.post(
       .optional()
       .isString()
       .withMessage("O campo receber_email deve ser string"),
+    body("send_email")
+      .optional()
+      .isString()
+      .withMessage("O campo send_email deve ser string"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -468,8 +472,14 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { nome, cpf, id_produto, valor_na_carteira, receber_email } =
-      req.body;
+    const {
+      nome,
+      cpf,
+      id_produto,
+      valor_na_carteira,
+      receber_email,
+      send_email,
+    } = req.body;
     const produto = loja.produtos.find((p) => p.id === id_produto);
     if (!produto) {
       return res.status(404).json({ message: "Produto não encontrado" });
@@ -484,7 +494,7 @@ app.post(
       });
     }
 
-    if (receber_email) {
+    if (receber_email || send_email) {
       let html = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -543,20 +553,19 @@ app.post(
       </html>
        `;
       enviarEmail(
-        receber_email,
+        receber_email || send_email,
         `Parabéns senhor(a): ${nome || "Cliente"} pela compra do produto ${
           produto.nome
         }`,
         html
       );
-      console.log("Usuário optou por receber emails.");
     }
 
     res.status(201).send({
       produto: produto,
       message: `${nome}, Parabéns pela compra! Você comprou ${
         produto.nome
-      }\nSeu valor na cateira é de:  ${valor_na_carteira - produto.preco}`,
+      }, Seu valor na cateira é de:  ${valor_na_carteira - produto.preco}`,
     });
   }
 );
@@ -572,7 +581,7 @@ function generateCode() {
   }
   return code;
 }
-app.get("/lista-clientes", (req, res) => {
+app.get("/clientes", (req, res) => {
   res.send(usuarios);
 });
 
@@ -672,7 +681,13 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { id_cliente, id_produto, code_emprestimo, receber_email } = req.body;
+    const {
+      id_cliente,
+      id_produto,
+      code_emprestimo,
+      receber_email,
+      send_email,
+    } = req.body;
 
     // Verificar se o cliente existe
     const cliente = usuarios.find((user) => user.id === id_cliente);
@@ -707,7 +722,7 @@ app.post(
     // Atualizar o crédito do cliente
     cliente.bank.credito -= produto.preco;
 
-    if (receber_email) {
+    if (receber_email || send_email) {
       let html = `<!DOCTYPE html>
       <html lang="en">
       <head>
@@ -766,7 +781,7 @@ app.post(
       </html>
        `;
       enviarEmail(
-        receber_email,
+        receber_email || send_email,
         `Parabéns pela compra do produto ${produto.nome}`,
         html
       );
@@ -785,7 +800,7 @@ app.get("/projects", (req, res) => {
   res.send(projects);
 });
 app.post(
-  "/create-projects",
+  "/projects",
   [
     body("name")
       .notEmpty()
@@ -896,7 +911,7 @@ app.get("/projects/:id/members", (req, res) => {
   }
   res.status(200).json(project.members);
 });
-app.delete("/delete-projects/:id", (req, res) => {
+app.delete("/projects/:id", (req, res) => {
   const projectId = parseInt(req.params.id);
   const projectIndex = projects.findIndex((p) => p.id === projectId);
   const project = projects.find((p) => p.id === projectId);
@@ -915,7 +930,7 @@ app.get("/members", (req, res) => {
   res.send(membersProjet);
 });
 app.post(
-  "/add-member",
+  "/member",
   [
     body("name").not().isEmpty().withMessage("O nome do membro é obrigatório"),
     body("office")
@@ -1039,7 +1054,7 @@ app.post(
     });
   }
 );
-app.delete("/delete-member/:projectId/:memberName", (req, res) => {
+app.delete("/member/:projectId/:memberName", (req, res) => {
   const { projectId, memberName } = req.params;
   const project = projects.find((p) => p.id === parseInt(projectId));
   if (!project) {
@@ -1061,7 +1076,7 @@ app.delete("/delete-member/:projectId/:memberName", (req, res) => {
 //
 // PAYMENTS
 app.post(
-  "/new-client",
+  "/clients",
   [
     body("name").not().isEmpty().withMessage("O nome é obrigatório"),
     body("cpf")
@@ -1276,7 +1291,7 @@ app.post(
         `;
         enviarEmail(
           send_email,
-          `Parabéns ${client.name} você adquiriu ${product.name}}`,
+          `Parabéns ${client.name} você adquiriu ${product.name}`,
           html
         );
       }
@@ -1309,7 +1324,7 @@ app.post(
     id_product = parseInt(id_product, 10);
     const client = clients.find((c) => c.id === id_client);
     const product = productsGamers().find((p) => p.id === id_product);
-const credit_client = client.card.credit
+    const credit_client = client.card.credit;
     if (!client) {
       return res.status(404).json({ message: "Cliente não encontrado" });
     }
@@ -1325,14 +1340,14 @@ const credit_client = client.card.credit
 
     if (client.card.credit >= product.price) {
       return res.status(400).json({
-        message: "Crédito atual já é suficiente para comprar o produto",
+        message:
+          "Crédito atual já é suficiente para comprar o produto " +
+          client.card.credit,
       });
     }
-        // Atualizar o crédito do cliente
-        client.card.credit = totalCreditAvailable;
+    // Atualizar o crédito do cliente
+    client.card.credit = totalCreditAvailable;
 
-
-    
     if (product.price > totalCreditAvailable) {
       res.status(400).json({
         message: `O valor do produto ${product.price} ainda é maior que o crédito atual somado ao emprestimo ${value_sum}, ${client.name} faça um novo emprestimo`,
@@ -1343,7 +1358,7 @@ const credit_client = client.card.credit
       message: "Crédito adicionado com sucesso",
       holdCredit: credit_client,
       newCredit: client.card.credit,
-      client: client
+      client: client,
     });
   }
 );
