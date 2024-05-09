@@ -345,7 +345,9 @@ app.post(
       .notEmpty()
       .withMessage("O campo nome é obrigatório")
       .custom((value) => {
-        const userExists = crud_get.users.some((user) => user.nome.trim() === value.trim());
+        const userExists = crud_get.users.some(
+          (user) => user.nome.trim() === value.trim()
+        );
         if (userExists) {
           throw new Error("Nome já existe");
         }
@@ -383,7 +385,7 @@ app.post(
       profissao: req.body.profissao,
       empresa: req.body.empresa,
       status: "ativo", // Status definido automaticamente como 'ativo'
-      dataCadastro: new Date().toISOString().split('T')[0], // Data de cadastro definida como a data atual
+      dataCadastro: new Date().toISOString().split("T")[0], // Data de cadastro definida como a data atual
     };
 
     // Adiciona o novo usuário ao array
@@ -552,7 +554,9 @@ app.post(
 
     res.status(201).send({
       produto: produto,
-      message: "Parabéns pela compra! Você adquiriu o " + produto.nome,
+      message: `${nome}, Parabéns pela compra! Você comprou ${
+        produto.nome
+      }\nSeu valor na cateira é de:  ${valor_na_carteira - produto.preco}`,
     });
   }
 );
@@ -812,7 +816,6 @@ app.post(
         }
         return true;
       }),
-    body("members").isArray().withMessage("Membros devem ser um array"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -820,7 +823,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, description, endDate, members, leader } = req.body;
+    const { name, description, endDate, leader } = req.body;
 
     // Definindo startDate para a data atual
     const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
@@ -833,7 +836,6 @@ app.post(
       description,
       startDate,
       endDate,
-      members,
     };
     if (projects.length >= 50) {
       projects = projects.slice(10);
@@ -844,7 +846,7 @@ app.post(
         .status(400)
         .json({ errors: `${name} já existe na lista de projetos.` });
     }
-
+    newProject.members = [];
     // Adicionar o projeto à lista de projetos
     projects.push(newProject);
 

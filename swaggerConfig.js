@@ -42146,21 +42146,8 @@ const swaggerDocument = {
                     format: "date",
                     description: "Data de término do projeto",
                   },
-                  members: {
-                    type: "array",
-                    items: {
-                      type: "string",
-                    },
-                    description: "Lista de membros do projeto",
-                  },
                 },
-                required: [
-                  "name",
-                  "description",
-                  "endDate",
-                  "members",
-                  "leader",
-                ],
+                required: ["name", "description", "endDate", "leader"],
               },
             },
           },
