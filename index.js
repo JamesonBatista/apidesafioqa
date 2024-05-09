@@ -822,9 +822,13 @@ app.post(
 
     const { name, description, endDate, leader } = req.body;
 
-    const projectExists = projects.some(p => p.name.trim().toLowerCase() === name.trim().toLowerCase());
+    const projectExists = projects.some(
+      (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
+    );
     if (projectExists) {
-      return res.status(400).json({ message: "Projeto com esse nome já existe." });
+      return res
+        .status(400)
+        .json({ message: "Projeto com esse nome já existe." });
     }
 
     const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
@@ -835,7 +839,7 @@ app.post(
       description,
       startDate,
       endDate,
-      members: []
+      members: [],
     };
 
     // Limite e remoção de projetos antigos
@@ -846,7 +850,7 @@ app.post(
     projects.push(newProject);
     res.status(201).json({
       message: "Projeto criado com sucesso!",
-      project: newProject
+      project: newProject,
     });
   }
 );
@@ -1191,8 +1195,8 @@ app.post(
     }
 
     let { id_client, id_product, send_email } = req.body;
-    id_client = parseInt(id_client, 10)
-    id_product = parseInt(id_product, 10)
+    id_client = parseInt(id_client, 10);
+    id_product = parseInt(id_product, 10);
     const client = clients.find((c) => c.id === id_client);
     const product = productsGamers().find((p) => p.id === id_product);
 
@@ -1301,6 +1305,8 @@ app.post(
     }
 
     const { id_client, id_product, value_credit } = req.body;
+    id_client = parseInt(id_client, 10);
+    id_product = parseInt(id_product, 10);
     const client = clients.find((c) => c.id === id_client);
     const product = productsGamers().find((p) => p.id === id_product);
 
