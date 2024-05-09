@@ -75053,7 +75053,7 @@ export const produtosDeLuxo = {
 };
 const today = new Date();
 today.setDate(today.getDate() + 1);
-export const projects = [
+export let projects = [
   {
     id: 1,
     name: "Bank S.A",

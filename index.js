@@ -788,27 +788,24 @@ app.post(
   "/create-projects",
   [
     body("name")
-      .not()
-      .isEmpty()
+      .notEmpty()
       .withMessage("O nome é obrigatório")
       .isString()
-      .withMessage("O campo name é uma string"),
+      .withMessage("O campo name deve ser uma string"),
     body("leader")
-      .not()
-      .isEmail()
+      .notEmpty()
       .withMessage("Campo líder é obrigatório")
       .isString()
-      .withMessage("O campo leader é uma string"),
+      .withMessage("O campo leader deve ser uma string"),
     body("description")
-      .not()
-      .isEmpty()
+      .notEmpty()
       .withMessage("A descrição é obrigatória")
       .isString()
-      .withMessage("O campo description é uma string"),
+      .withMessage("O campo description deve ser uma string"),
     body("endDate")
       .isISO8601()
       .withMessage("Data de término inválida")
-      .custom((value, { req }) => {
+      .custom((value) => {
         const endDate = new Date(value);
         const today = new Date();
         if (endDate <= today) {
@@ -823,44 +820,37 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Remover projetos cuja data de início está mais de 5 dias atrás
-    const fiveDaysAgo = new Date();
-    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 2);
-    projects = projects.filter((p) => new Date(p.startDate) > fiveDaysAgo);
     const { name, description, endDate, leader } = req.body;
 
-    // Definindo startDate para a data atual
-    const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+    const projectExists = projects.some(p => p.name.trim().toLowerCase() === name.trim().toLowerCase());
+    if (projectExists) {
+      return res.status(400).json({ message: "Projeto com esse nome já existe." });
+    }
 
-    // Criar um novo projeto com ID único
+    const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
     const newProject = {
-      id: generateId(projects), // Gerar um ID simples baseado no tamanho do array
+      id: generateId(projects),
       name,
       leader,
       description,
       startDate,
       endDate,
-      members: [],
+      members: []
     };
-    if (projects.length >= 50) {
-      projects = projects.slice(10);
-    }
-    const project = projects.find((p) => p.name.trim() === name.trim());
-    if (project) {
-      return res
-        .status(400)
-        .json({ errors: `${name} já existe na lista de projetos.` });
-    }
-    // Adicionar o projeto à lista de projetos
-    projects.push(newProject);
 
-    // Responder com sucesso
+    // Limite e remoção de projetos antigos
+    if (projects.length >= 50) {
+      projects.splice(0, 10); // Remove os 10 primeiros
+    }
+
+    projects.push(newProject);
     res.status(201).json({
       message: "Projeto criado com sucesso!",
-      project: newProject,
+      project: newProject
     });
   }
 );
+
 app.get("/projects/:id", (req, res) => {
   const projectId = parseInt(req.params.id);
   const project = projects.find((p) => p.id === projectId);
@@ -940,8 +930,8 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, office, projectId, send_email } = req.body;
-    projectId = parseInt(projectId);
+    let { name, office, projectId, send_email } = req.body;
+    projectId = parseInt(projectId, 10);
 
     // Encontrar o projeto pelo ID
     const project = projects.find((p) => p.id === projectId);
