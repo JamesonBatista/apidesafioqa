@@ -1296,7 +1296,7 @@ app.post(
     body("id_product").isInt({ min: 1 }).withMessage("ID do produto inválido"),
     body("value_credit")
       .isInt({ min: 1, max: 15000 })
-      .withMessage("O valor de crédito solicitado deve ser um número positivo"),
+      .withMessage("O valor de crédito solicitado deve ser menor que 15000"),
   ],
   (req, res) => {
     const errors = validationResult(req);
@@ -1304,38 +1304,46 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { id_client, id_product, value_credit } = req.body;
+    let { id_client, id_product, value_credit } = req.body;
     id_client = parseInt(id_client, 10);
     id_product = parseInt(id_product, 10);
     const client = clients.find((c) => c.id === id_client);
     const product = productsGamers().find((p) => p.id === id_product);
-
+const credit_client = client.card.credit
     if (!client) {
       return res.status(404).json({ message: "Cliente não encontrado" });
     }
     if (!product) {
       return res.status(404).json({ message: "Produto não encontrado" });
     }
-
-    const creditNeeded = product.price - client.card.credit;
+    const totalCreditAvailable = client.card.credit + value_credit;
+    if (totalCreditAvailable < product.price) {
+      return res.status(400).json({
+        message: `O crédito total após adicionar o empréstimo ainda é insuficiente para comprar o produto. Crédito necessário: ${product.price}, crédito disponível: ${totalCreditAvailable}`,
+      });
+    }
 
     if (client.card.credit >= product.price) {
       return res.status(400).json({
         message: "Crédito atual já é suficiente para comprar o produto",
       });
     }
+        // Atualizar o crédito do cliente
+        client.card.credit = totalCreditAvailable;
 
-    const value_sum = (client.card.credit += value_credit);
-    if (product.price > value_sum) {
+
+    
+    if (product.price > totalCreditAvailable) {
       res.status(400).json({
         message: `O valor do produto ${product.price} ainda é maior que o crédito atual somado ao emprestimo ${value_sum}, ${client.name} faça um novo emprestimo`,
       });
     }
 
-    client.card.credit += value_credit;
     res.status(200).json({
       message: "Crédito adicionado com sucesso",
+      holdCredit: credit_client,
       newCredit: client.card.credit,
+      client: client
     });
   }
 );
