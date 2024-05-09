@@ -1190,7 +1190,9 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { id_client, id_product, send_email } = req.body;
+    let { id_client, id_product, send_email } = req.body;
+    id_client = parseInt(id_client, 10)
+    id_product = parseInt(id_product, 10)
     const client = clients.find((c) => c.id === id_client);
     const product = productsGamers().find((p) => p.id === id_product);
 
