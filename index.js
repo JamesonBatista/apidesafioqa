@@ -823,6 +823,10 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
+    // Remover projetos cuja data de início está mais de 5 dias atrás
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 2);
+    projects = projects.filter((p) => new Date(p.startDate) > fiveDaysAgo);
     const { name, description, endDate, leader } = req.body;
 
     // Definindo startDate para a data atual
@@ -836,6 +840,7 @@ app.post(
       description,
       startDate,
       endDate,
+      members: [],
     };
     if (projects.length >= 50) {
       projects = projects.slice(10);
@@ -846,7 +851,6 @@ app.post(
         .status(400)
         .json({ errors: `${name} já existe na lista de projetos.` });
     }
-    newProject.members = [];
     // Adicionar o projeto à lista de projetos
     projects.push(newProject);
 
@@ -937,6 +941,7 @@ app.post(
     }
 
     const { name, office, projectId, send_email } = req.body;
+    projectId = parseInt(projectId);
 
     // Encontrar o projeto pelo ID
     const project = projects.find((p) => p.id === projectId);
@@ -944,7 +949,7 @@ app.post(
       return res.status(404).json({ message: "Projeto não encontrado" });
     }
 
-    let id_member = generateId(membersProjet);
+    let id_member = generateId(project.members);
     // Criar o novo membro
     const newMember = { id_member, name, office, send_email };
     if (membersProjet.length >= 50) {
