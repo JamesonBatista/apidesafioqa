@@ -1280,7 +1280,7 @@ app.post(
       res.status(400).json({
         message: "Crédito insuficiente",
         requiredCredit: product.price,
-        currentCredit: client.card.crdit,
+        currentCredit: client.card.credit,
       });
     }
   }
