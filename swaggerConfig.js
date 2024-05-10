@@ -41560,79 +41560,6 @@ const swaggerDocument = {
           },
         },
       },
-    },
-    "/produtos/{id_produto}": {
-      get: {
-        tags: ["Shop"],
-        summary: "Obter detalhes do produto",
-        description: "Retorna detalhes de um produto específico pelo ID.",
-        parameters: [
-          {
-            name: "id_produto",
-            in: "path",
-            required: true,
-            description: "ID único do produto",
-            schema: {
-              type: "string",
-            },
-          },
-        ],
-        responses: {
-          200: {
-            description: "Detalhes do produto",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    id: {
-                      type: "string",
-                      description: "ID do produto",
-                    },
-                    nome: {
-                      type: "string",
-                      description: "Nome do produto",
-                    },
-                    marca: {
-                      type: "string",
-                      description: "Marca do produto",
-                    },
-                    preço: {
-                      type: "number",
-                      format: "float",
-                      description: "Preço do produto",
-                    },
-                  },
-                  example: {
-                    id: "MAC",
-                    nome: "MacBook Pro 16'",
-                    marca: "Apple",
-                    preço: 28000,
-                  },
-                },
-              },
-            },
-          },
-          404: {
-            description: "Produto não encontrado",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example: "Produto com o ID fornecido não foi encontrado.",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/comprar-produto": {
       post: {
         tags: ["Shop"],
         summary: "Processa a compra de um produto",
@@ -41731,6 +41658,78 @@ const swaggerDocument = {
         },
       },
     },
+    "/produtos/{id_produto}": {
+      get: {
+        tags: ["Shop"],
+        summary: "Obter detalhes do produto",
+        description: "Retorna detalhes de um produto específico pelo ID.",
+        parameters: [
+          {
+            name: "id_produto",
+            in: "path",
+            required: true,
+            description: "ID único do produto",
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Detalhes do produto",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                      description: "ID do produto",
+                    },
+                    nome: {
+                      type: "string",
+                      description: "Nome do produto",
+                    },
+                    marca: {
+                      type: "string",
+                      description: "Marca do produto",
+                    },
+                    preço: {
+                      type: "number",
+                      format: "float",
+                      description: "Preço do produto",
+                    },
+                  },
+                  example: {
+                    id: "MAC",
+                    nome: "MacBook Pro 16'",
+                    marca: "Apple",
+                    preço: 28000,
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Produto não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Produto com o ID fornecido não foi encontrado.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
     "/clientes": {
       get: {
         tags: ["Bank"],

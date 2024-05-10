@@ -437,7 +437,7 @@ app.get("/produtos/:id", (req, res) => {
 });
 
 app.post(
-  "/comprar-produto",
+  "/produtos",
   [
     body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
     body("cpf")
