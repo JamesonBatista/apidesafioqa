@@ -67,6 +67,12 @@ const swaggerDocument = {
       description: "Simulação de criptografia de dados certo e errados",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
+    {
+      name: "Company",
+      description:
+        "Simulação de criação de Empresa, Funcionários, Produtos, e Serviços",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
   ],
   paths: {
     "/login": {
@@ -43201,6 +43207,1243 @@ const swaggerDocument = {
         },
       },
     },
+    "/company": {
+      post: {
+        tags: ["Company"],
+        summary: "Cria uma nova empresa",
+        description:
+          "Este endpoint cria um novo registro de empresa com nome, CNPJ, estado, cidade, endereço e setor.",
+        operationId: "createCompany",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome da empresa",
+                  },
+                  cnpj: {
+                    type: "string",
+                    description: "CNPJ válido da empresa",
+                  },
+                  state: {
+                    type: "string",
+                    description: "Estado onde a empresa está localizada",
+                  },
+                  city: {
+                    type: "string",
+                    description: "Cidade onde a empresa está localizada",
+                  },
+                  address: {
+                    type: "string",
+                    description: "Endereço completo da empresa",
+                  },
+                  sector: {
+                    type: "string",
+                    description: "Setor de atuação da empresa",
+                  },
+                },
+                required: [
+                  "name",
+                  "cnpj",
+                  "state",
+                  "city",
+                  "address",
+                  "sector",
+                ],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Empresa criada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                    company: {
+                      type: "object",
+                      properties: {
+                        id: {
+                          type: "integer",
+                        },
+                        name: {
+                          type: "string",
+                        },
+                        cnpj: {
+                          type: "string",
+                        },
+                        state: {
+                          type: "string",
+                        },
+                        city: {
+                          type: "string",
+                        },
+                        address: {
+                          type: "string",
+                        },
+                        sector: {
+                          type: "string",
+                        },
+                        products: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                          },
+                        },
+                        employees: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                          },
+                        },
+                        services: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+        },
+      },
+      get: {
+        tags: ["Company"],
+        summary: "Obtém todas as empresas",
+        description:
+          "Este endpoint retorna uma lista de todas as empresas cadastradas.",
+        operationId: "getcompany",
+        responses: {
+          200: {
+            description: "Lista de empresas recuperada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "integer",
+                      },
+                      name: {
+                        type: "string",
+                      },
+                      cnpj: {
+                        type: "string",
+                      },
+                      state: {
+                        type: "string",
+                      },
+                      city: {
+                        type: "string",
+                      },
+                      address: {
+                        type: "string",
+                      },
+                      sector: {
+                        type: "string",
+                      },
+                      products: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                        },
+                      },
+                      employees: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                        },
+                      },
+                      services: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Nenhuma empresa encontrada",
+          },
+        },
+      },
+      put: {
+        tags: ["Company"],
+        summary: "Atualiza uma empresa específica",
+        description:
+          "Este endpoint atualiza os detalhes de uma empresa específica baseada no ID fornecido.",
+        operationId: "updateCompany",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID da empresa a ser atualizada",
+            type: "integer",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/definitions/Company",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Empresa atualizada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/definitions/Company",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
+      delete: {
+        tags: ["Company"],
+        summary: "Deleta uma empresa específica",
+        description:
+          "Este endpoint remove uma empresa específica do sistema baseado no ID fornecido.",
+        operationId: "deleteCompany",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID da empresa a ser deletada",
+            type: "integer",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Empresa deletada com sucesso",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
+    },
+    "/company/{companyId}": {
+      get: {
+        tags: ["Company"],
+        summary: "Obtém uma empresa pelo ID",
+        description:
+          "Retorna os detalhes de uma empresa específica baseado no ID fornecido.",
+        operationId: "getCompanyById",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID numérico da empresa a ser recuperada",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Detalhes da empresa",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Company",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação nos parâmetros de entrada",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
+    },
+    "/company/{companyId}/products": {
+      get: {
+        tags: ["Company"],
+        summary: "Lista todos os produtos de uma empresa específica",
+        description:
+          "Recupera todos os produtos associados a um ID de empresa especificado.",
+        operationId: "getCompanyProducts",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description:
+              "O ID numérico da empresa cujos produtos serão recuperados",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de produtos recuperada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      productId: {
+                        type: "integer",
+                        description: "O identificador único do produto",
+                      },
+                      productName: {
+                        type: "string",
+                        description: "O nome do produto",
+                      },
+                      productDescription: {
+                        type: "string",
+                        description: "Uma breve descrição do produto",
+                      },
+                      price: {
+                        type: "integer",
+                        description: "O preço do produto em centavos",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Entrada inválida, objeto inválido",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    errors: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                        description: "Lista de erros de validação",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Empresa não encontrada",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description:
+                        "Mensagem de erro indicando que a empresa não foi encontrada.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Company"],
+        summary: "Adiciona um produto a uma empresa específica",
+        description:
+          "Este endpoint adiciona um novo produto à lista de produtos de uma empresa específica.",
+        operationId: "addProductToCompany",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            description: "ID da empresa à qual o produto será adicionado",
+            type: "integer",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["productName", "productDescription", "price"],
+                properties: {
+                  productName: {
+                    type: "string",
+                    description: "Nome do produto",
+                  },
+                  productDescription: {
+                    type: "string",
+                    description: "Descrição do produto",
+                  },
+                  price: {
+                    type: "integer",
+                    description: "Preço do produto em centavos",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Product",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
+    },
+    "/company/{companyId}/products/{productId}": {
+      get: {
+        tags: ["Company"],
+        summary: "Obtém um produto específico de uma empresa",
+        description:
+          "Retorna os detalhes de um produto específico de uma empresa baseado nos IDs fornecidos da empresa e do produto.",
+        operationId: "getProductById",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa na qual o produto está localizado",
+          },
+          {
+            name: "productId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do produto que será recuperado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Detalhes do produto",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    productId: {
+                      type: "integer",
+                      description: "ID do produto",
+                    },
+                    productName: {
+                      type: "string",
+                      description: "Nome do produto",
+                    },
+                    productDescription: {
+                      type: "string",
+                      description: "Descrição do produto",
+                    },
+                    price: {
+                      type: "integer",
+                      description: "Preço do produto em centavos",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação nos parâmetros de entrada",
+          },
+          404: {
+            description: "Empresa ou produto não encontrado",
+          },
+        },
+      },
+      put: {
+        tags: ["Company"],
+        summary: "Atualiza um produto específico de uma empresa",
+        description:
+          "Este endpoint atualiza os detalhes de um produto específico dentro de uma empresa.",
+        operationId: "updateProductInCompany",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            description: "ID da empresa na qual o produto está localizado",
+            type: "integer",
+          },
+          {
+            name: "productId",
+            in: "path",
+            required: true,
+            description: "ID do produto que será atualizado",
+            type: "integer",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  productName: {
+                    type: "string",
+                    description: "Nome do produto",
+                    example: "Novo Software de Gestão",
+                  },
+                  productDescription: {
+                    type: "string",
+                    description: "Descrição do produto",
+                    example:
+                      "Software atualizado para gestão empresarial, incluindo módulos de finanças, vendas e operações.",
+                  },
+                  price: {
+                    type: "integer",
+                    description: "Preço do produto em centavos",
+                    example: 5500,
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Produto atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Product",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa ou produto não encontrado",
+          },
+        },
+      },
+      delete: {
+        tags: ["Company"],
+        summary: "Remove um produto de uma empresa",
+        description:
+          "Este endpoint remove um produto específico de uma empresa.",
+        operationId: "deleteProductFromCompany",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            description: "ID da empresa da qual o produto será removido",
+            type: "integer",
+          },
+          {
+            name: "productId",
+            in: "path",
+            required: true,
+            description: "ID do produto a ser removido",
+            type: "integer",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Produto removido com sucesso",
+          },
+          404: {
+            description: "Empresa ou produto não encontrado",
+          },
+        },
+      },
+    },
+    // employees
+    "/company/{companyId}/employees": {
+      get: {
+        tags: ["Company"],
+        summary: "Lista todos os funcionários de uma empresa específica",
+        description:
+          "Recupera todos os funcionários associados a um ID de empresa especificado.",
+        operationId: "getEmployeesByCompany",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description:
+              "O ID numérico da empresa cujos funcionários serão recuperados",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de funcionários recuperada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      employeeId: {
+                        type: "integer",
+                        description: "O identificador único do funcionário",
+                      },
+                      name: {
+                        type: "string",
+                        description: "O nome do funcionário",
+                      },
+                      position: {
+                        type: "string",
+                        description: "O cargo do funcionário",
+                      },
+                      email: {
+                        type: "string",
+                        format: "email",
+                        description: "O endereço de email do funcionário",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Entrada inválida, objeto inválido",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    errors: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                        description: "Lista de erros de validação",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Empresa não encontrada",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description:
+                        "Mensagem de erro indicando que a empresa não foi encontrada.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Company"],
+        summary: "Adiciona um funcionário à empresa",
+        description:
+          "Cria um novo funcionário dentro da empresa especificada pelo ID da empresa.",
+        operationId: "addEmployee",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa onde o funcionário será adicionado",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["name", "position", "email"],
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome do funcionário",
+                  },
+                  position: {
+                    type: "string",
+                    description: "Cargo do funcionário",
+                  },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    description: "Email do funcionário",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Funcionário adicionado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Employee",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
+    },
+    "/company/{companyId}/employees/{employeeId}": {
+      get: {
+        tags: ["Company"],
+        summary: "Obtém um funcionário específico",
+        description:
+          "Retorna os detalhes de um funcionário específico de uma empresa baseado nos IDs fornecidos.",
+        operationId: "getEmployeeById",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa onde o funcionário está localizado",
+          },
+          {
+            name: "employeeId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do funcionário que será recuperado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Detalhes do funcionário recuperado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    employeeId: {
+                      type: "integer",
+                      description: "ID do funcionário",
+                    },
+                    name: {
+                      type: "string",
+                      description: "Nome do funcionário",
+                    },
+                    position: {
+                      type: "string",
+                      description: "Cargo do funcionário",
+                    },
+                    email: {
+                      type: "string",
+                      format: "email",
+                      description: "Email do funcionário",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação nos parâmetros de entrada",
+          },
+          404: {
+            description: "Empresa ou funcionário não encontrado",
+          },
+        },
+      },
+      put: {
+        tags: ["Company"],
+        summary: "Atualiza um funcionário específico",
+        description:
+          "Atualiza os detalhes de um funcionário existente na empresa especificada.",
+        operationId: "updateEmployee",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa onde o funcionário está localizado",
+          },
+          {
+            name: "employeeId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do funcionário a ser atualizado",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Nome do funcionário",
+                  },
+                  position: {
+                    type: "string",
+                    description: "Cargo do funcionário",
+                  },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    description: "Email do funcionário",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Funcionário atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Employee",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa ou funcionário não encontrado",
+          },
+        },
+      },
+      delete: {
+        tags: ["Company"],
+        summary: "Remove um funcionário específico",
+        description:
+          "Remove um funcionário da empresa especificada pelo ID da empresa e do funcionário.",
+        operationId: "deleteEmployee",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa da qual o funcionário será removido",
+          },
+          {
+            name: "employeeId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do funcionário a ser removido",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Funcionário removido com sucesso",
+          },
+          404: {
+            description: "Empresa ou funcionário não encontrado",
+          },
+        },
+      },
+    },
+    // services
+    "/company/{companyId}/services": {
+      get: {
+        tags: ["Company"],
+        summary: "Lista todos os serviços de uma empresa específica",
+        description:
+          "Recupera todos os serviços associados a um ID de empresa especificado.",
+        operationId: "getServicesByCompany",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description:
+              "O ID numérico da empresa cujos serviços serão recuperados",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de serviços recuperada com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      serviceId: {
+                        type: "integer",
+                        description: "O identificador único do serviço",
+                      },
+                      serviceName: {
+                        type: "string",
+                        description: "O nome do serviço",
+                      },
+                      serviceDescription: {
+                        type: "string",
+                        description: "Uma breve descrição do serviço",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Entrada inválida, objeto inválido",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    errors: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                      },
+                      description: "Lista de erros de validação",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Empresa não encontrada",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      description:
+                        "Mensagem de erro indicando que a empresa não foi encontrada.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Company"],
+        summary: "Adiciona um serviço à empresa",
+        description:
+          "Cria um novo serviço dentro da empresa especificada pelo ID da empresa.",
+        operationId: "addService",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa onde o serviço será adicionado",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["serviceName", "serviceDescription"],
+                properties: {
+                  serviceName: {
+                    type: "string",
+                    description: "Nome do serviço",
+                  },
+                  serviceDescription: {
+                    type: "string",
+                    description: "Descrição do serviço",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Serviço adicionado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Service",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
+    },
+    "/company/{companyId}/services/{serviceId}": {
+      get: {
+        tags: ["Company"],
+        summary: "Obtém um serviço específico",
+        description:
+          "Retorna os detalhes de um serviço específico de uma empresa baseado nos IDs fornecidos.",
+        operationId: "getServiceById",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa onde o serviço está localizado",
+          },
+          {
+            name: "serviceId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do serviço que será recuperado",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Detalhes do serviço recuperado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    serviceId: {
+                      type: "integer",
+                      description: "ID do serviço",
+                    },
+                    serviceName: {
+                      type: "string",
+                      description: "Nome do serviço",
+                    },
+                    serviceDescription: {
+                      type: "string",
+                      description: "Descrição do serviço",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação nos parâmetros de entrada",
+          },
+          404: {
+            description: "Empresa ou serviço não encontrado",
+          },
+        },
+      },
+      put: {
+        tags: ["Company"],
+        summary: "Atualiza um serviço específico",
+        description:
+          "Atualiza os detalhes de um serviço existente na empresa especificada.",
+        operationId: "updateService",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa onde o serviço está localizado",
+          },
+          {
+            name: "serviceId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do serviço a ser atualizado",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  serviceName: {
+                    type: "string",
+                    description: "Nome do serviço",
+                    example: "Atualização de Software",
+                  },
+                  serviceDescription: {
+                    type: "string",
+                    description: "Descrição do serviço",
+                    example:
+                      "Serviço atualizado para incluir novos recursos de segurança.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Serviço atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Service",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados inválidos fornecidos",
+          },
+          404: {
+            description: "Empresa ou serviço não encontrado",
+          },
+        },
+      },
+      delete: {
+        tags: ["Company"],
+        summary: "Remove um serviço específico",
+        description:
+          "Remove um serviço da empresa especificada pelo ID da empresa e do serviço.",
+        operationId: "deleteService",
+        parameters: [
+          {
+            name: "companyId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID da empresa da qual o serviço será removido",
+          },
+          {
+            name: "serviceId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do serviço a ser removido",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Serviço removido com sucesso",
+          },
+          404: {
+            description: "Empresa ou serviço não encontrado",
+          },
+        },
+      },
+    },
+    //
   },
   components: {
     schemas: {
@@ -43258,6 +44501,83 @@ const swaggerDocument = {
             type: "integer",
             description:
               "Preço do produto em centavos, representando custos associados",
+          },
+        },
+      },
+      Employee: {
+        type: "object",
+        properties: {
+          employeeId: {
+            type: "integer",
+            description: "ID do funcionário",
+          },
+          name: {
+            type: "string",
+            description: "Nome do funcionário",
+          },
+          position: {
+            type: "string",
+            description: "Cargo do funcionário",
+          },
+          email: {
+            type: "string",
+            format: "email",
+            description: "Email válido do funcionário",
+          },
+        },
+      },
+      Service: {
+        type: "object",
+        properties: {
+          serviceId: {
+            type: "integer",
+            description: "ID do serviço",
+          },
+          serviceName: {
+            type: "string",
+            description: "Nome do serviço",
+          },
+          serviceDescription: {
+            type: "string",
+            description: "Descrição detalhada do serviço",
+          },
+        },
+      },
+      Company: {
+        type: "object",
+        properties: {
+          id: {
+            type: "integer",
+            description: "ID da empresa",
+          },
+          name: {
+            type: "string",
+            description: "Nome da empresa",
+          },
+          address: {
+            type: "string",
+            description: "Endereço da empresa",
+          },
+          services: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                serviceId: {
+                  type: "integer",
+                  description: "ID do serviço",
+                },
+                serviceName: {
+                  type: "string",
+                  description: "Nome do serviço",
+                },
+                serviceDescription: {
+                  type: "string",
+                  description: "Descrição do serviço",
+                },
+              },
+            },
+            description: "Lista de serviços oferecidos pela empresa",
           },
         },
       },

@@ -1,7 +1,7 @@
 import swaggerDocument from "./swaggerConfig.js";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
-import { body, validationResult } from "express-validator";
+import { param, body, validationResult } from "express-validator";
 import isValidCPF, { decrypt, encrypt } from "./functions.js";
 
 import enviarEmail from "./email.js";
@@ -9,7 +9,7 @@ const app = express();
 import bodyParser from "body-parser";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import germany_json, { productsGamers } from "./swagger_jsons.js";
+import germany_json, { company, productsGamers } from "./swagger_jsons.js";
 import {
   json_1,
   json_2,
@@ -843,7 +843,7 @@ app.post(
     if (projectExists) {
       return res
         .status(400)
-        .json({ message: "Projeto com esse nome já existe." });
+        .json({ message: `Já existe um projeto com o nome ${name}` });
     }
 
     const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
@@ -1431,6 +1431,742 @@ app.post("/decrypt-validate", (req, res) => {
 
   res.json(responseData);
 });
+
+// COMPANY
+
+app.get("/company", (req, res) => {
+  res.send(company);
+});
+app.get(
+  "/company/:companyId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    res.status(200).send(company_);
+  }
+);
+app.post(
+  "/company",
+  [
+    body("name").notEmpty().withMessage("Nome é obrigatório"),
+    body("cnpj")
+      .isLength({ min: 14, max: 14 })
+      .withMessage("CNPJ deve ter 14 dígitos")
+      .isNumeric()
+      .withMessage("CNPJ deve conter apenas números"),
+    body("state").notEmpty().withMessage("Estado é obrigatório"),
+    body("city").notEmpty().withMessage("Cidade é obrigatória"),
+    body("address").notEmpty().withMessage("Endereço é obrigatório"),
+    body("sector").notEmpty().withMessage("Setor é obrigatório"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, cnpj, state, city, address, sector } = req.body;
+
+    const projectExists = company.some(
+      (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+    if (projectExists) {
+      return res
+        .status(400)
+        .json({ message: `Já existe uma Empresa com o nome ${name}` });
+    }
+
+    let newCompany = {
+      id: generateId(company), // ID fictício
+      name,
+      cnpj,
+      state,
+      city,
+      address,
+      sector,
+      products: [],
+      employees: [],
+      services: [],
+    };
+    company.push(newCompany);
+    return res.status(201).send(newCompany);
+  }
+);
+app.put(
+  "/company/:id",
+  [
+    param("id").isInt().withMessage("ID deve ser um número inteiro"),
+    body("name").optional().notEmpty().withMessage("Nome não pode ser vazio"),
+    body("cnpj")
+      .optional()
+      .isLength({ min: 14, max: 14 })
+      .withMessage("CNPJ deve ter 14 dígitos")
+      .isNumeric()
+      .withMessage("CNPJ deve conter apenas números"),
+    body("state")
+      .optional()
+      .notEmpty()
+      .withMessage("Estado não pode ser vazio"),
+    body("city").optional().notEmpty().withMessage("Cidade não pode ser vazia"),
+    body("address")
+      .optional()
+      .notEmpty()
+      .withMessage("Endereço não pode ser vazio"),
+    body("sector")
+      .optional()
+      .notEmpty()
+      .withMessage("Setor não pode ser vazio"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const companyIndex = company.findIndex(
+      (company) => company.id === parseInt(id)
+    );
+
+    if (companyIndex === -1) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const { name, cnpj, state, city, address, sector } = req.body;
+
+    // Atualizar somente os campos fornecidos na requisição
+    const updatedCompany = company[companyIndex];
+    if (name) updatedCompany.name = name;
+    if (cnpj) updatedCompany.cnpj = cnpj;
+    if (state) updatedCompany.state = state;
+    if (city) updatedCompany.city = city;
+    if (address) updatedCompany.address = address;
+    if (sector) updatedCompany.sector = sector;
+
+    company[companyIndex] = updatedCompany;
+
+    res.status(200).send({
+      message: "Empresa atualizada com sucesso",
+      company: updatedCompany,
+    });
+  }
+);
+
+app.delete(
+  "/company/:id",
+  [param("id").isInt().withMessage("ID deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { id } = req.params;
+    const companyIndex = company.findIndex(
+      (company) => company.id === parseInt(id)
+    );
+
+    if (companyIndex === -1) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    // Remover a empresa
+    company.splice(companyIndex, 1);
+
+    // Responder que a empresa foi deletada
+    res.status(200).send({ message: "Empresa deletada com sucesso" });
+  }
+);
+// PRODUCTS COMPANY
+app.get(
+  "/company/:companyId/products",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, productId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+    const product = company_.products;
+    res.status(200).send(product);
+  }
+);
+app.post(
+  "/company/:companyId/products",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    body("productName").notEmpty().withMessage("Nome do produto é obrigatório"),
+    body("productDescription")
+      .notEmpty()
+      .withMessage("Descrição do produto é obrigatória"),
+    body("price")
+      .isInt({ min: 0 })
+      .withMessage("Preço deve ser um número inteiro positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const { productName, productDescription, price } = req.body;
+
+    const verify_name = company_.products.find(
+      (c) =>
+        c.productName.trim().toLowerCase() === productName.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res
+        .status(400)
+        .send({ message: `${productName}  já existe nos produtos.` });
+    }
+
+    const productId = company_.products.length + 1; // Simples ID incremental
+    const newProduct = { productId, productName, productDescription, price };
+    company_.products.push(newProduct);
+
+    res.status(201).send({
+      message: "Produto adicionado com sucesso",
+      product: newProduct,
+    });
+  }
+);
+app.get(
+  "/company/:companyId/products/:productId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("productId")
+      .isInt()
+      .withMessage("ID do produto deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, productId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+    const product = company_.products.find(
+      (p) => p.productId === parseInt(productId)
+    );
+    if (!product) {
+      return res.status(404).send({ message: "Produto não encontrado" });
+    }
+    res.status(200).send(product);
+  }
+);
+app.put(
+  "/company/:companyId/products/:productId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("productId")
+      .isInt()
+      .withMessage("ID do produto deve ser um número inteiro"),
+    body("productName")
+      .optional()
+      .notEmpty()
+      .withMessage("Nome do produto não pode ser vazio"),
+    body("productDescription")
+      .optional()
+      .notEmpty()
+      .withMessage("Descrição do produto não pode ser vazia"),
+    body("price")
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage("Preço deve ser um número inteiro positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, productId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const productIndex = company_.products.findIndex(
+      (p) => p.productId === parseInt(productId)
+    );
+    if (productIndex === -1) {
+      return res.status(404).send({ message: "Produto não encontrado" });
+    }
+
+    const product = company_.products[productIndex];
+    const { productName, productDescription, price } = req.body;
+    if (productName) product.productName = productName;
+    if (productDescription) product.productDescription = productDescription;
+    if (price) product.price = price;
+
+    res.status(200).send({
+      message: "Produto atualizado com sucesso",
+      product,
+    });
+  }
+);
+app.delete(
+  "/company/:companyId/products/:productId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("productId")
+      .isInt()
+      .withMessage("ID do produto deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, productId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const productIndex = company_.products.findIndex(
+      (p) => p.productId === parseInt(productId)
+    );
+    if (productIndex === -1) {
+      return res.status(404).send({ message: "Produto não encontrado" });
+    }
+
+    company_.products.splice(productIndex, 1);
+
+    res.status(200).send({ message: "Produto removido com sucesso" });
+  }
+);
+
+//
+
+// EMPLOYEES
+app.get(
+  "/company/:companyId/employees",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { companyId, productId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const employee = company_.employees;
+
+    res.status(200).send(employee);
+  }
+);
+app.post(
+  "/company/:companyId/employees",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    body("name").notEmpty().withMessage("name do produto é obrigatório"),
+    body("position")
+      .notEmpty()
+      .withMessage("position do produto é obrigatória"),
+    body("email")
+      .isEmail()
+      .withMessage("Deve ser um email válido")
+      .notEmpty()
+      .withMessage("O campo email é obrigatório"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const { name, position, email } = req.body;
+
+    const verify_name = company_.employees.find(
+      (c) => c.name.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res
+        .status(400)
+        .send({ message: `${name} já existe nos Employees.` });
+    }
+
+    const employeeId = company_.employees.length + 1; // Simples ID incremental
+    const newProduct = { employeeId, name, position, email };
+    company_.employees.push(newProduct);
+
+    res.status(201).send({
+      message: "Funcionário(q) adicionado(a) com sucesso",
+      employees: newProduct,
+    });
+  }
+);
+app.get(
+  "/company/:companyId/employees/:employeeId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("employeeId")
+      .isInt()
+      .withMessage("ID do funcionário deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { companyId, employeeId } = req.params;
+    if (company.id !== parseInt(companyId)) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const employee = company.employees.find(
+      (e) => e.employeeId === parseInt(employeeId)
+    );
+    if (!employee) {
+      return res.status(404).send({ message: "Funcionário não encontrado" });
+    }
+
+    res.status(200).send(employee);
+  }
+);
+app.put(
+  "/company/:companyId/employees/:employeeId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("employeeId")
+      .isInt()
+      .withMessage("ID do employeeId deve ser um número inteiro"),
+    body("name")
+      .optional()
+      .notEmpty()
+      .withMessage("name do produto não pode ser vazio"),
+    body("position")
+      .optional()
+      .notEmpty()
+      .withMessage("position do produto não pode ser vazia"),
+    body("email").optional().isEmail().withMessage("Deve ser um email válido"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, employeeId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const employeeIndex = company_.employees.findIndex(
+      (p) => p.employeeId === parseInt(employeeId)
+    );
+    if (employeeIndex === -1) {
+      return res.status(404).send({ message: "Funcionário não encontrado" });
+    }
+
+    const employee = company_.employees[employeeIndex];
+    const { name, position, email } = req.body;
+    if (name) employee.name = name;
+    if (position) employee.position = position;
+    if (email) employee.email = email;
+
+    res.status(200).send({
+      message: `Funcionário(a) ${name} atualizado.`,
+      employee,
+    });
+  }
+);
+app.delete(
+  "/company/:companyId/employees/:employeeId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("employeeId")
+      .isInt()
+      .withMessage("ID do produto deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, employeeId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const productIndex = company_.employees.findIndex(
+      (p) => p.employeeId === parseInt(employeeId)
+    );
+    if (productIndex === -1) {
+      return res.status(404).send({ message: "Funcionário(a) não encontrado" });
+    }
+
+    company_.employees.splice(productIndex, 1);
+
+    res.status(200).send({ message: "Funcionário(a) removido com sucesso" });
+  }
+);
+//
+
+// SERVICE
+app.get(
+  "/company/:companyId/services",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, productId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const service = company_.services;
+
+    res.status(200).send(service);
+  }
+);
+app.post(
+  "/company/:companyId/services",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    body("serviceName")
+      .notEmpty()
+      .withMessage("serviceName do produto é obrigatório"),
+    body("serviceDescription")
+      .notEmpty()
+      .withMessage("serviceDescription do produto é obrigatória"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const { serviceName, serviceDescription } = req.body;
+
+    const verify_name = company_.services.find(
+      (c) =>
+        c.serviceName.trim().toLowerCase() === serviceName.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res
+        .status(400)
+        .send({ message: `${serviceName} já existe nos Serviços.` });
+    }
+
+    const serviceId = company_.services.length + 1; // Simples ID incremental
+    const newProduct = { serviceId, serviceName, serviceDescription };
+    company_.services.push(newProduct);
+
+    res.status(201).send({
+      message: "Serviço adicionado com sucesso",
+      services: newProduct,
+    });
+  }
+);
+app.get(
+  "/company/:companyId/services/:serviceId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("serviceId")
+      .isInt()
+      .withMessage("ID do serviço deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, serviceId } = req.params;
+    if (company.id !== parseInt(companyId)) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const service = company.services.find(
+      (s) => s.serviceId === parseInt(serviceId)
+    );
+    if (!service) {
+      return res.status(404).send({ message: "Serviço não encontrado" });
+    }
+
+    res.status(200).send(service);
+  }
+);
+app.put(
+  "/company/:companyId/services/:serviceId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("serviceId")
+      .isInt()
+      .withMessage("ID do serviceId deve ser um número inteiro"),
+    body("serviceName")
+      .optional()
+      .notEmpty()
+      .withMessage("serviceName do serviço não pode ser vazio"),
+    body("serviceDescription")
+      .optional()
+      .notEmpty()
+      .withMessage("Descrição do serviço não pode ser vazia"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { serviceName, serviceDescription } = req.body;
+
+    const { companyId, serviceId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const serviceIndex = company_.services.findIndex(
+      (p) => p.serviceId === parseInt(serviceId)
+    );
+    if (serviceIndex === -1) {
+      return res.status(404).send({ message: "Serviço não encontrado" });
+    }
+    const verify_name = company_.services.find(
+      (c) =>
+        c.serviceName.trim().toLowerCase() === serviceName.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res
+        .status(400)
+        .send({ message: `${serviceName} já existe nos Serviços.` });
+    }
+
+    const service = company_.services[serviceIndex];
+    if (serviceName) service.serviceName = serviceName;
+    if (serviceDescription) service.serviceDescription = serviceDescription;
+
+    res.status(200).send({
+      message: `Serviço ${serviceName} atualizado.`,
+      service,
+    });
+  }
+);
+app.delete(
+  "/company/:companyId/services/:serviceId",
+  [
+    param("companyId")
+      .isInt()
+      .withMessage("ID da empresa deve ser um número inteiro"),
+    param("serviceId")
+      .isInt()
+      .withMessage("ID do serviceId deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { companyId, serviceId } = req.params;
+    const company_ = company.find((c) => c.id === parseInt(companyId));
+    if (!company_) {
+      return res.status(404).send({ message: "Empresa não encontrada" });
+    }
+
+    const productIndex = company_.services.findIndex(
+      (p) => p.serviceId === parseInt(serviceId)
+    );
+    if (productIndex === -1) {
+      return res.status(404).send({ message: "Serviço não encontrado" });
+    }
+
+    company_.services.splice(productIndex, 1);
+
+    res.status(200).send({ message: "Serviço removido com sucesso" });
+  }
+);
+
+//
 
 //
 app.get("/", (req, res) => {

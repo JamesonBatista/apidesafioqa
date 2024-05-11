@@ -75092,7 +75092,7 @@ export const productsGamers = () => {
       id: 1,
       name: "Gaming Keyboard",
       description: "Mechanical RGB backlit keyboard",
-      price:6000,
+      price: 6000,
     },
     {
       id: 2,
@@ -75104,7 +75104,7 @@ export const productsGamers = () => {
       id: 3,
       name: "Gaming Headset",
       description: "Surround sound gaming headset",
-      price:4999,
+      price: 4999,
     },
     {
       id: 4,
@@ -75128,13 +75128,13 @@ export const productsGamers = () => {
       id: 7,
       name: "Gaming Desk",
       description: "Adjustable desk with RGB lighting",
-      price:6890,
+      price: 6890,
     },
     {
       id: 8,
       name: "SSD",
       description: "1TB NVMe solid state drive",
-      price:5768,
+      price: 5768,
     },
     {
       id: 9,
@@ -75210,6 +75210,42 @@ export const productsGamers = () => {
     },
   ];
 };
+export const company = [
+  {
+    id: 1,
+    name: "Tech Innovations Ltda",
+    cnpj: "12345678901234",
+    state: "SP",
+    city: "São Paulo",
+    address: "Av. Paulista, 1000",
+    sector: "Tecnologia",
+    products: [
+      {
+        productId: 1,
+        productName: "Software de Gestão",
+        productDescription:
+          "Software completo para gestão empresarial, incluindo módulos de finanças, vendas e operações.",
+        price: 5000,
+      },
+    ],
+    employees: [
+      {
+        employeeId: 1,
+        name: "Maria Silva",
+        position: "Gerente de Projetos",
+        email: "maria.silva@techinnovations.com.br",
+      },
+    ],
+    services: [
+      {
+        serviceId: 1,
+        serviceName: "Suporte Técnico",
+        serviceDescription:
+          "Serviço de suporte técnico 24/7 para todos os produtos de software vendidos pela empresa.",
+      },
+    ],
+  },
+];
 
 export const encryptedDataUser = [];
 export const membersProjet = [];
