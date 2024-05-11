@@ -6,14 +6,14 @@ function enviarEmail(destinatario, assunto, corpo) {
     port: 587,
     secure: false, // true para 465, false para outras portas
     auth: {
-      user: "treinamentosqaautomation@gmail.com", // Substitua pelo seu e-mail
-      pass: "wdkf kurr bmhd ffnv", // Substitua pela sua senha
+      user: "projetoqaswagger@gmail.com", // Substitua pelo seu e-mail
+      pass: "ihkq entb uwns hnyc", // Substitua pela sua senha
     },
   });
 
   // Configuração do e-mail a ser enviado
   const mailOptions = {
-    from: "treinamentosqaautomation@gmail.com", // Substitua pelo e-mail do remetente
+    from: "projetoqaswagger@gmail.com", // Substitua pelo e-mail do remetente
     to: destinatario, // Substitua pelo e-mail do destinatário
     subject: assunto,
     html: corpo, // ou html: '<p>Seu HTML aqui</p>'
