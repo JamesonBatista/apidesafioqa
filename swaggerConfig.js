@@ -1,10 +1,17 @@
+function criarContador() {
+  let contador = 1;
+  return function() {
+      return contador++;
+  };
+}
+
 const swaggerDocument = {
   openapi: "3.0.3",
   info: {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\nEsse será um projeto de constantemente atualizado por um grupo de QAs, se puder, ajude-os, Pix: `projetoqaswagger@gmail.com` ",
+      "Swagger contém: `71` endpoints.\n Esse será um projeto constantemente atualizado por um grupo de QAs, se puder, ajude-os, Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`",
   },
 
   components: {
