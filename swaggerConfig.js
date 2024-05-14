@@ -1,8 +1,8 @@
-function criarContador() {
-  let contador = 1;
-  return function() {
-      return contador++;
-  };
+let contador = 1;
+
+// Definindo a função que incrementa o contador
+function count() {
+  return `             ​🇪​​🇳​​🇩​​🇵​​🇴​​🇮​​🇳​​🇹​:  ${contador++} `;
 }
 
 const swaggerDocument = {
@@ -11,7 +11,7 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Swagger contém: `71` endpoints.\n Esse será um projeto constantemente atualizado por um grupo de QAs, se puder, ajude-os, Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`",
+      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`",
   },
 
   components: {
@@ -80,12 +80,17 @@ const swaggerDocument = {
         "Simulação de criação de Empresa, Funcionários, Produtos, e Serviços",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
+    {
+      name: "Mercado",
+      description: "Simulação de criação de Mercado, produtos, e subcategorias",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
   ],
   paths: {
     "/login": {
       post: {
         tags: ["Challenger"],
-        summary: "Generate new Bearer token",
+        summary: ` Generate new Bearer token   ${count()}`,
         description: "Endpoint to generate a new token",
         requestBody: {
           required: true,
@@ -169,7 +174,7 @@ const swaggerDocument = {
     "/login-hard": {
       post: {
         tags: ["Challenger"],
-        summary: "Generate new Bearer token",
+        summary: `Generate hard-token ${count()} `,
         description: "Endpoint to generate a new token",
         requestBody: {
           required: true,
@@ -253,7 +258,7 @@ const swaggerDocument = {
     "/json_1": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 1 ",
+        summary: "Open challenger 1 " + count(),
         description:
           "Este endpoint valida um JSON contendo informações de usuário e interações em um sistema de e-commerce, conforme as seguintes regras:\n§\nProdutos:\nCada produto deve ter um 'id' único e um 'nome' não vazio.\nO 'preco' de cada produto deve ser um número positivo.\nO campo 'disponivel' deve ser um booleano indicando se o produto está disponível ou não.\n\nUsuário:\nO usuário deve ter um 'nome' não vazio.\nA 'idade' do usuário deve ser um número positivo.\nO 'email' do usuário deve estar em um formato válido.\n\nConfigurações:\nO campo 'notificacoes' deve ser um booleano.\nO campo 'tema' deve ser uma string não vazia.\nO campo 'idioma' deve ser uma string não vazia.\n\nEndereço:\nO campo 'rua' deve ser uma string não vazia.\nO campo 'numero' deve ser um número positivo.\nO campo 'cidade' deve ser uma string não vazia.\nO campo 'estado' deve ser uma string de dois caracteres representando a sigla do estado.\nO campo 'cep' deve estar em um formato válido.\n\nHistórico de Pedidos:\nCada pedido deve ter um 'pedidoId' único.\nO campo 'produto' deve corresponder ao nome de um dos produtos listados.\nO campo 'quantidade' deve ser um número inteiro positivo.\nO campo 'precoTotal' deve ser um número positivo.\n\nCarrinho Atual:\nCada produto no carrinho deve ter um 'produtoId' correspondente a um dos produtos listados.\nA 'quantidade' de cada produto no carrinho deve ser um número inteiro positivo.\nO 'precoTotal' do carrinho deve ser um número positivo.\n\nMétodo de Pagamento:\nPara o método de pagamento por cartão, o 'numero' do cartão deve estar em um formato válido.\nA 'validade' do cartão deve estar em um formato válido (MM/AAAA).\nO 'cvv' do cartão deve ser um código de três ou quatro dígitos.\n\nContato:\nO campo 'telefone' deve estar em um formato válido.\nO campo 'emailSecundario', se fornecido, deve estar em um formato válido.\n\nÚltima Compra:\nA 'data' da última compra deve estar em um formato válido (AAAA-MM-DD).\nO 'valor' da última compra deve ser um número positivo.\nO campo 'produto' deve corresponder ao nome de um dos produtos listados.\n\nRecomendações:\nO campo 'preco' de cada recomendação deve ser um número positivo.\n\nEstatísticas de Uso:\nO campo 'horasConectado' deve ser um número positivo.\nO campo 'diasAtivo' deve ser um número positivo.\n\nAmigos:\nCada amigo deve ter um 'nome' não vazio.\nO campo 'contato' de cada amigo, se fornecido, deve estar em um formato válido.\n\nPreferências:\nO campo 'categoriasFavoritas' deve ser uma lista não vazia de strings.\nO campo 'notificarPromocoes' deve ser um booleano.",
         parameters: [
@@ -411,7 +416,7 @@ const swaggerDocument = {
     "/json_2": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 2 ",
+        summary: "Open challenger 2 " + count(),
         description:
           "Desafio de Validação:\n\n1. Verifique se o nome do usuário está presente e não está vazio.\n2. Certifique-se de que a idade do usuário é um número positivo.\n3. Valide os endereços de e-mail do usuário principal e secundário.\n4. Garanta que o número de telefone do usuário esteja em um formato válido.\n5. Verifique se a rua, cidade e estado do endereço estão preenchidos e não vazios.\n6. Certifique-se de que o número do endereço é um número positivo.\n7. Valide o formato do CEP.\n8. Verifique se o tema e idioma das preferências estão preenchidos e não vazios.\n9. Certifique-se de que há pelo menos uma categoria favorita nas preferências.\n10. Verifique se a opção de notificar promoções está definida como um booleano.\n11. Valide os pedidos no histórico de compras:\n    a. Garanta que cada pedido tenha um ID único.\n    b. Verifique se cada item de pedido tem um ID de produto, nome, quantidade e preço.\n    c. Certifique-se de que o total do pedido é um número positivo.\n    d. Valide o formato da data do pedido.\n12. Verifique se a assinatura da newsletter está definida como um booleano.\n13. Certifique-se de que a opção de receber SMS está definida como um booleano.\n14. Valide os métodos de pagamento:\n    a. Para o cartão de crédito, verifique se o número do cartão está em um formato válido.\n    b. Verifique se a data de validade do cartão está em um formato válido.\n    c. Certifique-se de que o CVV do cartão é um código de três ou quatro dígitos.\n    d. Para o PayPal, verifique se o e-mail está em um formato válido.\n15. Certifique-se de que as horas conectadas e os dias ativos nas estatísticas de uso são números positivos.\n16. Valide o formato da data do último login.\n17. Certifique-se de que cada amigo tenha um nome não vazio e um formato de contato válido.\n18. Verifique se cada recomendação de produto tem um ID de produto, nome e preço.\n\nSe todas essas validações forem bem-sucedidas, o JSON estará corretamente estruturado e pronto para ser processado pelo sistema de e-commerce.",
         parameters: [
@@ -698,7 +703,7 @@ const swaggerDocument = {
     "/json_3": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 3 ",
+        summary: "Open challenger 3 " + count(),
         description:
           "Validação do JSON para a 'Conferência de Tecnologia 2024'. Verifique: \n1. Estrutura: Confirmação de todas as chaves principais e sub-chaves corretas em cada seção do JSON. \n2. Conteúdo e Dados: Verificação da exatidão dos dados de local, data, organizadores, programação, participantes, feedbacks e sustentabilidade. \n3. Relações e Lógica: Confirmação de que participantes estão inscritos em sessões existentes, feedbacks associados corretamente, e avaliações dentro da escala válida. \n4. Sustentabilidade: Verificar a corretude das políticas e parceiros listados. ",
         parameters: [
@@ -916,7 +921,7 @@ const swaggerDocument = {
     "/json_4": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 4 ",
+        summary: "Open challenger 4 " + count(),
         description:
           "4 - Desafio de Validação Verificar a consistência das linguas e tradicionalVestimenta entre as culturas para garantir que não haja duplicatas no mesmo continente e que cada cultura esteja associada a apenas uma região.",
         parameters: [
@@ -1112,7 +1117,7 @@ const swaggerDocument = {
     "/json_5": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 5 ",
+        summary: "Open challenger 5 " + count(),
         description:
           "5 - Desafio de Validação Assegurar que cada id nos projetos, equipes, e tarefas seja único dentro de toda a estrutura do JSON e que o status de cada tarefa esteja em concordância com as dependências de outras tarefas dentro da mesma equipe.",
         parameters: [
@@ -1273,7 +1278,7 @@ const swaggerDocument = {
     "/json_6": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 6 ",
+        summary: "Open challenger 6 " + count(),
         description:
           "Validação de lógica e consistência para a 'Agência Espacial Internacional'. O desafio inclui: \n1. Consistência de Lançamentos: Verificação de que cada satélite está associado a um veículo lançador com capacidade suficiente e que veículos 'ativos' têm missões associadas. \n2. Temporalidade e Status: Garantir que todas as missões 'ativas' têm datas passadas e que itens 'em preparação' têm lançamentos futuros. \n3. Relações de Dados: Coerência entre satélites e missões quanto aos veículos usados, e uso de veículos lançadores ativos para operações planejadas. \n4. Coerência de Missão: As missões tripuladas devem ter astronautas apropriados; missões não tripuladas devem ter objetivos compatíveis.",
         parameters: [
@@ -1420,7 +1425,7 @@ const swaggerDocument = {
     "/json_7": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 7 ",
+        summary: "Open challenger 7 " + count(),
         description:
           "Consistência de Equipes: Assegurar que todas as equipes mencionadas nos jogos estejam listadas nas equipes participantes do torneio correspondente. Isso envolve verificar se as equipes de cada jogo realmente pertencem ao grupo listado para o ano correspondente. \n\n Resultados Corretos: Validar que os resultados dos jogos refletem de forma precisa os gols marcados, verificando também que não existam discrepâncias nos dados dos jogos, como uma equipe sendo listada como vencedora mas com menos gols que o adversário.\n\nCapacidade dos Estádios: Verificar que a capacidade dos estádios listada para cada Copa do Mundo seja consistente ou maior do que a capacidade registrada em Copas anteriores, assegurando uma validação temporal de dados.",
         parameters: [
@@ -1552,7 +1557,7 @@ const swaggerDocument = {
     "/json_8": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 8 ",
+        summary: "Open challenger 8 " + count(),
         description:
           "Disponibilidade de Quartos: Certificar que os quartos de hotel listados nas reservas estejam disponíveis nas datas especificadas pela reserva do cliente, sem sobreposição com outras reservas.\n\nCompatibilidade de Reservas: Garantir que as datas e locais de voos, hotéis, e veículos se alinhem de forma lógica. Por exemplo, um cliente não pode reservar um voo que chega em Londres e imediatamente depois um carro em Paris sem um voo intermediário.\n\nPreço Total da Reserva: Verificar o preço total de cada reserva, incluindo todos os voos, estadias em hotéis e locações de veículos para garantir que o total cobrado está correto e que todas as taxas estão incluídas.",
         parameters: [
@@ -1737,7 +1742,7 @@ const swaggerDocument = {
     "/json_9": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 9 ",
+        summary: "Open challenger 9 " + count(),
         description:
           "Desafio de Validação Complexo: Total de Gols: Calcule o total de gols marcados pelo Brasil ao longo dos sete jogos da Copa do Mundo.\n\n Total de Faltas: Determine o total de faltas cometidas pela equipe brasileira durante toda a competição.\n\n Total de Cartões: Conte quantos cartões amarelos e vermelhos foram recebidos pelos jogadores do Brasil durante os sete jogos.\n\nDesafio de Relatórios Detalhados: Crie uma função que processe o JSON dos jogos do Brasil na Copa do Mundo e retorne um relatório detalhado para cada jogo, incluindo: - Total de gols marcados pelo Brasil e pelos adversários. - Nomes dos jogadores que marcaram gols para o Brasil e para os adversários, juntamente com os minutos em que os gols foram marcados. - Total de faltas cometidas pelo Brasil e pelos adversários. - Nomes dos jogadores que cometeram faltas para o Brasil e para os adversários, juntamente com os minutos em que as faltas ocorreram. - Total de cartões (amarelos e vermelhos) recebidos pelo Brasil e pelos adversários. - Nomes dos jogadores que receberam cartões para o Brasil e para os adversários, juntamente com os minutos em que os cartões foram mostrados.\nDesafio de Estatísticas: - Calcule a média de gols por jogo marcados pelo Brasil e pelos adversários. - Identifique o jogo com o maior número de gols. - Determine o jogador brasileiro com mais gols ao longo da competição.",
         parameters: [
@@ -1851,7 +1856,7 @@ const swaggerDocument = {
     "/json_10": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 10 ",
+        summary: "Open challenger 10 " + count(),
         description: "Desafio de Validação Complexo: Encontrar todos os campos",
         parameters: [
           {
@@ -2085,7 +2090,7 @@ const swaggerDocument = {
     "/json_11": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 11 ",
+        summary: "Open challenger 11 " + count(),
         description: "Desafio de Validação Complexo: Encontrar todos os campos",
         parameters: [
           {
@@ -2224,7 +2229,7 @@ const swaggerDocument = {
     "/json_12": {
       get: {
         tags: ["Challenger"],
-        summary: "Open challenger 12 ",
+        summary: "Open challenger 12 " + count(),
         description:
           "Imprimir de acordo com o valor quais carros cada usuário pode comprar ex: Eu sou Wood tenho 400000 e posso comprar um Dynamics Pink MAS, se ele for VIP Informe quais carro ele também tem direito. Fazer isso para Todos. Validar os endereços da Loja e o ceo.",
         parameters: [
@@ -2500,7 +2505,7 @@ const swaggerDocument = {
     "/validate-json_9": {
       post: {
         tags: ["Challenger"],
-        summary: "Open challenger 9 validate ",
+        summary: "Open challenger 9 validate " + count(),
         description:
           "Desafio de Validação envie os dados extraídos do json_9 para validação de extração e resultado.",
         requestBody: {
@@ -2563,7 +2568,7 @@ const swaggerDocument = {
     "/all-jsons-data": {
       post: {
         tags: ["Challenger"],
-        summary: "Valida os dados de entrada",
+        summary: "Valida os dados de entrada" + count(),
         description:
           "Verifica se os dados enviados correspondem aos conjuntos de dados válidos e pré-definidos. Extrair e enviar via post um dado pedido de cada JSON anterior. json_1, json_2 ...",
         requestBody: {
@@ -2676,7 +2681,7 @@ const swaggerDocument = {
     "/infinity-array": {
       get: {
         tags: ["Challenger"],
-        summary: "JSON 10 camadas de aray",
+        summary: "JSON 10 camadas de aray" + count(),
         description: "JSON para treino de validação",
         parameters: [
           {
@@ -2741,7 +2746,7 @@ const swaggerDocument = {
     "/deep-validation": {
       get: {
         tags: ["Challenger"],
-        summary: "JSON com profundidade de validações",
+        summary: "JSON com profundidade de validações" + count(),
         description: "JSON para treino de validação",
         parameters: [
           {
@@ -2855,7 +2860,7 @@ const swaggerDocument = {
     "/germany-api": {
       get: {
         tags: ["Others"],
-        summary: "JSON com profundidade de validações",
+        summary: "JSON com profundidade de validações" + count(),
         description: "JSON para treino de validação",
         parameters: [
           {
@@ -3528,7 +3533,7 @@ const swaggerDocument = {
     "/independent": {
       get: {
         tags: ["Others"],
-        summary: "JSON com profundidade de validações",
+        summary: "JSON com profundidade de validações" + count(),
         description: "JSON para treino de validação",
         parameters: [
           {
@@ -41277,7 +41282,7 @@ const swaggerDocument = {
     "/brasil": {
       get: {
         tags: ["Others"],
-        summary: "JSON com profundidade de validações",
+        summary: "JSON com profundidade de validações" + count(),
         description:
           "JSON para treino de validação. \n\nVocê pode fazer as chamadas nos seguintes endpoints: \n1.",
         parameters: [
@@ -41296,7 +41301,7 @@ const swaggerDocument = {
     "/big-json": {
       get: {
         tags: ["Others"],
-        summary: "JSON com profundidade de validações",
+        summary: "JSON com profundidade de validações" + count(),
         description: "BIG JSON",
         parameters: [
           {
@@ -41314,7 +41319,7 @@ const swaggerDocument = {
     "/crud": {
       get: {
         tags: ["CRUD"],
-        summary: "JSON CRUD validações",
+        summary: "JSON CRUD validações" + count(),
         description: "JSON para treino de validação",
         parameters: [
           {
@@ -41332,7 +41337,7 @@ const swaggerDocument = {
 
       post: {
         tags: ["CRUD"],
-        summary: "JSON CRUD validações",
+        summary: "JSON CRUD validações" + count(),
         description: "JSON para treino de validação",
         requestBody: {
           required: true,
@@ -41456,7 +41461,7 @@ const swaggerDocument = {
     "/crud/{id}": {
       get: {
         tags: ["CRUD"],
-        summary: "JSON CRUD validações",
+        summary: "JSON CRUD validações" + count(),
         description: "JSON para treino de validação",
         operationId: "getUserById",
         parameters: [
@@ -41479,7 +41484,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["CRUD"],
-        summary: "JSON CRUD validações",
+        summary: "JSON CRUD validações" + count(),
         description: "JSON para treino de validação",
         operationId: "deleteUserById",
         parameters: [
@@ -41504,7 +41509,7 @@ const swaggerDocument = {
     "/produtos": {
       get: {
         tags: ["Shop"],
-        summary: "Listar todos os produtos",
+        summary: "Listar todos os produtos" + count(),
         description: "Retorna uma lista de todos os produtos disponíveis.",
         responses: {
           200: {
@@ -41575,7 +41580,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Shop"],
-        summary: "Processa a compra de um produto",
+        summary: "Processa a compra de um produto" + count(),
         description:
           "Valida a compra de um produto baseando-se no CPF, valor na carteira, e existência do produto. Em caso do campo receber_email estiver preenchido e com e-mail válido, enviará descrição do produto por e-mail.",
         requestBody: {
@@ -41674,7 +41679,7 @@ const swaggerDocument = {
     "/produtos/{id_produto}": {
       get: {
         tags: ["Shop"],
-        summary: "Obter detalhes do produto",
+        summary: "Obter detalhes do produto" + count(),
         description: "Retorna detalhes de um produto específico pelo ID.",
         parameters: [
           {
@@ -41742,11 +41747,10 @@ const swaggerDocument = {
         },
       },
     },
-
     "/clientes": {
       get: {
         tags: ["Bank"],
-        summary: "Lista de Usuários",
+        summary: "Lista de Usuários" + count(),
         description: "Retorna uma lista de clientes com cpf inválido.",
         responses: {
           200: {
@@ -41799,7 +41803,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Bank"],
-        summary: "Criar novo cliente",
+        summary: "Criar novo cliente" + count(),
         description:
           "Endpoint para criar um novo cliente. Criar um novo cliente para efetuar um pedido de /emprestimo",
         parameters: [],
@@ -41925,11 +41929,10 @@ const swaggerDocument = {
         },
       },
     },
-
     "/financiamento-produtos": {
       get: {
         tags: ["Bank"],
-        summary: "Obter lista de produtos de luxo",
+        summary: "Obter lista de produtos de luxo" + count(),
         description: "Endpoint para obter a lista de produtos de luxo.",
         responses: {
           200: {
@@ -41967,7 +41970,7 @@ const swaggerDocument = {
     "/emprestimo": {
       post: {
         tags: ["Bank"],
-        summary: "Solicitar Empréstimo",
+        summary: "Solicitar Empréstimo" + count(),
         description:
           "Solicita um empréstimo para um cliente. informando id do cliente criado, ou da lista existente, e o valor do emprestimo (tipo inteiro)",
         requestBody: {
@@ -42045,7 +42048,7 @@ const swaggerDocument = {
     "/contratar-financiamento": {
       post: {
         tags: ["Bank"],
-        summary: "Contratar financiamento",
+        summary: "Contratar financiamento" + count(),
         description:
           "Endpoint para contratar financiamento de produtos de luxo. Podendo enviar email da aquisição.",
         requestBody: {
@@ -42126,7 +42129,7 @@ const swaggerDocument = {
     "/projects": {
       post: {
         tags: ["Projetos"],
-        summary: "Cria um novo projeto",
+        summary: "Cria um novo projeto" + count(),
         description:
           "Este endpoint cria um novo projeto com um nome, descrição, data de término e membros.",
         operationId: "createProject",
@@ -42211,7 +42214,7 @@ const swaggerDocument = {
       },
       get: {
         tags: ["Projetos"],
-        summary: "Obtém todos os projetos",
+        summary: "Obtém todos os projetos" + count(),
         description:
           "Este endpoint retorna uma lista de todos os projetos cadastrados.",
         operationId: "getProjects",
@@ -42263,7 +42266,7 @@ const swaggerDocument = {
     "/projects/{id}": {
       get: {
         tags: ["Projetos"],
-        summary: "Busca um projeto por ID",
+        summary: "Busca um projeto por ID" + count(),
         description:
           "Retorna detalhes de um projeto específico baseado no ID fornecido.",
         operationId: "getProjectById",
@@ -42315,7 +42318,7 @@ const swaggerDocument = {
     "/projects/{id}": {
       put: {
         tags: ["Projetos"],
-        summary: "Atualiza um projeto existente",
+        summary: "Atualiza um projeto existente" + count(),
         description:
           "Atualiza os detalhes de um projeto específico pelo ID. Permite atualização parcial.",
         operationId: "updateProject",
@@ -42437,7 +42440,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Projetos"],
-        summary: "Deleta um projeto",
+        summary: "Deleta um projeto" + count(),
         description: "Deleta um projeto específico pelo ID.",
         operationId: "deleteProject",
         parameters: [
@@ -42464,7 +42467,7 @@ const swaggerDocument = {
     "/projects/{id}/members": {
       get: {
         tags: ["Projetos"],
-        summary: "Busca membros de um projeto por ID do projeto",
+        summary: "Busca membros de um projeto por ID do projeto" + count(),
         description:
           "Retorna uma lista de membros de um projeto específico baseado no ID do projeto.",
         operationId: "getMembersByProjectId",
@@ -42508,7 +42511,8 @@ const swaggerDocument = {
       post: {
         tags: ["Projetos"],
         summary:
-          "Adiciona um novo membro ao projeto, e usando o campo send_email, você enviará email de teste.",
+          "Adiciona um novo membro ao projeto, e usando o campo send_email, você enviará email de teste." +
+          count(),
         description:
           "Este endpoint adiciona um novo membro a um projeto existente, identificado pelo ID do projeto. O membro adicionado inclui informações como nome e cargo, e opcionalmente um endereço de email para notificação.",
         operationId: "addMember",
@@ -42608,7 +42612,7 @@ const swaggerDocument = {
     "/member/{projectId}/{memberName}": {
       delete: {
         tags: ["Projetos"],
-        summary: "Deleta um membro de um projeto",
+        summary: "Deleta um membro de um projeto" + count(),
         description:
           "Deleta um membro específico de um projeto pelo nome do membro e ID do projeto.",
         operationId: "deleteMember",
@@ -42645,7 +42649,7 @@ const swaggerDocument = {
     "/clients": {
       post: {
         tags: ["Payments"],
-        summary: "Cria um novo cliente",
+        summary: "Cria um novo cliente" + count(),
         description:
           "Adiciona um novo cliente à lista com informações como nome, CPF, bandeira do cartão e crédito disponível.",
         operationId: "addNewClient",
@@ -42716,7 +42720,7 @@ const swaggerDocument = {
       },
       get: {
         tags: ["Payments"],
-        summary: "Obtém a lista de todos os clientes",
+        summary: "Obtém a lista de todos os clientes" + count(),
         description:
           "Retorna uma lista contendo todos os clientes registrados, incluindo informações detalhadas como nome, CPF, bandeira do cartão e crédito disponível.",
         operationId: "getClients",
@@ -42743,7 +42747,9 @@ const swaggerDocument = {
     "/clients/{id}": {
       get: {
         tags: ["Payments"],
-        summary: "Obtém informações detalhadas de um cliente específico por ID",
+        summary:
+          "Obtém informações detalhadas de um cliente específico por ID" +
+          count(),
         description:
           "Retorna um cliente específico baseado no ID fornecido, incluindo nome, CPF, bandeira do cartão e crédito disponível.",
         operationId: "getClientById",
@@ -42776,7 +42782,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Payments"],
-        summary: "Deleta um cliente específico",
+        summary: "Deleta um cliente específico" + count(),
         description: "Remove um cliente do registro com base no ID fornecido.",
         operationId: "deleteClientById",
         parameters: [
@@ -42813,7 +42819,7 @@ const swaggerDocument = {
       },
       put: {
         tags: ["Payments"],
-        summary: "Atualiza um cliente existente",
+        summary: "Atualiza um cliente existente" + count(),
         description:
           "Atualiza as informações de um cliente específico com base no ID fornecido.",
         operationId: "updateClientById",
@@ -42886,11 +42892,10 @@ const swaggerDocument = {
         },
       },
     },
-
     "/products-gamers": {
       get: {
         tags: ["Payments"],
-        summary: "Lista todos os produtos gamers",
+        summary: "Lista todos os produtos gamers" + count(),
         description:
           "Retorna uma lista completa de produtos gamers disponíveis.",
         operationId: "getProductsGamers",
@@ -42914,7 +42919,7 @@ const swaggerDocument = {
     "/products-purchase-gamers": {
       post: {
         tags: ["Payments"],
-        summary: "Realiza uma compra de produto gamer",
+        summary: "Realiza uma compra de produto gamer" + count(),
         description:
           "Permite ao cliente comprar um produto, verificando se o cliente e o produto existem, e se o crédito é suficiente. Os valores dos produtos mudam a cada requisção, fazendo com que o tester precise calcular o valor necessário. Podendo enviar email da aquisição.",
         operationId: "buyProduct",
@@ -42977,7 +42982,7 @@ const swaggerDocument = {
     "/credit": {
       post: {
         tags: ["Payments"],
-        summary: "Solicitação de crédito adicional",
+        summary: "Solicitação de crédito adicional" + count(),
         description:
           "Permite ao cliente solicitar crédito adicional para a compra de um produto, tente via automação garantir que o crédito seja apenas suficiente e não  a mais.",
         operationId: "requestAdditionalCredit",
@@ -43038,7 +43043,7 @@ const swaggerDocument = {
     "/encrypt-data": {
       post: {
         tags: ["Criptografia"],
-        summary: "Criptografa dados de identificação",
+        summary: "Criptografa dados de identificação" + count(),
         description:
           "Recebe múltiplos IDs e tenta criptografar os dados, mesmo se alguns IDs forem inválidos. Retorna os dados criptografados junto com informações sobre quais IDs eram inválidos, se houver.",
         operationId: "purchaseProduct",
@@ -43128,7 +43133,7 @@ const swaggerDocument = {
     "/decrypt-validate": {
       post: {
         tags: ["Criptografia"],
-        summary: "Descriptografa e valida dados",
+        summary: "Descriptografa e valida dados" + count(),
         description:
           "Recebe dados criptografados, descriptografa e valida a existência dos IDs dentro dos dados.",
         operationId: "decryptAndValidateData",
@@ -43217,7 +43222,7 @@ const swaggerDocument = {
     "/company": {
       post: {
         tags: ["Company"],
-        summary: "Cria uma nova empresa",
+        summary: "Cria uma nova empresa" + count(),
         description:
           "Este endpoint cria um novo registro de empresa com nome, CNPJ, estado, cidade, endereço e setor.",
         operationId: "createCompany",
@@ -43332,7 +43337,7 @@ const swaggerDocument = {
       },
       get: {
         tags: ["Company"],
-        summary: "Obtém todas as empresas",
+        summary: "Obtém todas as empresas" + count(),
         description:
           "Este endpoint retorna uma lista de todas as empresas cadastradas.",
         operationId: "getcompany",
@@ -43398,7 +43403,7 @@ const swaggerDocument = {
       },
       put: {
         tags: ["Company"],
-        summary: "Atualiza uma empresa específica",
+        summary: "Atualiza uma empresa específica" + count(),
         description:
           "Este endpoint atualiza os detalhes de uma empresa específica baseada no ID fornecido.",
         operationId: "updateCompany",
@@ -43440,35 +43445,11 @@ const swaggerDocument = {
           },
         },
       },
-      delete: {
-        tags: ["Company"],
-        summary: "Deleta uma empresa específica",
-        description:
-          "Este endpoint remove uma empresa específica do sistema baseado no ID fornecido.",
-        operationId: "deleteCompany",
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            description: "ID da empresa a ser deletada",
-            type: "integer",
-          },
-        ],
-        responses: {
-          200: {
-            description: "Empresa deletada com sucesso",
-          },
-          404: {
-            description: "Empresa não encontrada",
-          },
-        },
-      },
     },
     "/company/{companyId}": {
       get: {
         tags: ["Company"],
-        summary: "Obtém uma empresa pelo ID",
+        summary: "Obtém uma empresa pelo ID" + count(),
         description:
           "Retorna os detalhes de uma empresa específica baseado no ID fornecido.",
         operationId: "getCompanyById",
@@ -43502,11 +43483,35 @@ const swaggerDocument = {
           },
         },
       },
+      delete: {
+        tags: ["Company"],
+        summary: "Deleta uma empresa específica" + count(),
+        description:
+          "Este endpoint remove uma empresa específica do sistema baseado no ID fornecido.",
+        operationId: "deleteCompany",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID da empresa a ser deletada",
+            type: "integer",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Empresa deletada com sucesso",
+          },
+          404: {
+            description: "Empresa não encontrada",
+          },
+        },
+      },
     },
     "/company/{companyId}/products": {
       get: {
         tags: ["Company"],
-        summary: "Lista todos os produtos de uma empresa específica",
+        summary: "Lista todos os produtos de uma empresa específica" + count(),
         description:
           "Recupera todos os produtos associados a um ID de empresa especificado.",
         operationId: "getCompanyProducts",
@@ -43594,7 +43599,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Company"],
-        summary: "Adiciona um produto a uma empresa específica",
+        summary: "Adiciona um produto a uma empresa específica" + count(),
         description:
           "Este endpoint adiciona um novo produto à lista de produtos de uma empresa específica.",
         operationId: "addProductToCompany",
@@ -43655,7 +43660,7 @@ const swaggerDocument = {
     "/company/{companyId}/products/{productId}": {
       get: {
         tags: ["Company"],
-        summary: "Obtém um produto específico de uma empresa",
+        summary: "Obtém um produto específico de uma empresa" + count(),
         description:
           "Retorna os detalhes de um produto específico de uma empresa baseado nos IDs fornecidos da empresa e do produto.",
         operationId: "getProductById",
@@ -43718,7 +43723,7 @@ const swaggerDocument = {
       },
       put: {
         tags: ["Company"],
-        summary: "Atualiza um produto específico de uma empresa",
+        summary: "Atualiza um produto específico de uma empresa" + count(),
         description:
           "Este endpoint atualiza os detalhes de um produto específico dentro de uma empresa.",
         operationId: "updateProductInCompany",
@@ -43787,7 +43792,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Company"],
-        summary: "Remove um produto de uma empresa",
+        summary: "Remove um produto de uma empresa" + count(),
         description:
           "Este endpoint remove um produto específico de uma empresa.",
         operationId: "deleteProductFromCompany",
@@ -43821,7 +43826,8 @@ const swaggerDocument = {
     "/company/{companyId}/employees": {
       get: {
         tags: ["Company"],
-        summary: "Lista todos os funcionários de uma empresa específica",
+        summary:
+          "Lista todos os funcionários de uma empresa específica" + count(),
         description:
           "Recupera todos os funcionários associados a um ID de empresa especificado.",
         operationId: "getEmployeesByCompany",
@@ -43910,7 +43916,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Company"],
-        summary: "Adiciona um funcionário à empresa",
+        summary: "Adiciona um funcionário à empresa" + count(),
         description:
           "Cria um novo funcionário dentro da empresa especificada pelo ID da empresa.",
         operationId: "addEmployee",
@@ -43974,7 +43980,7 @@ const swaggerDocument = {
     "/company/{companyId}/employees/{employeeId}": {
       get: {
         tags: ["Company"],
-        summary: "Obtém um funcionário específico",
+        summary: "Obtém um funcionário específico" + count(),
         description:
           "Retorna os detalhes de um funcionário específico de uma empresa baseado nos IDs fornecidos.",
         operationId: "getEmployeeById",
@@ -44038,7 +44044,7 @@ const swaggerDocument = {
       },
       put: {
         tags: ["Company"],
-        summary: "Atualiza um funcionário específico",
+        summary: "Atualiza um funcionário específico" + count(),
         description:
           "Atualiza os detalhes de um funcionário existente na empresa especificada.",
         operationId: "updateEmployee",
@@ -44108,7 +44114,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Company"],
-        summary: "Remove um funcionário específico",
+        summary: "Remove um funcionário específico" + count(),
         description:
           "Remove um funcionário da empresa especificada pelo ID da empresa e do funcionário.",
         operationId: "deleteEmployee",
@@ -44146,7 +44152,7 @@ const swaggerDocument = {
     "/company/{companyId}/services": {
       get: {
         tags: ["Company"],
-        summary: "Lista todos os serviços de uma empresa específica",
+        summary: "Lista todos os serviços de uma empresa específica" + count(),
         description:
           "Recupera todos os serviços associados a um ID de empresa especificado.",
         operationId: "getServicesByCompany",
@@ -44230,7 +44236,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Company"],
-        summary: "Adiciona um serviço à empresa",
+        summary: "Adiciona um serviço à empresa" + count(),
         description:
           "Cria um novo serviço dentro da empresa especificada pelo ID da empresa.",
         operationId: "addService",
@@ -44289,7 +44295,7 @@ const swaggerDocument = {
     "/company/{companyId}/services/{serviceId}": {
       get: {
         tags: ["Company"],
-        summary: "Obtém um serviço específico",
+        summary: "Obtém um serviço específico" + count(),
         description:
           "Retorna os detalhes de um serviço específico de uma empresa baseado nos IDs fornecidos.",
         operationId: "getServiceById",
@@ -44348,7 +44354,7 @@ const swaggerDocument = {
       },
       put: {
         tags: ["Company"],
-        summary: "Atualiza um serviço específico",
+        summary: "Atualiza um serviço específico" + count(),
         description:
           "Atualiza os detalhes de um serviço existente na empresa especificada.",
         operationId: "updateService",
@@ -44416,7 +44422,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Company"],
-        summary: "Remove um serviço específico",
+        summary: "Remove um serviço específico" + count(),
         description:
           "Remove um serviço da empresa especificada pelo ID da empresa e do serviço.",
         operationId: "deleteService",
@@ -44451,6 +44457,3139 @@ const swaggerDocument = {
       },
     },
     //
+    "/mercado": {
+      get: {
+        tags: ["Mercado"],
+        summary: "Recupera todos os dados do mercado" + count(),
+        description:
+          "Retorna todos os dados da constante `mercado`, incluindo detalhes completos de todas as categorias e produtos.",
+        operationId: "getMercado",
+        produces: ["application/json"],
+        responses: {
+          200: {
+            description: "Operação bem-sucedida",
+            schema: {
+              $ref: "#/definitions/Mercado",
+            },
+          },
+          404: {
+            description: "Dados não encontrados",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary: "Adiciona um novo mercado" + count(),
+        description:
+          "Cria um novo registro de mercado com estruturas de categorias e subcategorias de produtos inicialmente vazias.",
+        operationId: "addMercado",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "Objeto de mercado que precisa ser adicionado à loja",
+            required: true,
+            schema: {
+              $ref: "#/definitions/Mercado",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Mercado criado",
+          },
+          400: {
+            description: "Erro de validação ou dados faltando",
+          },
+        },
+      },
+    },
+    "/mercado/{id}": {
+      get: {
+        tags: ["Mercado"],
+        summary: "Busca um mercado por ID" + count(),
+        description: "Retorna um mercado especificado pelo ID.",
+        operationId: "getMercadoById",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado que precisa ser buscado",
+            type: "integer",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Operação bem-sucedida",
+            schema: {
+              $ref: "#/definitions/Mercado",
+            },
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+      put: {
+        tags: ["Mercado"],
+        summary: "Atualiza um mercado existente" + count(),
+        description:
+          "Atualiza um mercado específico pelo ID com as informações fornecidas.",
+        operationId: "updateMercado",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "mercadoId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado que será atualizado",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description: "Objeto de mercado com as atualizações",
+            schema: {
+              $ref: "#/definitions/Mercado",
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Mercado atualizado com sucesso",
+            schema: {
+              $ref: "#/definitions/Mercado",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um mercado existente" + count(),
+        description: "Remove um mercado específico pelo ID.",
+        operationId: "deleteMercado",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "mercadoId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado que será removido",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Mercado removido com sucesso",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{mercadoId}/produtos": {
+      get: {
+        tags: ["Mercado"],
+        summary: "Obtém os produtos de um mercado específico" + count(),
+        description:
+          "Retorna todos os produtos associados a um mercado específico, identificado pelo ID.",
+        operationId: "getProdutosByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "mercadoId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujos produtos estão sendo solicitados",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Produtos recuperados com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/hortifruit/frutas": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera as frutas de hortifruit de um mercado específico" + count(),
+        description:
+          "Retorna a lista de frutas da categoria hortifruit do mercado especificado pelo ID.",
+        operationId: "getFrutasByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas frutas estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de frutas recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                frutas: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há frutas cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto às frutas de hortifruit de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de frutas de hortifruit do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToFruitCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de frutas",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/hortifruit/frutas/{frutaId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove uma fruta específica de um mercado" + count(),
+        description:
+          "Remove uma fruta específica pelo ID da fruta de dentro da categoria hortifruit de um mercado específico, também identificado por ID.",
+        operationId: "deleteFruta",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual a fruta será removida",
+          },
+          {
+            name: "frutaId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID da fruta que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Fruta removida com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "Fruta com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou fruta não encontrada",
+          },
+        },
+      },
+    },
+    // legumes
+    "/mercado/{id}/produtos/hortifruit/legumes": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera as legumes de hortifruit de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de legumes da categoria hortifruit do mercado especificado pelo ID.",
+        operationId: "getLegumesByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas legumes estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de legumes recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                legumes: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há legumes cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos Legumes de hortifruit de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de legumes de hortifruit do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToFruitCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de legumes",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/hortifruit/legumes/{legumesId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um Legume específica de um mercado" + count(),
+        description:
+          "Remove um Legume específica pelo ID da Legume de dentro da categoria hortifruit de um mercado específico, também identificado por ID.",
+        operationId: "deleteLegume",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual a Legume será removida",
+          },
+          {
+            name: "legumesId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID da Legume que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Legume removida com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "Legume com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou legume não encontrada",
+          },
+        },
+      },
+    },
+    // padaria doces
+    "/mercado/{id}/produtos/padaria/doces": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os doces de padaria de um mercado específico" + count(),
+        description:
+          "Retorna a lista de doces da categoria padaria do mercado especificado pelo ID.",
+        operationId: "getDocesByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujos doces estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de doces recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                doces: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há doces cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos doces de padaria de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de doces de padaria do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToDocesCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de doces",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/padaria/doces/{docesId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um Doces específica de um mercado" + count(),
+        description:
+          "Remove um doce específico pelo ID de Doces de dentro da categoria padaria de um mercado específico, também identificado por ID.",
+        operationId: "deleteDoces",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual o Doces será removida",
+          },
+          {
+            name: "docesId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do Doces que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Doces removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "Doces com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou Doces não encontrado",
+          },
+        },
+      },
+    },
+    // padaria salgados
+    "/mercado/{id}/produtos/padaria/salgados": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os salgados de padaria de um mercado específico" + count(),
+        description:
+          "Retorna a lista de salgados da categoria padaria do mercado especificado pelo ID.",
+        operationId: "getsalgadoByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujos salgados estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de salgados recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há salgado cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos salgados de padaria de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de padaria do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToSalgadoCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de salgado",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/padaria/salgados/{salgadoId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um salgado específica de um mercado" + count(),
+        description:
+          "Remove um salgado específica pelo ID do salgado de dentro da categoria padaria de um mercado específico, também identificado por ID.",
+        operationId: "deleteSalgado",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual o salgado será removida",
+          },
+          {
+            name: "salgadoId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do salgado que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "salgado removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "salgado com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou salgado não encontrada",
+          },
+        },
+      },
+    },
+    // acougue bovinos
+    "/mercado/{id}/produtos/acougue/bovinos": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os bovinos de acougue de um mercado específico" + count(),
+        description:
+          "Retorna a lista de bovinos da categoria acougue do mercado especificado pelo ID.",
+        operationId: "getBovinoByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujos bovinos estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de bovinos recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há bovinos cadastrados",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos bovinos de acougue de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de acougue do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToBovinoCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de salgado",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/acougue/bovinos/{bovinosId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um bovino específica de um mercado" + count(),
+        description:
+          "Remove um bovino específica pelo ID do bovino de dentro da categoria acougue de um mercado específico, também identificado por ID.",
+        operationId: "deletebovino",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual o bovino será removida",
+          },
+          {
+            name: "bovinosId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do bovino que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "bovino removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "bovino com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou bovino não encontrada",
+          },
+        },
+      },
+    },
+    // acougue suinos
+    "/mercado/{id}/produtos/acougue/suinos": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os suinos de acougue de um mercado específico" + count(),
+        description:
+          "Retorna a lista de suinos da categoria acougue do mercado especificado pelo ID.",
+        operationId: "getSuinoByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujos suinos estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de suinos recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há suínos cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos suinos de acougue de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de acougue do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToSuinoCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de salgado",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/acougue/suinos/{suinosId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um suíno específica de um mercado" + count(),
+        description:
+          "Remove um suíno específica pelo ID do suíno de dentro da categoria acougue de um mercado específico, também identificado por ID.",
+        operationId: "deletesuíno",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual o suíno será removida",
+          },
+          {
+            name: "suinosId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do suíno que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "suíno removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "suíno com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou suíno não encontrada",
+          },
+        },
+      },
+    },
+    // acougue aves
+    "/mercado/{id}/produtos/acougue/aves": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera as aves de acougue de um mercado específico" + count(),
+        description:
+          "Retorna a lista de aves da categoria acougue do mercado especificado pelo ID.",
+        operationId: "getAvesByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas aves estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de aves recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há aves cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos aves de acougue de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de acougue do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToAvesCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de salgado",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/acougue/aves/{avesId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove uma ave específica de um mercado" + count(),
+        description:
+          "Remove  pelo ID do ave de dentro da categoria acougue de um mercado específico, também identificado por ID.",
+        operationId: "deleteave",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual ave será removida",
+          },
+          {
+            name: "avesId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do ave que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "ave removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "ave com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou ave não encontrada",
+          },
+        },
+      },
+    },
+    // peixaria peixes
+    "/mercado/{id}/produtos/peixaria/peixes": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera as peixes de peixaria de um mercado específico" + count(),
+        description:
+          "Retorna a lista de peixes da categoria peixaria do mercado especificado pelo ID.",
+        operationId: "getpeixesByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas peixes estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de peixes recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há peixes cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos peixes de peixaria de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de peixaria do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTopeixesCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de peixes",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/peixaria/peixes/{peixesId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove uma ave específica de um mercado" + count(),
+        description:
+          "Remove  pelo ID do peixe de dentro da categoria peixaria de um mercado específico, também identificado por ID.",
+        operationId: "deletepeixe",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual peixe será removida",
+          },
+          {
+            name: "peixesId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do peixe que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "peixe removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "peixe com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou peixe não encontrada",
+          },
+        },
+      },
+    },
+    // frutos do mar
+    "/mercado/{id}/produtos/peixaria/frutosDoMar": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera as frutosDoMar de peixaria de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de frutosDoMar da categoria peixaria do mercado especificado pelo ID.",
+        operationId: "getfrutosDoMarByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas frutosDoMar estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de frutosDoMar recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há frutosDoMar cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos frutosDoMar de peixaria de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de peixaria do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTofrutosDoMarCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de frutosDoMar",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/peixaria/frutosDoMar/{frutosDoMarId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove uma ave específica de um mercado" + count(),
+        description:
+          "Remove  pelo ID do frutosDoMar de dentro da categoria peixaria de um mercado específico, também identificado por ID.",
+        operationId: "deletefrutosdomar",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual frutosDoMar será removida",
+          },
+          {
+            name: "frutosDoMarsId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do frutosDoMar que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "frutosDoMar removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "frutosDoMar com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou frutosDoMar não encontrada",
+          },
+        },
+      },
+    },
+
+    // frios queijo
+    "/mercado/{id}/produtos/frios/queijos": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os queijos de frios de um mercado específico" + count(),
+        description:
+          "Retorna a lista de queijos da categoria frios do mercado especificado pelo ID.",
+        operationId: "getQueijoByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas queijos estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de queijos recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há queijos cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos queijos de frios de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de salgado de frios do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToCheeseCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de frios",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/frios/queijos/{queijosId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um queijo específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do queijo de dentro da categoria frios de um mercado específico, também identificado por ID.",
+        operationId: "deletecheese",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual queijo será removida",
+          },
+          {
+            name: "queijosId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do queijo que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "queijo removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "queijo com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou queijo não encontrada",
+          },
+        },
+      },
+    },
+    // frios embutidos
+    "/mercado/{id}/produtos/frios/embutidos": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os embutidos de frios de um mercado específico" + count(),
+        description:
+          "Retorna a lista de embutidos da categoria frios do mercado especificado pelo ID.",
+        operationId: "getEmbutByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas embutidos estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de embutidos recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há embutidos cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos embutidos de frios de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de frios do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToFruitCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de frios",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/frios/embutidos/{embutidosId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um embutido específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do embutido de dentro da categoria frios de um mercado específico, também identificado por ID.",
+        operationId: "deleteEmbut",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual embutido será removida",
+          },
+          {
+            name: "embutidosId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do embutido que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "embutido removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "embutido com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou embutido não encontrada",
+          },
+        },
+      },
+    },
+    // frios outros
+    "/mercado/{id}/produtos/frios/outros": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os outros de frios de um mercado específico" + count(),
+        description:
+          "Retorna a lista de outros da categoria frios do mercado especificado pelo ID.",
+        operationId: "getOutrosByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas outros estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de outros recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há outros cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos outros de frios de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de frios do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToOutrosCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de frios",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/frios/outros/{outrosId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um outros específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do outros de dentro da categoria frios de um mercado específico, também identificado por ID.",
+        operationId: "deleteOutros",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual outros será removida",
+          },
+          {
+            name: "outrosId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do outros que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "outros removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "outros com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou outros não encontrada",
+          },
+        },
+      },
+    },
+    // mercearia graosCereais
+    "/mercado/{id}/produtos/mercearia/graosCereais": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os graosCereais de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de graosCereais da categoria mercearia do mercado especificado pelo ID.",
+        operationId: "getgraosCereaisByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas graosCereais estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de graosCereais recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há graosCereais cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos graosCereais de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de mercearia do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTograosCereaisCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de mercearia",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/mercearia/graosCereais/{graosCereaisId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um graosCereais específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do graosCereais de dentro da categoria mercearia de um mercado específico, também identificado por ID.",
+        operationId: "deletegraosCereais",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual graosCereais será removida",
+          },
+          {
+            name: "graosCereaisId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do graosCereais que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "graosCereais removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "graosCereais com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou graosCereais não encontrada",
+          },
+        },
+      },
+    },
+    // mercearia massas
+    "/mercado/{id}/produtos/mercearia/massas": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os massas de mercearia de um mercado específico" + count(),
+        description:
+          "Retorna a lista de massas da categoria mercearia do mercado especificado pelo ID.",
+        operationId: "getmassasByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas massas estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de massas recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há massas cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos massas de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de mercearia do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTomassasCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de mercearia",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/mercearia/massas/{massasId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um massas específico de um mercado" + count(),
+        description:
+          "Remove pelo ID de massas de dentro da categoria mercearia de um mercado específico, também identificado por ID.",
+        operationId: "deletemassas",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual massas será removida",
+          },
+          {
+            name: "massasId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do massas que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "massas removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "massas com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou massas não encontrada",
+          },
+        },
+      },
+    },
+    // merc farinhas
+    "/mercado/{id}/produtos/mercearia/farinhas": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os farinhas de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de farinhas da categoria mercearia do mercado especificado pelo ID.",
+        operationId: "getfarinhasByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas farinhas estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de farinhas recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há farinhas cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos farinhas de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de mercearia do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTofarinhasCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de mercearia",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/mercearia/farinhas/{farinhasId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um farinhas específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do farinhas de dentro da categoria mercearia de um mercado específico, também identificado por ID.",
+        operationId: "deletefarinhas",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual farinhas será removida",
+          },
+          {
+            name: "farinhasId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do farinhas que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "farinhas removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "farinhas com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou farinhas não encontrada",
+          },
+        },
+      },
+    },
+    // merc conservados Enlatados
+    "/mercado/{id}/produtos/mercearia/conservadosEnlatados": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os conservadosEnlatados de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de conservadosEnlatados da categoria mercearia do mercado especificado pelo ID.",
+        operationId: "getconservadosEnlatadosByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas conservadosEnlatados estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de conservadosEnlatados recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há conservadosEnlatados cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos conservadosEnlatados de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de mercearia do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoToconservadosEnlatadosCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de mercearia",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/mercearia/conservadosEnlatados/{conservadosEnlatadosId}":
+      {
+        delete: {
+          tags: ["Mercado"],
+          summary:
+            "Remove um conservadosEnlatados específico de um mercado" + count(),
+          description:
+            "Remove pelo ID do conservadosEnlatados de dentro da categoria mercearia de um mercado específico, também identificado por ID.",
+          operationId: "deleteconservadosEnlatados",
+          produces: ["application/json"],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              type: "integer",
+              description:
+                "ID do mercado do qual conservadosEnlatados será removida",
+            },
+            {
+              name: "conservadosEnlatadosId",
+              in: "path",
+              required: true,
+              type: "integer",
+              description: "ID do conservadosEnlatados que será removida",
+            },
+          ],
+          responses: {
+            200: {
+              description: "conservadosEnlatados removido com sucesso",
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example:
+                      "conservadosEnlatados com ID 123 foi removido com sucesso.",
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Dados de entrada inválidos",
+            },
+            404: {
+              description:
+                "Mercado não encontrado ou conservadosEnlatados não encontrada",
+            },
+          },
+        },
+      },
+    // merc oleos
+    "/mercado/{id}/produtos/mercearia/oleos": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os oleos de mercearia de um mercado específico" + count(),
+        description:
+          "Retorna a lista de oleos da categoria mercearia do mercado especificado pelo ID.",
+        operationId: "getoleosByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas oleos estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de oleos recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há oleos cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos oleos de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de mercearia do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTooleosCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de mercearia",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/mercearia/oleos/{oleosId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um oleos específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do oleos de dentro da categoria mercearia de um mercado específico, também identificado por ID.",
+        operationId: "deleteoleos",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual oleos será removida",
+          },
+          {
+            name: "oleosId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do oleos que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "oleos removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "oleos com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou oleos não encontrada",
+          },
+        },
+      },
+    },
+    // merc temperos condimentos
+    "/mercado/{id}/produtos/mercearia/temperosCondimentos": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os temperosCondimentos de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de temperosCondimentos da categoria mercearia do mercado especificado pelo ID.",
+        operationId: "gettemperosCondimentosByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas temperosCondimentos estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de temperosCondimentos recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há temperosCondimentos cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos temperosCondimentos de mercearia de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de mercearia do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTotemperosCondimentosCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de mercearia",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/mercearia/temperosCondimentos/{temperosCondimentosId}":
+      {
+        delete: {
+          tags: ["Mercado"],
+          summary:
+            "Remove um temperosCondimentos específico de um mercado" + count(),
+          description:
+            "Remove pelo ID do temperosCondimentos de dentro da categoria mercearia de um mercado específico, também identificado por ID.",
+          operationId: "deletetemperosCondimentos",
+          produces: ["application/json"],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              type: "integer",
+              description:
+                "ID do mercado do qual temperosCondimentos será removida",
+            },
+            {
+              name: "temperosCondimentosId",
+              in: "path",
+              required: true,
+              type: "integer",
+              description: "ID do temperosCondimentos que será removida",
+            },
+          ],
+          responses: {
+            200: {
+              description: "temperosCondimentos removido com sucesso",
+              schema: {
+                type: "object",
+                properties: {
+                  message: {
+                    type: "string",
+                    example:
+                      "temperosCondimentos com ID 123 foi removido com sucesso.",
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Dados de entrada inválidos",
+            },
+            404: {
+              description:
+                "Mercado não encontrado ou temperosCondimentos não encontrada",
+            },
+          },
+        },
+      },
+    // bebidas com alcool
+    "/mercado/{id}/produtos/bebidas/comAlcool": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os comAlcool de bebidas de um mercado específico" + count(),
+        description:
+          "Retorna a lista de comAlcool da categoria bebidas do mercado especificado pelo ID.",
+        operationId: "getcomAlcoolByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas comAlcool estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de comAlcool recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há comAlcool cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos comAlcool de bebidas de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de bebidas do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTocomAlcoolCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de bebidas",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/bebidas/comAlcool/{comAlcoolId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um comAlcool específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do comAlcool de dentro da categoria bebidas de um mercado específico, também identificado por ID.",
+        operationId: "deletecomAlcool",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual comAlcool será removida",
+          },
+          {
+            name: "comAlcoolId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do comAlcool que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "comAlcool removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "comAlcool com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou comAlcool não encontrada",
+          },
+        },
+      },
+    },
+    // bebidas sem alcool
+    "/mercado/{id}/produtos/bebidas/semAlcool": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os semAlcool de bebidas de um mercado específico" + count(),
+        description:
+          "Retorna a lista de semAlcool da categoria bebidas do mercado especificado pelo ID.",
+        operationId: "getsemAlcoolByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description:
+              "ID do mercado cujas semAlcool estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de semAlcool recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description:
+              "Mercado não encontrado ou não há semAlcool cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos semAlcool de bebidas de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de bebidas do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTosemAlcoolCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de bebidas",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/bebidas/semAlcool/{semAlcoolId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um semAlcool específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do semAlcool de dentro da categoria bebidas de um mercado específico, também identificado por ID.",
+        operationId: "deletesemAlcool",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual semAlcool será removida",
+          },
+          {
+            name: "semAlcoolId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do semAlcool que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "semAlcool removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "semAlcool com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou semAlcool não encontrada",
+          },
+        },
+      },
+    },
+    // higine
+    "/mercado/{id}/produtos/higieneLimpeza/higine": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os higine de higieneLimpeza de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de higine da categoria higieneLimpeza do mercado especificado pelo ID.",
+        operationId: "gethigineByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas higine estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de higine recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há higine cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos higine de higieneLimpeza de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de higieneLimpeza do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTohigineCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de higieneLimpeza",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/higieneLimpeza/higine/{higineId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um higine específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do higine de dentro da categoria higieneLimpeza de um mercado específico, também identificado por ID.",
+        operationId: "deletehigine",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual higine será removida",
+          },
+          {
+            name: "higineId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do higine que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "higine removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "higine com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou higine não encontrada",
+          },
+        },
+      },
+    },
+    // limpeza
+    "/mercado/{id}/produtos/higieneLimpeza/limpeza": {
+      get: {
+        tags: ["Mercado"],
+        summary:
+          "Recupera os limpeza de higieneLimpeza de um mercado específico" +
+          count(),
+        description:
+          "Retorna a lista de limpeza da categoria higieneLimpeza do mercado especificado pelo ID.",
+        operationId: "getlimpezaByMercadoId",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado cujas limpeza estão sendo solicitadas",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de limpeza recuperada com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                },
+                salgado: {
+                  type: "array",
+                  items: {
+                    $ref: "#/definitions/Fruta",
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Mercado não encontrado ou não há limpeza cadastradas",
+          },
+        },
+      },
+      post: {
+        tags: ["Mercado"],
+        summary:
+          "Adiciona um produto aos limpeza de higieneLimpeza de um mercado específico" +
+          count(),
+        description:
+          "Adiciona um novo produto à subcategoria de higieneLimpeza do mercado identificado pelo ID fornecido na URL.",
+        operationId: "addProdutoTolimpezaCategory",
+        consumes: ["application/json"],
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "ID do mercado ao qual o produto será adicionado",
+            type: "integer",
+          },
+          {
+            name: "body",
+            in: "body",
+            required: true,
+            description:
+              "Dados do produto para adicionar à subcategoria de higieneLimpeza",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Produto adicionado com sucesso",
+            schema: {
+              $ref: "#/definitions/Produtos",
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado",
+          },
+        },
+      },
+    },
+    "/mercado/{id}/produtos/higieneLimpeza/limpeza/{limpezaId}": {
+      delete: {
+        tags: ["Mercado"],
+        summary: "Remove um limpeza específico de um mercado" + count(),
+        description:
+          "Remove  pelo ID do limpeza de dentro da categoria higieneLimpeza de um mercado específico, também identificado por ID.",
+        operationId: "deletelimpeza",
+        produces: ["application/json"],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do mercado do qual limpeza será removida",
+          },
+          {
+            name: "limpezaId",
+            in: "path",
+            required: true,
+            type: "integer",
+            description: "ID do limpeza que será removida",
+          },
+        ],
+        responses: {
+          200: {
+            description: "limpeza removido com sucesso",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "limpeza com ID 123 foi removido com sucesso.",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Dados de entrada inválidos",
+          },
+          404: {
+            description: "Mercado não encontrado ou limpeza não encontrada",
+          },
+        },
+      },
+    },
   },
   components: {
     schemas: {
@@ -44590,13 +47729,286 @@ const swaggerDocument = {
       },
     },
   },
+  definitions: {
+    Mercado: {
+      type: "object",
+      required: ["nome", "cnpj", "endereco"],
+      properties: {
+        nome: {
+          type: "string",
+        },
+        cnpj: {
+          type: "string",
+        },
+        endereco: {
+          type: "string",
+        },
+      },
+    },
+    Fruta: {
+      type: "object",
+      required: ["nome", "valor"],
+      properties: {
+        nome: {
+          type: "string",
+          example: "Maçã",
+        },
+        valor: {
+          type: "integer",
+          example: 5,
+          description: "Valor deve ser um número inteiro e não negativo",
+        },
+      },
+    },
+    Produtos: {
+      type: "object",
+      properties: {
+        nome: {
+          type: "string",
+          example: "Maçã",
+        },
+        valor: {
+          type: "integer",
+          example: 3,
+          description: "Valor do produto em reais.",
+        },
+      },
+    },
+    CategoriaProduto: {
+      type: "object",
+      properties: {
+        frutas: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        legumes: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        doces: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        salgados: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        bovinos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        suinos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        aves: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        queijos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        embutidos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        outros_frios: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        graos_cereais: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        massas: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        farinhas: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        conservados_enlatados: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        oleos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        temperos_condimentos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        com_alcool: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        sem_alcool: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        doces_congelados: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        salgados_congelados: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        higiene: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        limpeza: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        cozinha_util_domestica: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        diversos_util_domestica: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        telefonia: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        outros_eletronicos: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        alimentos_petShop: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        acessorios_petShop: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        higiene_petShop: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        medicamentos_livre: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        cuidado_pessoal: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        outros_farmacia: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        material_escolar: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        decoracao: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        outros_bazar_papelaria: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        peixes: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+        frutos_do_mar: {
+          type: "array",
+          items: {
+            $ref: "#/definitions/Produtos",
+          },
+        },
+      },
+    },
+  },
 };
 
 export default swaggerDocument;
 // "/exmample":{
 // 	get:{
 // 		tags: ["Others"],
-//         summary: "JSON com profundidade de validações",
+//         summary: "JSON com profundidade de validações" + count(),
 //         description: "JSON para treino de validação",
 // 		parameters:[{
 // 			name: "body",

@@ -25,19 +25,26 @@ function isValidCPF(cpf) {
 }
 
 export function encrypt(jsonData) {
-    const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
-    let encrypted = cipher.update(JSON.stringify(jsonData), 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return { iv: iv.toString('hex'), encryptedData: encrypted };
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+  let encrypted = cipher.update(JSON.stringify(jsonData), "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return { iv: iv.toString("hex"), encryptedData: encrypted };
 }
 
 // Função para descriptografar dados
 export function decrypt(encryptedData) {
-    const ivBuffer = Buffer.from(encryptedData.iv, 'hex');
-    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), ivBuffer);
-    let decrypted = decipher.update(encryptedData.encryptedData, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return JSON.parse(decrypted);
+  const ivBuffer = Buffer.from(encryptedData.iv, "hex");
+  const decipher = crypto.createDecipheriv(
+    algorithm,
+    Buffer.from(key),
+    ivBuffer
+  );
+  let decrypted = decipher.update(encryptedData.encryptedData, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return JSON.parse(decrypted);
+}
+export function removeSliceQuantify(param) {
+  if (param.length > 10) param.slice(0, 5);
 }
 
 export default isValidCPF;

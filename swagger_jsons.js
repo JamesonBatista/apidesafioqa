@@ -75246,6 +75246,58 @@ export const company = [
     ],
   },
 ];
+export const mercado = [
+  {
+    id: 1,
+    nome: "Supermercado Exemplo",
+    cnpj: "00.000.000/0001-00",
+    endereco: "Rua Exemplo, 123, Cidade Exemplo, Estado, 00000-000",
+    produtos: {
+      hortifruit: [
+        { frutas: [{ nome: "Maçã", preco: 4 }] },
+        { legumes: [{ nome: "Cenoura", preco: 3 }] },
+      ],
+      padaria: [
+        { doces: [{ nome: "Donut", preco: 4 }] },
+        { salgados: [{ nome: "Pão de queijo", preco: 2 }] },
+      ],
+      acougue: [
+        { bovinos: [{ nome: "Picanha", preco: 55 }] },
+        { suinos: [{ nome: "Lombo", preco: 25 }] },
+        { aves: [{ nome: "Peito de frango", preco: 15 }] },
+      ],
+      peixaria: [
+        { peixes: [{ nome: "Salmão", preco: 40 }] },
+        { frutos_do_mar: [{ nome: "Camarões", preco: 50 }] },
+      ],
+      frios: [
+        { queijos: [{ nome: "Mussarela", preco: 20 }] },
+        { embutidos: [{ nome: "Salame", preco: 30 }] },
+        { outros: [{ nome: "Manteiga", preco: 7 }] },
+      ],
+      mercearia: [
+        { graos_cereais: [{ nome: "Arroz", preco: 21 }] },
+        { massas: [{ nome: "Espaguete", preco: 4 }] },
+        { farinhas: [{ nome: "Farinha de trigo", preco: 5 }] },
+        { conservados_enlatados: [{ nome: "Milho verde", preco: 5 }] },
+        { oleos: [{ nome: "Óleo de soja", preco: 8 }] },
+        { temperos_condimentos: [{ nome: "Sal", preco: 2 }] },
+      ],
+      bebidas: [
+        { com_alcool: [{ nome: "Cerveja", preco: 3 }] },
+        { sem_alcool: [{ nome: "Suco de laranja", preco: 8 }] },
+      ],
+      congelados: [
+        { doces: [{ nome: "Sorvete", preco: 12 }] },
+        { salgados: [{ nome: "Pizza congelada", preco: 14 }] },
+      ],
+      higienelimpeza: [
+        { higiene: [{ nome: "Shampoo", preco: 15 }] },
+        { limpeza: [{ nome: "Desinfetante", preco: 10 }] },
+      ],
+    },
+  },
+];
 
 export const encryptedDataUser = [];
 export const membersProjet = [];

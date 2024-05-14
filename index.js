@@ -36,6 +36,7 @@ import {
   membersProjet,
   clients,
   encryptedDataUser,
+  mercado,
 } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -620,7 +621,7 @@ app.post(
       bank,
     };
     if (usuarios.length >= 50) {
-      usuarios = usuarios.slice(10);
+      usuarios = usuarios.splice(10);
     }
 
     usuarios.push(novoCliente);
@@ -962,7 +963,7 @@ app.post(
     // Criar o novo membro
     const newMember = { id_member, name, office, send_email };
     if (membersProjet.length >= 50) {
-      membersProjet = membersProjet.slice(10);
+      membersProjet = membersProjet.splice(10);
     }
     const project_members = project.members.find(
       (p) => p.name.trim() === name.trim()
@@ -1113,6 +1114,9 @@ app.post(
         credit: parseFloat(req.body.card.credit),
       },
     };
+    if (clients.length > 50) {
+      clients = clients.splice(0, 10);
+    }
 
     clients.push(newClient);
     res
@@ -1489,7 +1493,9 @@ app.post(
         .status(400)
         .json({ message: `Já existe uma Empresa com o nome ${name}` });
     }
-
+    if (company.length > 50) {
+      company.splice(0, 10); // Remove os 10 primeiros
+    }
     let newCompany = {
       id: generateId(company), // ID fictício
       name,
@@ -1650,6 +1656,9 @@ app.post(
       return res
         .status(400)
         .send({ message: `${productName}  já existe nos produtos.` });
+    }
+    if (company_.products.length > 10) {
+      company_.products.splice(0, 5); // Remove os 10 primeiros
     }
 
     const productId = company_.products.length + 1; // Simples ID incremental
@@ -1844,7 +1853,9 @@ app.post(
         .status(400)
         .send({ message: `${name} já existe nos Employees.` });
     }
-
+    if (company_.employees.length > 10) {
+      company_.employees.splice(0, 5); // Remove os 10 primeiros
+    }
     const employeeId = company_.employees.length + 1; // Simples ID incremental
     const newProduct = { employeeId, name, position, email };
     company_.employees.push(newProduct);
@@ -2032,6 +2043,9 @@ app.post(
         .status(400)
         .send({ message: `${serviceName} já existe nos Serviços.` });
     }
+    if (company_.services.length > 10) {
+      company_.services.splice(0, 5); // Remove os 10 primeiros
+    }
 
     const serviceId = company_.services.length + 1; // Simples ID incremental
     const newProduct = { serviceId, serviceName, serviceDescription };
@@ -2166,9 +2180,2826 @@ app.delete(
   }
 );
 
+// MERCADO
+app.get("/mercado", (req, res) => {
+  res.send(mercado);
+});
+app.post(
+  "/mercado",
+  [
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("cnpj")
+      .not()
+      .isEmpty()
+      .withMessage("CNPJ é obrigatório")
+      .isLength({ min: 14, max: 14 })
+      .withMessage("CNPJ deve ter 14 dígitos"),
+    body("endereco").not().isEmpty().withMessage("Endereço é obrigatório"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Adicionando todos os campos de produtos com suas subcategorias inicialmente vazias
+    const novoMercado = {
+      id: generateId(mercado),
+      nome: req.body.nome,
+      cnpj: req.body.cnpj,
+      endereco: req.body.endereco,
+      produtos: {
+        hortifruit: [{ frutas: [] }, { legumes: [] }],
+        padaria: [{ doces: [] }, { salgados: [] }],
+        acougue: [{ bovinos: [] }, { suinos: [] }, { aves: [] }],
+        peixaria: [{ peixes: [] }, { frutos_do_mar: [] }],
+        frios: [{ queijos: [] }, { embutidos: [] }, { outros: [] }],
+        mercearia: [
+          { graos_cereais: [] },
+          { massas: [] },
+          { farinhas: [] },
+          { conservados_enlatados: [] },
+          { oleos: [] },
+          { temperos_condimentos: [] },
+        ],
+        bebidas: [{ com_alcool: [] }, { sem_alcool: [] }],
+        higienelimpeza: [{ higiene: [] }, { limpeza: [] }],
+      },
+    };
+    if (mercado.length > 50) {
+      mercado.splice(0, 10); // Remove os 10 primeiros
+    }
+    const verify_name = mercado.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de Mercados.`,
+      });
+    }
+    mercado.push(novoMercado);
+    // Simulando uma resposta de sucesso
+    res.status(201).send({
+      message: `Mercado '${novoMercado.nome}' adicionado com sucesso com todas as subcategorias iniciais vazias!`,
+      novoMercado,
+    });
+  }
+);
+app.get(
+  "/mercado/:mercadoId",
+  [
+    param("mercadoId")
+      .isInt()
+      .withMessage("ID do Mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const mercado_ = mercado.find(
+      (m) => m.id === parseInt(req.params.mercadoId)
+    );
+    if (!mercado_) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send(mercado_);
+  }
+);
+app.get(
+  "/mercado/:mercadoId/produtos",
+  [
+    param("mercadoId")
+      .isInt()
+      .withMessage("ID do Mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const mercado_ = mercado.find(
+      (m) => m.id === parseInt(req.params.mercadoId)
+    );
+    if (!mercado_) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send(mercado_.produtos);
+  }
+);
+app.put(
+  "/mercado/:mercadoId",
+  [
+    param("mercadoId")
+      .isInt()
+      .withMessage("ID do Mercado deve ser um número inteiro"),
+    body("nome")
+      .optional()
+      .isString()
+      .withMessage("Nome deve ser uma string válida"),
+    body("cnpj")
+      .optional()
+      .isString()
+      .withMessage("CNPJ deve ser uma string válida"),
+    body("endereco")
+      .optional()
+      .isString()
+      .withMessage("Endereço deve ser uma string válida"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const index = mercado.findIndex(
+      (m) => m.id === parseInt(req.params.mercadoId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    const updatedMercado = {
+      ...mercado[index],
+      ...req.body,
+    };
+
+    mercado[index] = updatedMercado;
+
+    res.send({
+      message: `Mercado com ID ${req.params.mercadoId} atualizado com sucesso.`,
+      updatedMercado,
+    });
+  }
+);
+app.delete(
+  "/mercado/:mercadoId",
+  [
+    param("mercadoId")
+      .isInt()
+      .withMessage("ID do Mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const index = mercado.findIndex(
+      (m) => m.id === parseInt(req.params.mercadoId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    mercado.splice(index, 1);
+    res.send({
+      message: `Mercado com ID ${req.params.mercadoId} foi removido com sucesso.`,
+    });
+  }
+);
+// HORTIFRUIT
+app.post(
+  "/mercado/:id/produtos/hortifruit/frutas",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Adicionando o novo produto na categoria de frutas do hortifruit do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.hortifruit[0].frutas.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de Frutas.`,
+      });
+    }
+
+    if (mercado_.produtos.hortifruit[0].frutas.length > 10) {
+      mercado_.produtos.hortifruit[0].frutas.splice(0, 3);
+    }
+
+    mercado_.produtos.hortifruit[0].frutas.push({
+      id: generateId(mercado_.produtos.hortifruit[0].frutas),
+      nome,
+      valor,
+    });
+    const frutas = mercado_.produtos.hortifruit[0].frutas;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às frutas do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      frutas,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/hortifruit/frutas",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de frutas do hortifruit do mercado especificado
+    const frutas = mercado_.produtos.hortifruit[0].frutas;
+    if (!frutas || frutas.length === 0) {
+      return res.status(404).send({
+        message: "Não há frutas cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de frutas do mercado ${mercado_.nome}`,
+      frutas,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/hortifruit/frutas/:frutaId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("frutaId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de frutas do hortifruit do mercado especificado
+    const frutas = mercado_.produtos.hortifruit[0].frutas;
+    if (!frutas || frutas.length === 0) {
+      return res.status(404).send({
+        message: "Não há frutas cadastradas neste mercado.",
+      });
+    }
+    const index = frutas.findIndex(
+      (m) => m.id === parseInt(req.params.frutaId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Fruta ${frutas[0].nome} com ID ${req.params.frutaId} foi removido com sucesso.`,
+    });
+    frutas.splice(index, 1);
+  }
+);
+// LEGUMES
+app.post(
+  "/mercado/:id/produtos/hortifruit/legumes",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.hortifruit[1].legumes.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de Legumes.`,
+      });
+    }
+    if (mercado_.produtos.hortifruit[1].legumes.length > 10) {
+      mercado_.produtos.hortifruit[1].legumes.splice(0, 3);
+    }
+
+    mercado_.produtos.hortifruit[1].legumes.push({
+      id: generateId(mercado_.produtos.hortifruit[1].legumes),
+      nome,
+      valor,
+    });
+    const legumes = mercado_.produtos.hortifruit[1].legumes;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às legumes do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      legumes,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/hortifruit/legumes",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de legumes do hortifruit do mercado especificado
+    const legumes = mercado_.produtos.hortifruit[1].legumes;
+    if (!legumes || legumes.length === 0) {
+      return res.status(404).send({
+        message: "Não há legumes cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de legumes do mercado ${mercado_.nome}`,
+      legumes,
+    });
+  }
+);
+
+app.delete(
+  "/mercado/:id/produtos/hortifruit/legumes/:legumesId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("legumesId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de frutas do hortifruit do mercado especificado
+    const legumes = mercado_.produtos.hortifruit[1].legumes;
+    if (!legumes || legumes.length === 0) {
+      return res.status(404).send({
+        message: "Não há legumes cadastradas neste mercado.",
+      });
+    }
+    const index = legumes.findIndex(
+      (m) => m.id === parseInt(req.params.legumesId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Legume ${legumes[0].nome} com ID ${req.params.legumesId} foi removido com sucesso.`,
+    });
+    legumes.splice(index, 1);
+
+  }
+);
+// PADARIA
+app.post(
+  "/mercado/:id/produtos/padaria/doces",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Adicionando o novo produto na categoria de doces do padaria do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.padaria[0].doces.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de doces.`,
+      });
+    }
+    if (mercado_.produtos.padaria[0].doces.length > 10) {
+      mercado_.produtos.padaria[0].doces.splice(0, 3);
+    }
+
+    mercado_.produtos.padaria[0].doces.push({
+      id: generateId(mercado_.produtos.padaria[0].doces),
+      nome,
+      valor,
+    });
+    const doces = mercado_.produtos.padaria[0].doces;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso aos doces do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      doces,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/padaria/doces",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de doces do padaria do mercado especificado
+    const doces = mercado_.produtos.padaria[0].doces;
+    if (!doces || doces.length === 0) {
+      return res.status(404).send({
+        message: "Não há doces cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de doces do mercado ${mercado_.nome}`,
+      doces,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/padaria/doces/:docesId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("docesId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de frutas do padaria do mercado especificado
+    const doces = mercado_.produtos.padaria[0].doces;
+    if (!doces || doces.length === 0) {
+      return res.status(404).send({
+        message: "Não há doces cadastradas neste mercado.",
+      });
+    }
+    const index = doces.findIndex((m) => m.id === parseInt(req.params.docesId));
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Doce ${doces[0].nome} com ID ${req.params.docesId} foi removido com sucesso.`,
+    });
+    doces.splice(index, 1);
+
+  }
+);
+
+// padaria salgado
+
+app.post(
+  "/mercado/:id/produtos/padaria/salgados",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Adicionando o novo produto na categoria de salgados do padaria do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.padaria[1].salgados.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de salgados.`,
+      });
+    }
+
+    if (mercado_.produtos.padaria[1].salgados.length > 10) {
+      mercado_.produtos.padaria[1].salgados.splice(0, 3);
+    }
+
+    mercado_.produtos.padaria[1].salgados.push({
+      id: generateId(mercado_.produtos.padaria[1].salgados),
+      nome,
+      valor,
+    });
+    const salgados = mercado_.produtos.padaria[1].salgados;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso aos salgados do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      salgados,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/padaria/salgados",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de salgados do padaria do mercado especificado
+    const salgados = mercado_.produtos.padaria[1].salgados;
+    if (!salgados || salgados.length === 0) {
+      return res.status(404).send({
+        message: "Não há salgados cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de salgados do mercado ${mercado_.nome}`,
+      salgados,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/padaria/salgados/:salgadosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("salgadosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de frutas do padaria do mercado especificado
+    const salgados = mercado_.produtos.padaria[1].salgados;
+    if (!salgados || salgados.length === 0) {
+      return res.status(404).send({
+        message: "Não há salgados cadastradas neste mercado.",
+      });
+    }
+    const index = salgados.findIndex(
+      (m) => m.id === parseInt(req.params.salgadosId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Salgado ${salgados[0].nome} com ID ${req.params.salgadosId} foi removido com sucesso.`,
+    });
+    salgados.splice(index, 1);
+
+  }
+);
+//  "acougue": [{ "bovinos": [] }, { "suinos": [] }, { "aves": [] }],
+app.post(
+  "/mercado/:id/produtos/acougue/bovinos",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de bovinos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.acougue[0].bovinos.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de bovinos.`,
+      });
+    }
+    if (mercado_.produtos.acougue[0].bovinos.length > 10) {
+      mercado_.produtos.acougue[0].bovinos.splice(0, 3);
+    }
+    mercado_.produtos.acougue[0].bovinos.push({
+      id: generateId(mercado_.produtos.acougue[0].bovinos),
+      nome,
+      valor,
+    });
+    const bovinos = mercado_.produtos.acougue[0].bovinos;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às bovinos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      bovinos,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/acougue/bovinos",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de bovinos do acougue do mercado especificado
+    const bovinos = mercado_.produtos.acougue[0].bovinos;
+    if (!bovinos || bovinos.length === 0) {
+      return res.status(404).send({
+        message: "Não há bovinos cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de bovinos do mercado ${mercado_.nome}`,
+      bovinos,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/acougue/bovinos/:frutaId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("frutaId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de bovinos do acougue do mercado especificado
+    const bovinos = mercado_.produtos.acougue[0].bovinos;
+    if (!bovinos || bovinos.length === 0) {
+      return res.status(404).send({
+        message: "Não há bovinos cadastradas neste mercado.",
+      });
+    }
+    const index = bovinos.findIndex(
+      (m) => m.id === parseInt(req.params.frutaId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Bovino ${bovinos[0].nome} com ID ${req.params.frutaId} foi removido com sucesso.`,
+    });
+    bovinos.splice(index, 1);
+
+  }
+  
+);
+
+// suinos
+app.post(
+  "/mercado/:id/produtos/acougue/suinos",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de suinos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.acougue[1].suinos.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de suinos.`,
+      });
+    }
+    if (mercado_.produtos.acougue[1].suinos.length > 10) {
+      mercado_.produtos.acougue[1].suinos.splice(0, 3);
+    }
+    mercado_.produtos.acougue[1].suinos.push({
+      id: generateId(mercado_.produtos.acougue[1].suinos),
+      nome,
+      valor,
+    });
+    const suinos = mercado_.produtos.acougue[1].suinos;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso no setor [suinos] do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      suinos,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/acougue/suinos",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de suinos do acougue do mercado especificado
+    const suinos = mercado_.produtos.acougue[1].suinos;
+    if (!suinos || suinos.length === 0) {
+      return res.status(404).send({
+        message: "Não há suinos cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de suinos do mercado ${mercado_.nome}`,
+      suinos,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/acougue/suinos/:suinoId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("suinoId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de suinos do acougue do mercado especificado
+    const suinos = mercado_.produtos.acougue[1].suinos;
+    if (!suinos || suinos.length === 0) {
+      return res.status(404).send({
+        message: "Não há suinos cadastradas neste mercado.",
+      });
+    }
+    const index = suinos.findIndex(
+      (m) => m.id === parseInt(req.params.suinoId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Suíno ${suinos[0].nome} com ID ${req.params.suinoId} foi removido com sucesso.`,
+    });
+    suinos.splice(index, 1);
+
+  }
+);
+
+// aves
+app.post(
+  "/mercado/:id/produtos/acougue/aves",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de aves do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.acougue[2].aves.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de aves.`,
+      });
+    }
+
+    if (mercado_.produtos.acougue[2].aves.length > 10) {
+      mercado_.produtos.acougue[2].aves.splice(0, 3);
+    }
+
+    mercado_.produtos.acougue[2].aves.push({
+      id: generateId(mercado_.produtos.acougue[2].aves),
+      nome,
+      valor,
+    });
+    const aves = mercado_.produtos.acougue[2].aves;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso no setor [aves] do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      aves,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/acougue/aves",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de aves do acougue do mercado especificado
+    const aves = mercado_.produtos.acougue[2].aves;
+    if (!aves || aves.length === 0) {
+      return res.status(404).send({
+        message: "Não há aves cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de aves do mercado ${mercado_.nome}`,
+      aves,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/acougue/aves/:suinoId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("suinoId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de aves do acougue do mercado especificado
+    const aves = mercado_.produtos.acougue[2].aves;
+    if (!aves || aves.length === 0) {
+      return res.status(404).send({
+        message: "Não há aves cadastradas neste mercado.",
+      });
+    }
+    const index = aves.findIndex((m) => m.id === parseInt(req.params.suinoId));
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Ave ${aves[0].nome} com ID ${req.params.suinoId} foi removido com sucesso.`,
+    });
+    aves.splice(index, 1);
+
+  }
+);
+// peixaria
+app.post(
+  "/mercado/:id/produtos/peixaria/peixes",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de peixes do peixaria do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.peixaria[0].peixes.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de peixes.`,
+      });
+    }
+    if (mercado_.produtos.peixaria[0].peixes.length > 10) {
+      mercado_.produtos.peixaria[0].peixes.splice(0, 3);
+    }
+    mercado_.produtos.peixaria[0].peixes.push({
+      id: generateId(mercado_.produtos.peixaria[0].peixes),
+      nome,
+      valor,
+    });
+    const peixes = mercado_.produtos.peixaria[0].peixes;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso no setor [peixes] do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      peixes,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/peixaria/peixes",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de peixes do peixaria do mercado especificado
+    const peixes = mercado_.produtos.peixaria[0].peixes;
+    if (!peixes || peixes.length === 0) {
+      return res.status(404).send({
+        message: "Não há peixes cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de peixes do mercado ${mercado_.nome}`,
+      peixes,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/peixaria/peixes/:peixeId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("peixeId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de peixes do peixaria do mercado especificado
+    const peixes = mercado_.produtos.peixaria[0].peixes;
+    if (!peixes || peixes.length === 0) {
+      return res.status(404).send({
+        message: "Não há peixes cadastradas neste mercado.",
+      });
+    }
+    const index = peixes.findIndex(
+      (m) => m.id === parseInt(req.params.peixeId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Peixe ${peixes[0].nome} com ID ${req.params.peixeId} foi removido com sucesso.`,
+    });
+    peixes.splice(index, 1);
+
+  }
+);
 //
 
+//  "frios": [{ "queijos": [] }, { "embutidos": [] }, { "outros": [] }],
+app.post(
+  "/mercado/:id/produtos/frios/queijos",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de queijos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.frios[0].queijos.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de queijos.`,
+      });
+    }
+
+    if (mercado_.produtos.frios[0].queijos.length > 10) {
+      mercado_.produtos.frios[0].queijos.splice(0, 3);
+    }
+
+    mercado_.produtos.frios[0].queijos.push({
+      id: generateId(mercado_.produtos.frios[0].queijos),
+      nome,
+      valor,
+    });
+    const queijos = mercado_.produtos.frios[0].queijos;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às queijos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      queijos,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/frios/queijos",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijos do frios do mercado especificado
+    const queijos = mercado_.produtos.frios[0].queijos;
+    if (!queijos || queijos.length === 0) {
+      return res.status(404).send({
+        message: "Não há queijos cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de queijos do mercado ${mercado_.nome}`,
+      queijos,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/frios/queijos/:queijosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("queijosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do frios do mercado especificado
+    const queijos = mercado_.produtos.frios[0].queijos;
+    if (!queijos || queijos.length === 0) {
+      return res.status(404).send({
+        message: "Não há queijos cadastradas neste mercado.",
+      });
+    }
+    const index = queijos.findIndex(
+      (m) => m.id === parseInt(req.params.queijosId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Queijo ${queijos[0].nome} com ID ${req.params.queijosId} foi removido com sucesso.`,
+    });
+    queijos.splice(index, 1);
+
+  }
+);
+
+// embutidos
+app.post(
+  "/mercado/:id/produtos/frios/embutidos",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de embutidos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.frios[1].embutidos.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de embutidos.`,
+      });
+    }
+
+    if (mercado_.produtos.frios[1].embutidos.length > 10) {
+      mercado_.produtos.frios[1].embutidos.splice(0, 3);
+    }
+    mercado_.produtos.frios[1].embutidos.push({
+      id: generateId(mercado_.produtos.frios[1].embutidos),
+      nome,
+      valor,
+    });
+    const embutidos = mercado_.produtos.frios[1].embutidos;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às embutidos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      embutidos,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/frios/embutidos",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de embutidos do frios do mercado especificado
+    const embutidos = mercado_.produtos.frios[1].embutidos;
+    if (!embutidos || embutidos.length === 0) {
+      return res.status(404).send({
+        message: "Não há embutidos cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de embutidos do mercado ${mercado_.nome}`,
+      embutidos,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/frios/embutidos/:embutidosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("embutidosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do frios do mercado especificado
+    const embutidos = mercado_.produtos.frios[1].embutidos;
+    if (!embutidos || embutidos.length === 0) {
+      return res.status(404).send({
+        message: "Não há embutidos cadastradas neste mercado.",
+      });
+    }
+    const index = embutidos.findIndex(
+      (m) => m.id === parseInt(req.params.embutidosId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Embutido ${embutidos[0].nome} com ID ${req.params.embutidosId} foi removido com sucesso.`,
+    });
+    embutidos.splice(index, 1);
+
+  }
+);
+// outros
+app.post(
+  "/mercado/:id/produtos/frios/outros",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de outros do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.frios[2].outros.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de outros.`,
+      });
+    }
+    if (mercado_.produtos.frios[2].outros.length > 10) {
+      mercado_.produtos.frios[2].outros.splice(0, 3);
+    }
+
+    mercado_.produtos.frios[2].outros.push({
+      id: generateId(mercado_.produtos.frios[2].outros),
+      nome,
+      valor,
+    });
+    const outros = mercado_.produtos.frios[2].outros;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às outros do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      outros,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/frios/outros",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de outros do frios do mercado especificado
+    const outros = mercado_.produtos.frios[2].outros;
+    if (!outros || outros.length === 0) {
+      return res.status(404).send({
+        message: "Não há outros cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de outros do mercado ${mercado_.nome}`,
+      outros,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/frios/outros/:outrosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("outrosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do frios do mercado especificado
+    const outros = mercado_.produtos.frios[2].outros;
+    if (!outros || outros.length === 0) {
+      return res.status(404).send({
+        message: "Não há outros cadastradas neste mercado.",
+      });
+    }
+    const index = outros.findIndex(
+      (m) => m.id === parseInt(req.params.outrosId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `Outros ${outros[0].nome} com ID ${req.params.outrosId} foi removido com sucesso.`,
+    });
+    outros.splice(index, 1);
+
+  }
+);
+// frutos do mar
+app.post(
+  "/mercado/:id/produtos/peixaria/frutosDoMar",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de frutosDoMar do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.peixaria[1].frutos_do_mar.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de frutosDoMar.`,
+      });
+    }
+    if (mercado_.produtos.peixaria[1].frutos_do_mar.length > 10) {
+      mercado_.produtos.peixaria[1].frutos_do_mar.splice(0, 3);
+    }
+    mercado_.produtos.peixaria[1].frutos_do_mar.push({
+      id: generateId(mercado_.produtos.peixaria[1].frutos_do_mar),
+      nome,
+      valor,
+    });
+    const frutosDoMar = mercado_.produtos.peixaria[1].frutos_do_mar;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às frutosDoMar do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      frutosDoMar,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/peixaria/frutosDoMar",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de frutosDoMar do frios do mercado especificado
+    const frutosDoMar = mercado_.produtos.peixaria[1].frutos_do_mar;
+    if (!frutosDoMar || frutosDoMar.length === 0) {
+      return res.status(404).send({
+        message: "Não há frutosDoMar cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de frutosDoMar do mercado ${mercado_.nome}`,
+      frutosDoMar,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/peixaria/frutosDoMar/:frutosDoMarId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("frutosDoMarId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do peixaria do mercado especificado
+    const frutosDoMar = mercado_.produtos.peixaria[1].frutos_do_mar;
+    if (!frutosDoMar || frutosDoMar.length === 0) {
+      return res.status(404).send({
+        message: "Não há frutosDoMar cadastradas neste mercado.",
+      });
+    }
+    const index = frutosDoMar.findIndex(
+      (m) => m.id === parseInt(req.params.frutosDoMarId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `frutosDoMar ${frutosDoMar[0].nome} com ID ${req.params.frutosDoMarId} foi removido com sucesso.`,
+    });
+    frutosDoMar.splice(index, 1);
+
+  }
+);
+// mercearia graos cereais
+app.post(
+  "/mercado/:id/produtos/mercearia/graosCereais",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de graosCereais do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.mercearia[0].graos_cereais.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de graosCereais.`,
+      });
+    }
+    if (mercado_.produtos.mercearia[0].graos_cereais.length > 10) {
+      mercado_.produtos.mercearia[0].graos_cereais.splice(0, 3);
+    }
+    mercado_.produtos.mercearia[0].graos_cereais.push({
+      id: generateId(mercado_.produtos.mercearia[0].graos_cereais),
+      nome,
+      valor,
+    });
+    const graosCereais = mercado_.produtos.mercearia[0].graos_cereais;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às graosCereais do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      graosCereais,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/mercearia/graosCereais",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de graosCereais do mercearia do mercado especificado
+    const graosCereais = mercado_.produtos.mercearia[0].graos_cereais;
+    if (!graosCereais || graosCereais.length === 0) {
+      return res.status(404).send({
+        message: "Não há graosCereais cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de graosCereais do mercado ${mercado_.nome}`,
+      graosCereais,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/mercearia/graosCereais/:graosCereaisId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("graosCereaisId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do mercearia do mercado especificado
+    const graosCereais = mercado_.produtos.mercearia[0].graos_cereais;
+    if (!graosCereais || graosCereais.length === 0) {
+      return res.status(404).send({
+        message: "Não há graosCereais cadastradas neste mercado.",
+      });
+    }
+    const index = graosCereais.findIndex(
+      (m) => m.id === parseInt(req.params.graosCereaisId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+
+    res.send({
+      message: `graosCereais ${graosCereais[0].nome} com ID ${req.params.graosCereaisId} foi removido com sucesso.`,
+    });
+    graosCereais.splice(index, 1);
+
+  }
+);
+
+// massas
+app.post(
+  "/mercado/:id/produtos/mercearia/massas",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de massas do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.mercearia[1].massas.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de massas.`,
+      });
+    }
+    if (mercado_.produtos.mercearia[1].massas.length > 10) {
+      mercado_.produtos.mercearia[1].massas.splice(0, 3);
+    }
+
+    mercado_.produtos.mercearia[1].massas.push({
+      id: generateId(mercado_.produtos.mercearia[1].massas),
+      nome,
+      valor,
+    });
+    const massas = mercado_.produtos.mercearia[1].massas;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às massas do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      massas,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/mercearia/massas",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de massas do mercearia do mercado especificado
+    const massas = mercado_.produtos.mercearia[1].massas;
+    if (!massas || massas.length === 0) {
+      return res.status(404).send({
+        message: "Não há massas cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de massas do mercado ${mercado_.nome}`,
+      massas,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/mercearia/massas/:massasId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("massasId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do mercearia do mercado especificado
+    const massas = mercado_.produtos.mercearia[1].massas;
+    if (!massas || massas.length === 0) {
+      return res.status(404).send({
+        message: "Não há massas cadastradas neste mercado.",
+      });
+    }
+    const index = massas.findIndex(
+      (m) => m.id === parseInt(req.params.massasId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${massas[0].nome} com ID ${req.params.massasId} foi removido com sucesso.`,
+    });
+    massas.splice(index, 1);
+  }
+);
+
+// merc farinhas
+
+app.post(
+  "/mercado/:id/produtos/mercearia/farinhas",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de farinhas do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.mercearia[2].farinhas.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de farinhas.`,
+      });
+    }
+    if (mercado_.produtos.mercearia[2].farinhas.length > 9) {
+      mercado_.produtos.mercearia[2].farinhas.splice(0, 3);
+    }
+    mercado_.produtos.mercearia[2].farinhas.push({
+      id: generateId(mercado_.produtos.mercearia[2].farinhas),
+      nome,
+      valor,
+    });
+    const farinhas = mercado_.produtos.mercearia[2].farinhas;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às farinhas do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      farinhas,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/mercearia/farinhas",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de farinhas do mercearia do mercado especificado
+    const farinhas = mercado_.produtos.mercearia[2].farinhas;
+    if (!farinhas || farinhas.length === 0) {
+      return res.status(404).send({
+        message: "Não há farinhas cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de farinhas do mercado ${mercado_.nome}`,
+      farinhas,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/mercearia/farinhas/:farinhasId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("farinhasId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do mercearia do mercado especificado
+    const farinhas = mercado_.produtos.mercearia[2].farinhas;
+    if (!farinhas || farinhas.length === 0) {
+      return res.status(404).send({
+        message: "Não há farinhas cadastradas neste mercado.",
+      });
+    }
+    const index = farinhas.findIndex(
+      (m) => m.id === parseInt(req.params.farinhasId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${farinhas[0].nome} com ID ${req.params.farinhasId} foi removido com sucesso.`,
+    });
+    farinhas.splice(index, 1);
+  }
+);
+// conservados emlatados
+
+app.post(
+  "/mercado/:id/produtos/mercearia/conservadosEnlatados",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de conservadosEnlatados do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name =
+      mercado_.produtos.mercearia[3].conservados_enlatados.find(
+        (c) =>
+          c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+      );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de conservadosEnlatados.`,
+      });
+    }
+    if (mercado_.produtos.mercearia[3].conservados_enlatados.length > 9) {
+      mercado_.produtos.mercearia[3].conservados_enlatados.splice(0, 3);
+    }
+    mercado_.produtos.mercearia[3].conservados_enlatados.push({
+      id: generateId(mercado_.produtos.mercearia[3].conservados_enlatados),
+      nome,
+      valor,
+    });
+    const conservados_enlatados =
+      mercado_.produtos.mercearia[3].conservados_enlatados;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às conservados_enlatados do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      conservados_enlatados,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/mercearia/conservadosEnlatados",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de conservadosEnlatados do mercearia do mercado especificado
+    const conservadosEnlatados =
+      mercado_.produtos.mercearia[3].conservados_enlatados;
+    if (!conservadosEnlatados || conservadosEnlatados.length === 0) {
+      return res.status(404).send({
+        message: "Não há conservadosEnlatados cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de conservadosEnlatados do mercado ${mercado_.nome}`,
+      conservadosEnlatados,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/mercearia/conservadosEnlatados/:conservadosEnlatadosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("conservadosEnlatadosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do mercearia do mercado especificado
+    const conservadosEnlatados =
+      mercado_.produtos.mercearia[3].conservados_enlatados;
+    if (!conservadosEnlatados || conservadosEnlatados.length === 0) {
+      return res.status(404).send({
+        message: "Não há conservadosEnlatados cadastradas neste mercado.",
+      });
+    }
+    const index = conservadosEnlatados.findIndex(
+      (m) => m.id === parseInt(req.params.conservadosEnlatadosId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${conservadosEnlatados[0].nome} com ID ${req.params.conservadosEnlatadosId} foi removido com sucesso.`,
+    });
+    conservadosEnlatados.splice(index, 1);
+  }
+);
+// merc oleos
+app.post(
+  "/mercado/:id/produtos/mercearia/oleos",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.mercearia[4].oleos.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de oleos.`,
+      });
+    }
+    if (mercado_.produtos.mercearia[4].oleos.length > 9) {
+      mercado_.produtos.mercearia[4].oleos.splice(0, 3);
+    }
+    mercado_.produtos.mercearia[4].oleos.push({
+      id: generateId(mercado_.produtos.mercearia[4].oleos),
+      nome,
+      valor,
+    });
+    const oleos = mercado_.produtos.mercearia[4].oleos;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às oleos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      oleos,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/mercearia/oleos",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de oleos do mercearia do mercado especificado
+    const oleos = mercado_.produtos.mercearia[4].oleos;
+    if (!oleos || oleos.length === 0) {
+      return res.status(404).send({
+        message: "Não há oleos cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de oleos do mercado ${mercado_.nome}`,
+      oleos,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/mercearia/oleos/:oleosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("oleosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do mercearia do mercado especificado
+    const oleos = mercado_.produtos.mercearia[4].oleos;
+    if (!oleos || oleos.length === 0) {
+      return res.status(404).send({
+        message: "Não há oleos cadastradas neste mercado.",
+      });
+    }
+    const index = oleos.findIndex((m) => m.id === parseInt(req.params.oleosId));
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${oleos[0].nome} com ID ${req.params.oleosId} foi removido com sucesso.`,
+    });
+    oleos.splice(index, 1);
+  }
+);
+// merce temperos condimentos
+app.post(
+  "/mercado/:id/produtos/mercearia/temperosCondimentos",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name =
+      mercado_.produtos.mercearia[5].temperos_condimentos.find(
+        (c) =>
+          c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+      );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de temperosCondimentos.`,
+      });
+    }
+    if (mercado_.produtos.mercearia[5].temperos_condimentos.length > 9) {
+      mercado_.produtos.mercearia[5].temperos_condimentos.splice(0, 3);
+    }
+    mercado_.produtos.mercearia[5].temperos_condimentos.push({
+      id: generateId(mercado_.produtos.mercearia[5].temperos_condimentos),
+      nome,
+      valor,
+    });
+    const temperosCondimentos =
+      mercado_.produtos.mercearia[5].temperos_condimentos;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às temperosCondimentos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      temperosCondimentos,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/mercearia/temperosCondimentos",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de temperosCondimentos do mercearia do mercado especificado
+    const temperosCondimentos =
+      mercado_.produtos.mercearia[5].temperos_condimentos;
+    if (!temperosCondimentos || temperosCondimentos.length === 0) {
+      return res.status(404).send({
+        message: "Não há temperosCondimentos cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de temperosCondimentos do mercado ${mercado_.nome}`,
+      temperosCondimentos,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/mercearia/temperosCondimentos/:temperosCondimentosId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("temperosCondimentosId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do mercearia do mercado especificado
+    const temperosCondimentos =
+      mercado_.produtos.mercearia[5].temperos_condimentos;
+    if (!temperosCondimentos || temperosCondimentos.length === 0) {
+      return res.status(404).send({
+        message: "Não há temperosCondimentos cadastradas neste mercado.",
+      });
+    }
+    const index = temperosCondimentos.findIndex(
+      (m) => m.id === parseInt(req.params.temperosCondimentosId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${temperosCondimentos[0].nome} com ID ${req.params.temperosCondimentosId} foi removido com sucesso.`,
+    });
+    temperosCondimentos.splice(index, 1);
+  }
+);
+
+// bebidas com alcool
+app.post(
+  "/mercado/:id/produtos/bebidas/comAlcool",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.bebidas[0].com_alcool.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de comAlcool.`,
+      });
+    }
+    if (mercado_.produtos.bebidas[0].com_alcool.length > 9) {
+      mercado_.produtos.bebidas[0].com_alcool.splice(0, 3);
+    }
+    mercado_.produtos.bebidas[0].com_alcool.push({
+      id: generateId(mercado_.produtos.bebidas[0].com_alcool),
+      nome,
+      valor,
+    });
+    const comAlcool = mercado_.produtos.bebidas[0].com_alcool;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às comAlcool do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      comAlcool,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/bebidas/comAlcool",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de comAlcool do bebidas do mercado especificado
+    const comAlcool = mercado_.produtos.bebidas[0].com_alcool;
+    if (!comAlcool || comAlcool.length === 0) {
+      return res.status(404).send({
+        message: "Não há comAlcool cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de bebidas sem alcool do mercado ${mercado_.nome}`,
+      comAlcool,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/bebidas/comAlcool/:comAlcoolId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("comAlcoolId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do bebidas do mercado especificado
+    const comAlcool = mercado_.produtos.bebidas[0].com_alcool;
+    if (!comAlcool || comAlcool.length === 0) {
+      return res.status(404).send({
+        message: "Não há comAlcool cadastradas neste mercado.",
+      });
+    }
+    const index = comAlcool.findIndex(
+      (m) => m.id === parseInt(req.params.comAlcoolId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${comAlcool[0].nome} com ID ${req.params.comAlcoolId} foi removido com sucesso.`,
+    });
+    comAlcool.splice(index, 1);
+  }
+);
+
+// bebiidas sem alcool
+app.post(
+  "/mercado/:id/produtos/bebidas/semAlcool",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.bebidas[1].sem_alcool.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de semAlcool.`,
+      });
+    }
+    if (mercado_.produtos.bebidas[1].sem_alcool.length > 9) {
+      mercado_.produtos.bebidas[1].sem_alcool.splice(0, 3);
+    }
+    mercado_.produtos.bebidas[1].sem_alcool.push({
+      id: generateId(mercado_.produtos.bebidas[1].sem_alcool),
+      nome,
+      valor,
+    });
+    const semAlcool = mercado_.produtos.bebidas[1].sem_alcool;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às semAlcool do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      semAlcool,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/bebidas/semAlcool",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de semAlcool do bebidas do mercado especificado
+    const semAlcool = mercado_.produtos.bebidas[1].sem_alcool;
+    if (!semAlcool || semAlcool.length === 0) {
+      return res.status(404).send({
+        message: "Não há semAlcool cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de bebidas sem alcool do mercado ${mercado_.nome}`,
+      semAlcool,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/bebidas/semAlcool/:semAlcoolId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("semAlcoolId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do bebidas do mercado especificado
+    const semAlcool = mercado_.produtos.bebidas[1].sem_alcool;
+    if (!semAlcool || semAlcool.length === 0) {
+      return res.status(404).send({
+        message: "Não há semAlcool cadastradas neste mercado.",
+      });
+    }
+    const index = semAlcool.findIndex(
+      (m) => m.id === parseInt(req.params.semAlcoolId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${semAlcool[0].nome} com ID ${req.params.semAlcoolId} foi removido com sucesso.`,
+    });
+    semAlcool.splice(index, 1);
+  }
+);
+
+//  higiene e limpeza
+
+app.post(
+  "/mercado/:id/produtos/higienelimpeza/higiene",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de higiene do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.higienelimpeza[0].higiene.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de higiene.`,
+      });
+    }
+    if (mercado_.produtos.higienelimpeza[0].higiene.length > 9) {
+      mercado_.produtos.higienelimpeza[0].higiene.splice(0, 3);
+    }
+    mercado_.produtos.higienelimpeza[0].higiene.push({
+      id: generateId(mercado_.produtos.higienelimpeza[0].higiene),
+      nome,
+      valor,
+    });
+    const higiene = mercado_.produtos.higienelimpeza[0].higiene;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às higiene do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      higiene,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/higienelimpeza/higiene",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de higiene do higienelimpeza do mercado especificado
+    const higiene = mercado_.produtos.higienelimpeza[0].higiene;
+    if (!higiene || higiene.length === 0) {
+      return res.status(404).send({
+        message: "Não há higiene cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de higiene do mercado ${mercado_.nome}`,
+      higiene,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/higienelimpeza/higiene/:higieneId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("higieneId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do higienelimpeza do mercado especificado
+    const higiene = mercado_.produtos.higienelimpeza[0].higiene;
+    if (!higiene || higiene.length === 0) {
+      return res.status(404).send({
+        message: "Não há higiene cadastradas neste mercado.",
+      });
+    }
+    const index = higiene.findIndex(
+      (m) => m.id === parseInt(req.params.higieneId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${higiene[0].nome} com ID ${req.params.higieneId} foi removido com sucesso.`,
+    });
+    higiene.splice(index, 1);
+  }
+);
+// limpeza
+
+app.post(
+  "/mercado/:id/produtos/higienelimpeza/limpeza",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    body("nome").not().isEmpty().withMessage("Nome é obrigatório"),
+    body("valor")
+      .isInt({ min: 1 })
+      .withMessage("Valor deve ser um número inteiro e não negativo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+    // Adicionando o novo produto na categoria de limpeza do acougue do mercado especificado
+    const { nome, valor } = req.body;
+
+    const verify_name = mercado_.produtos.higienelimpeza[1].limpeza.find(
+      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já exista na lista de higiene.`,
+      });
+    }
+    if (mercado_.produtos.higienelimpeza[1].limpeza.length > 9) {
+      mercado_.produtos.higienelimpeza[1].limpeza.splice(0, 3);
+    }
+    mercado_.produtos.higienelimpeza[1].limpeza.push({
+      id: generateId(mercado_.produtos.higienelimpeza[1].limpeza),
+      nome,
+      valor,
+    });
+    const limpeza = mercado_.produtos.higienelimpeza[1].limpeza;
+    res.status(201).send({
+      message: `Produto ${nome} adicionado com sucesso às limpeza do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+      limpeza,
+    });
+  }
+);
+app.get(
+  "/mercado/:id/produtos/higienelimpeza/limpeza",
+  [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de higiene do higienelimpeza do mercado especificado
+    const limpeza = mercado_.produtos.higienelimpeza[1].limpeza;
+    if (!limpeza || limpeza.length === 0) {
+      return res.status(404).send({
+        message: "Não há limpeza cadastradas neste mercado.",
+      });
+    }
+
+    res.status(200).send({
+      message: `Lista de limpeza do mercado ${mercado_.nome}`,
+      limpeza,
+    });
+  }
+);
+app.delete(
+  "/mercado/:id/produtos/higienelimpeza/limpeza/:limpezaId",
+  [
+    param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
+    param("limpezaId")
+      .isInt()
+      .withMessage("ID do mercado deve ser um número inteiro"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // Encontrando o mercado com o ID fornecido
+    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
+    if (!mercado_) {
+      return res.status(404).send("Mercado não encontrado.");
+    }
+
+    // Recuperando a lista de queijo do limpezalimpeza do mercado especificado
+    const limpeza = mercado_.produtos.higienelimpeza[1].limpeza;
+    if (!limpeza || limpeza.length === 0) {
+      return res.status(404).send({
+        message: "Não há higiene cadastradas neste mercado.",
+      });
+    }
+    const index = limpeza.findIndex(
+      (m) => m.id === parseInt(req.params.limpezaId)
+    );
+    if (index === -1) {
+      return res
+        .status(404)
+        .send("O mercado com o ID fornecido não foi encontrado.");
+    }
+    res.send({
+      message: `${limpeza[0].nome} com ID ${req.params.limpezaId} foi removido com sucesso.`,
+    });
+    limpeza.splice(index, 1);
+  }
+);
 //
+
 app.get("/", (req, res) => {
   res.send("API OK");
 });
