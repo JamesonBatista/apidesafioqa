@@ -5113,7 +5113,6 @@ app.delete(
 
     res.status(204).send({ message: "Evento finalizado." });
     eventos.splice(eventoIndex, 1);
-
   }
 );
 
@@ -5339,6 +5338,11 @@ app.post(
       );
     }
 
+    if ((evento.capacidade -= 1 === 0)) {
+     return res
+        .status(400)
+        .send({ message: "O Evento não suporta mais participantes." });
+    }
     evento.capacidade -= 1;
     evento.participantes.push(novoParticipante);
     res.status(201).json(novoParticipante);
