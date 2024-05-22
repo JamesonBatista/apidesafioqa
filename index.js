@@ -5340,7 +5340,7 @@ app.post(
 
     evento.capacidade -= 1;
 
-    if (evento.capacidade <= 0) {
+    if (evento.capacidade < 0) {
       return res
         .status(400)
         .send({ message: "O Evento não suporta mais participantes." });
