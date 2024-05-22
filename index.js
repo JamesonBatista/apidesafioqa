@@ -2356,15 +2356,17 @@ app.delete(
     const index = mercado.findIndex(
       (m) => m.id === parseInt(req.params.mercadoId)
     );
+    console.log(index)
     if (index === -1) {
       return res
         .status(404)
         .send("O mercado com o ID fornecido não foi encontrado.");
     }
-    mercado.splice(index, 1);
-    res.send({
+    res.status(200).json({
       message: `Mercado com ID ${req.params.mercadoId} foi removido com sucesso.`,
     });
+    mercado.splice(index, 1);
+
   }
 );
 // HORTIFRUIT
