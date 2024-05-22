@@ -5111,8 +5111,9 @@ app.delete(
       return res.status(404).json({ message: "Evento não encontrado" });
     }
 
-    eventos.splice(eventoIndex, 1);
     res.status(204).send({ message: "Evento finalizado." });
+    eventos.splice(eventoIndex, 1);
+
   }
 );
 
