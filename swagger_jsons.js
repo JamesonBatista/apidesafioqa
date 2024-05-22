@@ -75298,6 +75298,24 @@ export const mercado = [
     },
   },
 ];
+export const eventos = [
+  {
+    id: 1,
+    nome: "Conferência de Tecnologia",
+    data: "2024-06-01",
+    local: "Centro de Convenções",
+    capacidade: 30,
+    participantes: [],
+  },
+  {
+    id: 2,
+    nome: "Workshop de Node.js",
+    data: "2024-06-15",
+    local: "Espaço Tech",
+    capacidade: 40,
+    participantes: [],
+  },
+];
 
 export const encryptedDataUser = [];
 export const membersProjet = [];

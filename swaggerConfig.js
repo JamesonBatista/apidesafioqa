@@ -11,7 +11,7 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `144` endpoints.",
+      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `152` endpoints.",
   },
 
   components: {
@@ -83,6 +83,11 @@ const swaggerDocument = {
     {
       name: "Mercado",
       description: "Simulação de criação de Mercado, produtos, e subcategorias",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
+    {
+      name: "Eventos",
+      description: "Simulação de criação de Eventos, e adesão de participantes",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
   ],
@@ -47586,6 +47591,726 @@ const swaggerDocument = {
           },
           404: {
             description: "Mercado não encontrado ou limpeza não encontrada",
+          },
+        },
+      },
+    },
+    "/eventos": {
+      get: {
+        tags: ["Eventos"],
+        summary: "Obter a lista de eventos",
+        description: "Retorna uma lista de eventos já criados " + count(),
+        operationId: "getEventos",
+        responses: {
+          200: {
+            description: "Lista de eventos",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "integer",
+                        example: 1,
+                      },
+                      nome: {
+                        type: "string",
+                        example: "Conferência de Tecnologia",
+                      },
+                      data: {
+                        type: "string",
+                        format: "date",
+                        example: "2024-06-01",
+                      },
+                      local: {
+                        type: "string",
+                        example: "Centro de Convenções",
+                      },
+                      capacidade: {
+                        type: "integer",
+                        example: 500,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Eventos"],
+        summary: "Criar um novo evento",
+        description: "Cria um novo evento com validações " + count(),
+        operationId: "createEvento",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nome: {
+                    type: "string",
+                    example: "Nome do Evento",
+                  },
+                  data: {
+                    type: "string",
+                    format: "date",
+                    example: "2024-07-01",
+                  },
+                  local: {
+                    type: "string",
+                    example: "Local do Evento",
+                  },
+                  capacidade: {
+                    type: "integer",
+                    example: 10,
+                  },
+                },
+                required: ["nome", "data", "local", "capacidade"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Evento criado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "integer",
+                      example: 3,
+                    },
+                    nome: {
+                      type: "string",
+                      example: "Nome do Evento",
+                    },
+                    data: {
+                      type: "string",
+                      format: "date",
+                      example: "2024-07-01",
+                    },
+                    local: {
+                      type: "string",
+                      example: "Local do Evento",
+                    },
+                    capacidade: {
+                      type: "integer",
+                      example: 10,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example: "O nome do evento já existe",
+                      },
+                      param: {
+                        type: "string",
+                        example: "nome",
+                      },
+                      location: {
+                        type: "string",
+                        example: "body",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/eventos/{id}": {
+      get: {
+        tags: ["Eventos"],
+        summary: "Obter um evento por ID " + count(),
+        description: "Retorna um evento específico pelo ID",
+        operationId: "getEventoById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do evento",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Evento encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "integer",
+                      example: 1,
+                    },
+                    nome: {
+                      type: "string",
+                      example: "Conferência de Tecnologia",
+                    },
+                    data: {
+                      type: "string",
+                      format: "date",
+                      example: "2024-06-01",
+                    },
+                    local: {
+                      type: "string",
+                      example: "Centro de Convenções",
+                    },
+                    capacidade: {
+                      type: "integer",
+                      example: 500,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example: "O ID deve ser um número inteiro positivo",
+                      },
+                      param: {
+                        type: "string",
+                        example: "id",
+                      },
+                      location: {
+                        type: "string",
+                        example: "params",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Evento não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Evento não encontrado",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        tags: ["Eventos"],
+        summary: "Atualizar um evento por ID " + count(),
+        description: "Atualiza um evento específico pelo ID",
+        operationId: "updateEventoById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do evento",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nome: {
+                    type: "string",
+                    example: "Nome do Evento Atualizado",
+                  },
+                  data: {
+                    type: "string",
+                    format: "date",
+                    example: "2024-07-01",
+                  },
+                  local: {
+                    type: "string",
+                    example: "Local do Evento Atualizado",
+                  },
+                  capacidade: {
+                    type: "integer",
+                    example: 200,
+                  },
+                },
+                required: ["nome", "data", "local", "capacidade"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Evento atualizado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "integer",
+                      example: 1,
+                    },
+                    nome: {
+                      type: "string",
+                      example: "Nome do Evento Atualizado",
+                    },
+                    data: {
+                      type: "string",
+                      format: "date",
+                      example: "2024-07-01",
+                    },
+                    local: {
+                      type: "string",
+                      example: "Local do Evento Atualizado",
+                    },
+                    capacidade: {
+                      type: "integer",
+                      example: 200,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example: "O ID deve ser um número inteiro positivo",
+                      },
+                      param: {
+                        type: "string",
+                        example: "id",
+                      },
+                      location: {
+                        type: "string",
+                        example: "params",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Evento não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Evento não encontrado",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ["Eventos"],
+        summary: "Deletar um evento por ID " + count(),
+        description: "Deleta um evento específico pelo ID",
+        operationId: "deleteEventoById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do evento",
+          },
+        ],
+        responses: {
+          204: {
+            description: "Evento deletado com sucesso",
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example: "O ID deve ser um número inteiro positivo",
+                      },
+                      param: {
+                        type: "string",
+                        example: "id",
+                      },
+                      location: {
+                        type: "string",
+                        example: "params",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Evento não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Evento não encontrado",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/eventos/{id}/participantes": {
+      post: {
+        tags: ["Eventos"],
+        summary: "Adicionar um participante a um evento, envia e-mail." + count(),
+        description: "Adiciona um novo participante a um evento específico, caso o campo email esteja preenchido com e-mail válido, enviará um e-mail de adesão.",
+        operationId: "addParticipante",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do evento",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nome: {
+                    type: "string",
+                    example: "João Silva",
+                  },
+                  email: {
+                    type: "string",
+                    example: "joao.silva@example.com",
+                  },
+                  idade: {
+                    type: "integer",
+                    example: 25,
+                  },
+                },
+                required: ["nome", "idade"],
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Participante adicionado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "integer",
+                      example: 1,
+                    },
+                    nome: {
+                      type: "string",
+                      example: "João Silva",
+                    },
+                    email: {
+                      type: "string",
+                      example: "joao.silva@example.com",
+                    },
+                    idade: {
+                      type: "integer",
+                      example: 25,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example: "O nome é obrigatório",
+                      },
+                      param: {
+                        type: "string",
+                        example: "nome",
+                      },
+                      location: {
+                        type: "string",
+                        example: "body",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Evento não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Evento não encontrado",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      get: {
+        tags: ["Eventos"],
+        summary: "Obter a lista de participantes de um evento " + count(),
+        description: "Retorna a lista de participantes de um evento específico",
+        operationId: "getParticipantes",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do evento",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Lista de participantes",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "integer",
+                        example: 1,
+                      },
+                      nome: {
+                        type: "string",
+                        example: "João Silva",
+                      },
+                      email: {
+                        type: "string",
+                        example: "joao.silva@example.com",
+                      },
+                      idade: {
+                        type: "integer",
+                        example: 25,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example:
+                          "O ID do evento deve ser um número inteiro positivo",
+                      },
+                      param: {
+                        type: "string",
+                        example: "id",
+                      },
+                      location: {
+                        type: "string",
+                        example: "params",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Evento não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Evento não encontrado",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/eventos/{id}/participantes/{participanteId}": {
+      delete: {
+        tags: ["Eventos"],
+        summary: "Remover um participante de um evento " + count(),
+        description:
+          "Remove um participante específico de um evento específico",
+        operationId: "removeParticipante",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do evento",
+          },
+          {
+            name: "participanteId",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do participante",
+          },
+        ],
+        responses: {
+          204: {
+            description: "Participante removido com sucesso",
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                        example:
+                          "O ID do evento deve ser um número inteiro positivo",
+                      },
+                      param: {
+                        type: "string",
+                        example: "id",
+                      },
+                      location: {
+                        type: "string",
+                        example: "params",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Evento ou participante não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                      example: "Evento ou participante não encontrado",
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },

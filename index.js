@@ -9,7 +9,11 @@ const app = express();
 import bodyParser from "body-parser";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import germany_json, { company, productsGamers } from "./swagger_jsons.js";
+import germany_json, {
+  company,
+  eventos,
+  productsGamers,
+} from "./swagger_jsons.js";
 import {
   json_1,
   json_2,
@@ -2602,7 +2606,6 @@ app.delete(
       message: `Legume ${legumes[0].nome} com ID ${req.params.legumesId} foi removido com sucesso.`,
     });
     legumes.splice(index, 1);
-
   }
 );
 // PADARIA
@@ -2720,7 +2723,6 @@ app.delete(
       message: `Doce ${doces[0].nome} com ID ${req.params.docesId} foi removido com sucesso.`,
     });
     doces.splice(index, 1);
-
   }
 );
 
@@ -2843,7 +2845,6 @@ app.delete(
       message: `Salgado ${salgados[0].nome} com ID ${req.params.salgadosId} foi removido com sucesso.`,
     });
     salgados.splice(index, 1);
-
   }
 );
 //  "acougue": [{ "bovinos": [] }, { "suinos": [] }, { "aves": [] }],
@@ -2962,9 +2963,7 @@ app.delete(
       message: `Bovino ${bovinos[0].nome} com ID ${req.params.frutaId} foi removido com sucesso.`,
     });
     bovinos.splice(index, 1);
-
   }
-  
 );
 
 // suinos
@@ -3083,7 +3082,6 @@ app.delete(
       message: `Suíno ${suinos[0].nome} com ID ${req.params.suinoId} foi removido com sucesso.`,
     });
     suinos.splice(index, 1);
-
   }
 );
 
@@ -3203,7 +3201,6 @@ app.delete(
       message: `Ave ${aves[0].nome} com ID ${req.params.suinoId} foi removido com sucesso.`,
     });
     aves.splice(index, 1);
-
   }
 );
 // peixaria
@@ -3322,7 +3319,6 @@ app.delete(
       message: `Peixe ${peixes[0].nome} com ID ${req.params.peixeId} foi removido com sucesso.`,
     });
     peixes.splice(index, 1);
-
   }
 );
 //
@@ -3445,7 +3441,6 @@ app.delete(
       message: `Queijo ${queijos[0].nome} com ID ${req.params.queijosId} foi removido com sucesso.`,
     });
     queijos.splice(index, 1);
-
   }
 );
 
@@ -3566,7 +3561,6 @@ app.delete(
       message: `Embutido ${embutidos[0].nome} com ID ${req.params.embutidosId} foi removido com sucesso.`,
     });
     embutidos.splice(index, 1);
-
   }
 );
 // outros
@@ -3686,7 +3680,6 @@ app.delete(
       message: `Outros ${outros[0].nome} com ID ${req.params.outrosId} foi removido com sucesso.`,
     });
     outros.splice(index, 1);
-
   }
 );
 // frutos do mar
@@ -3805,7 +3798,6 @@ app.delete(
       message: `frutosDoMar ${frutosDoMar[0].nome} com ID ${req.params.frutosDoMarId} foi removido com sucesso.`,
     });
     frutosDoMar.splice(index, 1);
-
   }
 );
 // mercearia graos cereais
@@ -3924,7 +3916,6 @@ app.delete(
       message: `graosCereais ${graosCereais[0].nome} com ID ${req.params.graosCereaisId} foi removido com sucesso.`,
     });
     graosCereais.splice(index, 1);
-
   }
 );
 
@@ -4996,6 +4987,397 @@ app.delete(
       message: `${limpeza[0].nome} com ID ${req.params.limpezaId} foi removido com sucesso.`,
     });
     limpeza.splice(index, 1);
+  }
+);
+// EVENTOS
+app.get("/eventos", (req, res) => {
+  res.send(eventos);
+});
+const isFutureDate = (date) => {
+  const today = new Date();
+  const inputDate = new Date(date);
+  return inputDate >= today.setHours(0, 0, 0, 0);
+};
+app.post(
+  "/eventos",
+  [
+    body("nome")
+      .trim()
+      .custom((value) => {
+        const eventoExistente = eventos.some(
+          (evento) =>
+            evento.nome.trim().toLowerCase() === value.trim().toLowerCase()
+        );
+        if (eventoExistente) {
+          throw new Error("O nome do evento já existe");
+        }
+        return true;
+      }),
+    body("data")
+      .isISO8601()
+      .withMessage("A data deve estar no formato ISO8601 (AAAA-MM-DD)")
+      .custom((value) => {
+        if (!isFutureDate(value)) {
+          throw new Error("A data deve ser do dia atual ou futura");
+        }
+        return true;
+      }),
+    body("local")
+      .trim()
+      .custom((value, { req }) => {
+        const eventoNoLocal = eventos.some(
+          (evento) =>
+            evento.local.trim().toLowerCase() === value.trim().toLowerCase() &&
+            evento.data === req.body.data
+        );
+        if (eventoNoLocal) {
+          throw new Error("Já existe um evento no local na mesma data");
+        }
+        return true;
+      }),
+    body("capacidade")
+      .isInt({ gt: 5, max: 50 })
+      .withMessage(
+        "A capacidade deve ser um número inteiro maior que 5 e menor que 50"
+      ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { nome, data, local, capacidade } = req.body;
+
+    const novoEvento = {
+      id: generateId(eventos),
+      nome,
+      data,
+      local,
+      capacidade,
+      participantes: [],
+    };
+
+    if (eventos.length > 50) {
+      eventos.splice(0, 10);
+    }
+    eventos.push(novoEvento);
+    res.status(201).json(novoEvento);
+  }
+);
+
+app.get(
+  "/eventos/:id",
+  [
+    param("id")
+      .isInt({ gt: 0 })
+      .withMessage("O ID deve ser um número inteiro positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const eventoId = parseInt(req.params.id, 10);
+    const evento = eventos.find((evento) => evento.id === eventoId);
+
+    if (!evento) {
+      return res.status(404).json({ message: "Evento não encontrado" });
+    }
+
+    res.json(evento);
+  }
+);
+
+// Rota para deletar um evento por ID
+app.delete(
+  "/eventos/:id",
+  [
+    param("id")
+      .isInt({ gt: 0 })
+      .withMessage("O ID deve ser um número inteiro positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const eventoId = parseInt(req.params.id, 10);
+    const eventoIndex = eventos.findIndex((evento) => evento.id === eventoId);
+
+    if (eventoIndex === -1) {
+      return res.status(404).json({ message: "Evento não encontrado" });
+    }
+
+    eventos.splice(eventoIndex, 1);
+    res.status(204).send({ message: "Evento finalizado." });
+  }
+);
+
+app.put(
+  "/eventos/:id",
+  [
+    param("id")
+      .isInt({ gt: 0 })
+      .withMessage("O ID deve ser um número inteiro positivo"),
+    body("nome").custom((value, { req }) => {
+      const eventoExistente = eventos.some(
+        (evento) =>
+          evento.nome.trim().toLowerCase() === value.trim().toLowerCase() &&
+          evento.id !== parseInt(req.params.id, 10)
+      );
+      if (eventoExistente) {
+        throw new Error("O nome do evento já existe");
+      }
+      return true;
+    }),
+    body("data")
+      .isISO8601()
+      .withMessage("A data deve estar no formato ISO8601 (AAAA-MM-DD)")
+      .custom((value) => {
+        const isFutureDate = (date) => {
+          const today = new Date();
+          const inputDate = new Date(date);
+          return inputDate >= today.setHours(0, 0, 0, 0);
+        };
+
+        if (!isFutureDate(value)) {
+          throw new Error("A data deve ser do dia atual ou futura");
+        }
+        return true;
+      }),
+    body("local").custom((value, { req }) => {
+      const eventoNoLocal = eventos.some(
+        (evento) =>
+          evento.local.trim().toLowerCase() === value.trim().toLowerCase() &&
+          evento.data === req.body.data &&
+          evento.id !== parseInt(req.params.id, 10)
+      );
+      if (eventoNoLocal) {
+        throw new Error("Já existe um evento no local na mesma data");
+      }
+      return true;
+    }),
+    body("capacidade")
+      .isInt({ gt: 5, max: 50 })
+      .withMessage(
+        "A capacidade deve ser um número inteiro maior que 5 e menor que 50"
+      ),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const eventoId = parseInt(req.params.id, 10);
+    const eventoIndex = eventos.findIndex((evento) => evento.id === eventoId);
+
+    if (eventoIndex === -1) {
+      return res.status(404).json({ message: "Evento não encontrado" });
+    }
+
+    const { nome, data, local, capacidade } = req.body;
+
+    eventos[eventoIndex] = { id: eventoId, nome, data, local, capacidade };
+
+    res.status(201).json(eventos[eventoIndex]);
+  }
+);
+
+// PARTICIPANTES
+app.get(
+  "/eventos/:id/participantes",
+  [
+    param("id")
+      .isInt({ gt: 0 })
+      .withMessage("O ID do evento deve ser um número inteiro positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const eventoId = parseInt(req.params.id, 10);
+    const evento = eventos.find((evento) => evento.id === eventoId);
+
+    if (!evento) {
+      return res.status(404).json({ message: "Evento não encontrado" });
+    }
+
+    res.json(evento.participantes);
+  }
+);
+app.post(
+  "/eventos/:id/participantes",
+  [
+    param("id")
+      .isInt({ gt: 0 })
+      .withMessage("O ID do evento deve ser um número inteiro positivo"),
+    body("nome").trim().notEmpty().withMessage("O nome é obrigatório"),
+    body("email").isEmail().withMessage("Email inválido").optional(),
+    body("idade")
+      .isInt({ gt: 12 })
+      .withMessage("A idade deve ser maior que 12"),
+    body("nome").custom((value, { req }) => {
+      const eventoId = parseInt(req.params.id, 10);
+      const evento = eventos.find((evento) => evento.id === eventoId);
+
+      if (!evento) {
+        throw new Error("Evento não encontrado");
+      }
+
+      const participanteExistente = eventos.some(
+        (evento) =>
+          evento.data === evento.data &&
+          evento.participantes.some(
+            (participante) =>
+              participante.nome.trim().toLowerCase() ===
+              value.trim().toLowerCase()
+          )
+      );
+
+      if (participanteExistente) {
+        throw new Error(
+          "Já existe um participante com o mesmo nome em um evento na mesma data"
+        );
+      }
+
+      return true;
+    }),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const eventoId = parseInt(req.params.id, 10);
+    const evento = eventos.find((evento) => evento.id === eventoId);
+
+    if (!evento) {
+      return res.status(404).json({ message: "Evento não encontrado" });
+    }
+
+    const { nome, email, idade } = req.body;
+    const novoParticipante = {
+      id: evento.participantes.length + 1,
+      nome,
+      email,
+      idade,
+    };
+
+    if (email) {
+      let html = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Confirmação de Compra</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              padding: 20px;
+              background-color: #f4f4f4;
+              border: 1px solid #ddd;
+              margin: 20px auto;
+              width: 80%;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          .header {
+              background-color: #007bff;
+              color: white;
+              padding: 10px;
+              text-align: center;
+          }
+          .content {
+              padding: 20px;
+              background-color: white;
+          }
+          .footer {
+              text-align: center;
+              padding: 10px;
+              font-size: 0.8em;
+              background-color: #eee;
+          }
+      </style>
+      </head>
+      <body>
+      <div class="container">
+          <div class="header">
+              <h1>Você é novo(a) escrito(a) no Evento</h1>
+          </div>
+          <div class="content">
+              <h2>Detalhes do Evento</h2>
+              <p><strong>Nome:</strong>  ${evento.nome}</p>
+              <p><strong>Local:</strong>  ${evento.local}</p>
+              <p><strong>Data:</strong>  ${evento.data}</p>
+              <p><strong>Capacidade:</strong>  ${evento.capacidade} participantes</p>
+          </div>
+          <div class="footer">
+              Obrigado por participar!.
+          </div>
+      </div>
+      </body>
+      </html>
+       `;
+      enviarEmail(
+        email,
+        `Evento * ${evento.nome} * Parabéns senhor(a): ${
+          nome || "Participante"
+        } pela adesão ao Evento`,
+        html
+      );
+    }
+
+    evento.capacidade -= 1;
+    evento.participantes.push(novoParticipante);
+    res.status(201).json(novoParticipante);
+  }
+);
+app.delete(
+  "/eventos/:id/participantes/:participanteId",
+  [
+    param("id")
+      .isInt({ gt: 0 })
+      .withMessage("O ID do evento deve ser um número inteiro positivo"),
+    param("participanteId")
+      .isInt({ gt: 0 })
+      .withMessage("O ID do participante deve ser um número inteiro positivo"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const eventoId = parseInt(req.params.id, 10);
+    const participanteId = parseInt(req.params.participanteId, 10);
+    const evento = eventos.find((evento) => evento.id === eventoId);
+
+    if (!evento) {
+      return res.status(404).json({ message: "Evento não encontrado" });
+    }
+
+    const participanteIndex = evento.participantes.findIndex(
+      (participante) => participante.id === participanteId
+    );
+
+    if (participanteIndex === -1) {
+      return res.status(404).json({ message: "Participante não encontrado" });
+    }
+    evento.capacidade += 1;
+
+    evento.participantes.splice(participanteIndex, 1);
+    res.status(204).send({ message: "Participante excluído." });
   }
 );
 //
