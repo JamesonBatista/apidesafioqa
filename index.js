@@ -5338,12 +5338,13 @@ app.post(
       );
     }
 
-    if ((evento.capacidade -= 1 === 0)) {
-     return res
+    evento.capacidade -= 1;
+
+    if (evento.capacidade <= 0) {
+      return res
         .status(400)
         .send({ message: "O Evento não suporta mais participantes." });
     }
-    evento.capacidade -= 1;
     evento.participantes.push(novoParticipante);
     res.status(201).json(novoParticipante);
   }
@@ -5381,8 +5382,9 @@ app.delete(
     }
     evento.capacidade += 1;
 
-    evento.participantes.splice(participanteIndex, 1);
     res.status(204).send({ message: "Participante excluído." });
+    evento.participantes.splice(participanteIndex, 1);
+
   }
 );
 //
