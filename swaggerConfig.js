@@ -41512,82 +41512,11 @@ const swaggerDocument = {
       },
     },
     "/produtos": {
-      get: {
-        tags: ["Shop"],
-        summary: "Listar todos os produtos" + count(),
-        description: "Retorna uma lista de todos os produtos disponíveis.",
-        responses: {
-          200: {
-            description: "Lista de produtos",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: {
-                        type: "string",
-                        description: "ID do produto",
-                      },
-                      nome: {
-                        type: "string",
-                        description: "Nome do produto",
-                      },
-                      marca: {
-                        type: "string",
-                        description: "Marca do produto",
-                      },
-                      preço: {
-                        type: "number",
-                        format: "float",
-                        description: "Preço do produto",
-                      },
-                    },
-                  },
-                  example: [
-                    {
-                      id: "TVS",
-                      nome: "TV Smart 4K",
-                      marca: "Samsung",
-                      preço: 4500,
-                    },
-                    {
-                      id: "MAC",
-                      nome: "MacBook Pro 16'",
-                      marca: "Apple",
-                      preço: 28000,
-                    },
-                    // mais produtos podem ser adicionados aqui
-                  ],
-                },
-              },
-            },
-          },
-          500: {
-            description: "Erro interno do servidor",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    message: {
-                      type: "string",
-                      example:
-                        "Não foi possível recuperar a lista de produtos.",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
       post: {
         tags: ["Shop"],
-        summary: "Processa a compra de um produto" + count(),
+        summary: "Compra um produto " + count(),
         description:
-          "Valida a compra de um produto baseando-se no CPF, valor na carteira, e existência do produto. Em caso do campo receber_email estiver preenchido e com e-mail válido, enviará descrição do produto por e-mail.",
+          "Realiza a compra de um produto verificando o saldo na carteira",
         requestBody: {
           required: true,
           content: {
@@ -41597,25 +41526,33 @@ const swaggerDocument = {
                 properties: {
                   nome: {
                     type: "string",
-                    description: "Nome completo do comprador.",
+                    description: "Nome do cliente",
+                    example: "Nome do Cliente",
                   },
                   cpf: {
                     type: "string",
-                    description: "CPF do comprador.",
-                    pattern: "^[0-9]{11}$",
+                    description: "CPF do cliente",
+                    example: "12345678900",
                   },
                   id_produto: {
-                    type: "string",
-                    description: "ID do produto desejado.",
+                    type: "integer",
+                    description: "ID do produto",
+                    example: 1,
                   },
                   valor_na_carteira: {
                     type: "number",
-                    description: "Valor disponível na carteira do comprador.",
+                    description: "Valor disponível na carteira do cliente",
+                    example: 5000,
                   },
                   receber_email: {
                     type: "string",
-                    description:
-                      "Se o comprador opta por receber emails promocionais.",
+                    description: "Se o cliente deseja receber email",
+                    example: "sim",
+                  },
+                  send_email: {
+                    type: "string",
+                    description: "Se o cliente deseja enviar email",
+                    example: "nao",
                   },
                 },
                 required: ["nome", "cpf", "id_produto", "valor_na_carteira"],
@@ -41631,14 +41568,13 @@ const swaggerDocument = {
                 schema: {
                   type: "object",
                   properties: {
+                    produto: {
+                      type: "object",
+                      description: "Dados do produto comprado",
+                    },
                     message: {
                       type: "string",
-                      example:
-                        "Parabéns pela compra! Você adquiriu o MacBook Pro 16'.",
-                    },
-                    produto: {
-                      type: "string",
-                      example: "MacBook Pro 16'",
+                      description: "Mensagem de confirmação da compra",
                     },
                   },
                 },
@@ -41646,16 +41582,28 @@ const swaggerDocument = {
             },
           },
           400: {
-            description: "Erro de validação nos dados de entrada",
+            description: "Erro na requisição",
             content: {
               "application/json": {
                 schema: {
                   type: "object",
                   properties: {
-                    message: {
-                      type: "string",
-                      example:
-                        "O valor na carteira é insuficiente ou CPF inválido.",
+                    errors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          msg: {
+                            type: "string",
+                          },
+                          param: {
+                            type: "string",
+                          },
+                          location: {
+                            type: "string",
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -41671,7 +41619,88 @@ const swaggerDocument = {
                   properties: {
                     message: {
                       type: "string",
-                      example: "Produto não encontrado.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro no servidor",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      get: {
+        tags: ["Shop"],
+        summary: "Busca todos os produtos " + count(),
+        description: "Retorna uma lista de todos os produtos",
+        responses: {
+          200: {
+            description: "Lista de produtos",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: {
+                        type: "integer",
+                        description: "ID do produto",
+                      },
+                      nome: {
+                        type: "string",
+                        description: "Nome do produto",
+                      },
+                      marca: {
+                        type: "string",
+                        description: "Marca do produto",
+                      },
+                      preco: {
+                        type: "number",
+                        description: "Preço do produto",
+                      },
+                    },
+                  },
+                  example: [
+                    {
+                      id: 1,
+                      nome: "TV Smart 4K",
+                      marca: "Samsung",
+                      preco: 4500,
+                    },
+                    {
+                      id: 2,
+                      nome: "OLED 55' 4K",
+                      marca: "LG",
+                      preco: 6200,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro no servidor",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
                     },
                   },
                 },
@@ -41684,16 +41713,17 @@ const swaggerDocument = {
     "/produtos/{id_produto}": {
       get: {
         tags: ["Shop"],
-        summary: "Obter detalhes do produto" + count(),
-        description: "Retorna detalhes de um produto específico pelo ID.",
+        summary: "Busca um produto por ID " + count(),
+        description: "Retorna os detalhes de um produto pelo seu ID",
         parameters: [
           {
-            name: "id_produto",
+            name: "id",
             in: "path",
             required: true,
-            description: "ID único do produto",
+            description: "ID do produto",
             schema: {
-              type: "string",
+              type: "integer",
+              example: 1,
             },
           },
         ],
@@ -41706,7 +41736,7 @@ const swaggerDocument = {
                   type: "object",
                   properties: {
                     id: {
-                      type: "string",
+                      type: "integer",
                       description: "ID do produto",
                     },
                     nome: {
@@ -41717,17 +41747,16 @@ const swaggerDocument = {
                       type: "string",
                       description: "Marca do produto",
                     },
-                    preço: {
+                    preco: {
                       type: "number",
-                      format: "float",
                       description: "Preço do produto",
                     },
                   },
                   example: {
-                    id: "MAC",
-                    nome: "MacBook Pro 16'",
-                    marca: "Apple",
-                    preço: 28000,
+                    id: 1,
+                    nome: "TV Smart 4K",
+                    marca: "Samsung",
+                    preco: 4500,
                   },
                 },
               },
@@ -41742,7 +41771,21 @@ const swaggerDocument = {
                   properties: {
                     message: {
                       type: "string",
-                      example: "Produto com o ID fornecido não foi encontrado.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro no servidor",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    message: {
+                      type: "string",
                     },
                   },
                 },
@@ -43045,185 +43088,6 @@ const swaggerDocument = {
         },
       },
     },
-    "/encrypt-data": {
-      post: {
-        tags: ["Criptografia"],
-        summary: "Criptografa dados de identificação" + count(),
-        description:
-          "Recebe múltiplos IDs e tenta criptografar os dados, mesmo se alguns IDs forem inválidos. Retorna os dados criptografados junto com informações sobre quais IDs eram inválidos, se houver.",
-        operationId: "purchaseProduct",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  id_product: {
-                    type: "integer",
-                    description:
-                      "ID do produto, deve ser um número inteiro positivo.",
-                  },
-                  id_financiamento_produtos: {
-                    type: "integer",
-                    description:
-                      "ID do financiamento de produtos, deve ser um número inteiro positivo.",
-                  },
-                  id_projetos: {
-                    type: "integer",
-                    description:
-                      "ID do projeto, deve ser um número inteiro positivo.",
-                  },
-                  id_product_gamers: {
-                    type: "integer",
-                    description:
-                      "ID do produto gamer, deve ser um número inteiro positivo.",
-                  },
-                },
-                required: [
-                  "id_product",
-                  "id_financiamento_produtos",
-                  "id_projetos",
-                  "id_product_gamers",
-                ],
-              },
-            },
-          },
-        },
-        responses: {
-          201: {
-            description:
-              "Dados criptografados retornados com sucesso, incluindo detalhes sobre quaisquer IDs inválidos.",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    crypto: {
-                      type: "string",
-                      description: "Dados criptografados.",
-                    },
-                    invalidIds: {
-                      type: "array",
-                      items: {
-                        type: "integer",
-                      },
-                      description: "Lista de IDs inválidos, se houver.",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: "Erro de validação dos dados de entrada",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    error: {
-                      type: "string",
-                      description:
-                        "Mensagem de erro detalhando a natureza do erro de validação.",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/decrypt-validate": {
-      post: {
-        tags: ["Criptografia"],
-        summary: "Descriptografa e valida dados" + count(),
-        description:
-          "Recebe dados criptografados, descriptografa e valida a existência dos IDs dentro dos dados.",
-        operationId: "decryptAndValidateData",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  crypto: {
-                    type: "object",
-                    description:
-                      "Contém o vetor de inicialização (IV) e os dados criptografados.",
-                    properties: {
-                      iv: {
-                        type: "string",
-                        description:
-                          "Vetor de inicialização para a descriptografia.",
-                        example: "e659ea738cb352032f49b2cc9a7eccac",
-                      },
-                      encryptedData: {
-                        type: "string",
-                        description:
-                          "Dados criptografados em formato hexadecimal.",
-                        example:
-                          "aca42392f03cd86bf18fd310692898d33d48922f79767eff33cd051070a4aec45bfa148456d86192bca9addf0c3931a2668d86a2e5435eb610d61539dc52732ad91d340fc6b944ac64fbdf43b0f44e3a5552d21f15f128c81a15cb39b2d8baa0",
-                      },
-                    },
-                    required: ["iv", "encryptedData"],
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          201: {
-            description:
-              "Dados descriptografados e validados com sucesso. Retorna os detalhes dos IDs validados.",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    id_product: {
-                      type: "string",
-                      description: "Status do ID do produto.",
-                    },
-                    id_financiamento_produtos: {
-                      type: "string",
-                      description: "Status do ID do financiamento.",
-                    },
-                    id_projetos: {
-                      type: "string",
-                      description: "Status do ID do projeto.",
-                    },
-                    id_product_gamers: {
-                      type: "string",
-                      description: "Status do ID do produto gamer.",
-                    },
-                  },
-                },
-              },
-            },
-          },
-          400: {
-            description: "Erro de validação ou descriptografia dos dados",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    error: {
-                      type: "string",
-                      description: "Mensagem de erro explicando o problema.",
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
     "/company": {
       post: {
         tags: ["Company"],
@@ -44511,7 +44375,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/mercado/{id}": {
+    "/mercado/{mercadoId}": {
       get: {
         tags: ["Mercado"],
         summary: "Busca um mercado por ID" + count(),
@@ -48029,8 +47893,10 @@ const swaggerDocument = {
     "/eventos/{id}/participantes": {
       post: {
         tags: ["Eventos"],
-        summary: "Adicionar um participante a um evento, envia e-mail." + count(),
-        description: "Adiciona um novo participante a um evento específico, caso o campo email esteja preenchido com e-mail válido, enviará um e-mail de adesão.",
+        summary:
+          "Adicionar um participante a um evento, envia e-mail." + count(),
+        description:
+          "Adiciona um novo participante a um evento específico, caso o campo email esteja preenchido com e-mail válido, enviará um e-mail de adesão.",
         operationId: "addParticipante",
         parameters: [
           {

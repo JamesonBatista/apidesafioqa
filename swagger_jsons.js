@@ -74917,26 +74917,26 @@ export const crud_get = {
 export const loja = {
   loja: "Loja QA Tester",
   produtos: [
-    { id: "TVS", nome: "TV Smart 4K", marca: "Samsung", preco: 4500 },
-    { id: "TVL", nome: "OLED 55' 4K", marca: "LG", preco: 6200 },
-    { id: "TVP", nome: "QLED 8K", marca: "Sony", preco: 13000 },
-    { id: "IPH", nome: "iPhone 13 Pro Max", marca: "Apple", preco: 7500 },
-    { id: "IPN", nome: "iPhone 12", marca: "Apple", preco: 6000 },
-    { id: "IPC", nome: "iPhone 13", marca: "Apple", preco: 6800 },
-    { id: "MAC", nome: "MacBook Pro 14'", marca: "Apple", preco: 22000 },
-    { id: "MAB", nome: "MacBook Air", marca: "Apple", preco: 12000 },
-    { id: "MAP", nome: "MacBook Pro 16'", marca: "Apple", preco: 28000 },
-    { id: "TAB", nome: "Galaxy Tab S7", marca: "Samsung", preco: 4500 },
-    { id: "TAA", nome: "iPad Pro", marca: "Apple", preco: 9500 },
-    { id: "TAS", nome: "Surface Pro", marca: "Microsoft", preco: 8900 },
-    { id: "JBL", nome: "JBL Flip 5", marca: "JBL", preco: 900 },
-    { id: "JBB", nome: "JBL Boombox", marca: "JBL", preco: 2500 },
-    { id: "JBC", nome: "JBL Charge 4", marca: "JBL", preco: 1100 },
-    { id: "OCV", nome: "Oculus Quest 2", marca: "Oculus", preco: 3000 },
-    { id: "OCX", nome: "Oculus Rift S", marca: "Oculus", preco: 3500 },
-    { id: "OCY", nome: "HTC Vive Pro", marca: "HTC", preco: 6000 },
-    { id: "OCC", nome: "Sony PlayStation VR", marca: "Sony", preco: 2500 },
-    { id: "OCA", nome: "Samsung Gear VR", marca: "Samsung", preco: 1000 },
+    { id: 1, nome: "TV Smart 4K", marca: "Samsung", preco: 4500 },
+    { id: 2, nome: "OLED 55' 4K", marca: "LG", preco: 6200 },
+    { id: 3, nome: "QLED 8K", marca: "Sony", preco: 13000 },
+    { id: 4, nome: "iPhone 13 Pro Max", marca: "Apple", preco: 7500 },
+    { id: 5, nome: "iPhone 12", marca: "Apple", preco: 6000 },
+    { id: 6, nome: "iPhone 13", marca: "Apple", preco: 6800 },
+    { id: 7, nome: "MacBook Pro 14'", marca: "Apple", preco: 22000 },
+    { id: 8, nome: "MacBook Air", marca: "Apple", preco: 12000 },
+    { id: 9, nome: "MacBook Pro 16'", marca: "Apple", preco: 28000 },
+    { id: 10, nome: "Galaxy Tab S7", marca: "Samsung", preco: 4500 },
+    { id: 11, nome: "iPad Pro", marca: "Apple", preco: 9500 },
+    { id: 12, nome: "Surface Pro", marca: "Microsoft", preco: 8900 },
+    { id: 13, nome: "JBL Flip 5", marca: "JBL", preco: 900 },
+    { id: 14, nome: "JBL Boombox", marca: "JBL", preco: 2500 },
+    { id: 15, nome: "JBL Charge 4", marca: "JBL", preco: 1100 },
+    { id: 16, nome: "Oculus Quest 2", marca: "Oculus", preco: 3000 },
+    { id: 17, nome: "Oculus Rift S", marca: "Oculus", preco: 3500 },
+    { id: 18, nome: "HTC Vive Pro", marca: "HTC", preco: 6000 },
+    { id: 19, nome: "Sony PlayStation VR", marca: "Sony", preco: 2500 },
+    { id: 20, nome: "Samsung Gear VR", marca: "Samsung", preco: 1000 },
   ],
 };
 
@@ -75015,35 +75015,35 @@ export const usuarios = [
 export const produtosDeLuxo = {
   produtosDeLuxo: [
     {
-      id: "RRP01",
+      id: 1,
       nome: "Rolls-Royce Phantom",
       marca: "Rolls-Royce",
       preco: 6000000,
       tipo: "Carro",
     },
     {
-      id: "DUC01",
+      id: 2,
       nome: "Ducati Panigale V4 R",
       marca: "Ducati",
       preco: 200000,
       tipo: "Moto",
     },
     {
-      id: "GULF01",
+      id: 3,
       nome: "Gulfstream G650ER",
       marca: "Gulfstream Aerospace",
       preco: 250000000,
       tipo: "Jatinho",
     },
     {
-      id: "FER01",
+      id: 4,
       nome: "Ferrari LaFerrari",
       marca: "Ferrari",
       preco: 12000000,
       tipo: "Carro",
     },
     {
-      id: "HD01",
+      id: 5,
       nome: "Harley Davidson CVO Limited",
       marca: "Harley Davidson",
       preco: 160000,
@@ -75051,6 +75051,7 @@ export const produtosDeLuxo = {
     },
   ],
 };
+export const codeemprestimo = ["jam", "avnhSN"];
 const today = new Date();
 today.setDate(today.getDate() + 1);
 export let projects = [
@@ -75060,7 +75061,15 @@ export let projects = [
     description: "Criação de um novo banco digital",
     startDate: new Date().toISOString().split("T")[0],
     endDate: today.toISOString().split("T")[0],
-    members: [],
+    members: [
+      {
+        id_member: 1,
+        name: "Jam Batista",
+        office: "QA",
+        projectId: 1,
+        send_email: "opcional",
+      },
+    ],
   },
 ];
 export const clients = [
@@ -75086,130 +75095,129 @@ export const clients = [
 function priceProducts() {
   return Math.floor(Math.random() * (15000 - 2000 + 1) + 2000);
 }
-export const productsGamers = () => {
-  return [
-    {
-      id: 1,
-      name: "Gaming Keyboard",
-      description: "Mechanical RGB backlit keyboard",
-      price: 6000,
-    },
-    {
-      id: 2,
-      name: "Gaming Mouse",
-      description: "High precision optical mouse",
-      price: 7890,
-    },
-    {
-      id: 3,
-      name: "Gaming Headset",
-      description: "Surround sound gaming headset",
-      price: 4999,
-    },
-    {
-      id: 4,
-      name: "Gaming Monitor",
-      description: "27 inch 144Hz gaming monitor",
-      price: 9000,
-    },
-    {
-      id: 5,
-      name: "Gamepad",
-      description: "Wireless game controller",
-      price: 17000,
-    },
-    {
-      id: 6,
-      name: "Gaming Chair",
-      description: "Ergonomic high-back chair",
-      price: 12000,
-    },
-    {
-      id: 7,
-      name: "Gaming Desk",
-      description: "Adjustable desk with RGB lighting",
-      price: 6890,
-    },
-    {
-      id: 8,
-      name: "SSD",
-      description: "1TB NVMe solid state drive",
-      price: 5768,
-    },
-    {
-      id: 9,
-      name: "Graphics Card",
-      description: "High-end gaming graphics card",
-      price: 8578,
-    },
-    {
-      id: 10,
-      name: "RAM",
-      description: "16GB DDR4 memory kit",
-      price: 9667,
-    },
-    {
-      id: 11,
-      name: "CPU",
-      description: "Latest generation processor",
-      price: priceProducts(),
-    },
-    {
-      id: 12,
-      name: "Motherboard",
-      description: "Motherboard with overclocking capabilities",
-      price: 13577,
-    },
-    {
-      id: 13,
-      name: "PC Case",
-      description: "Mid-tower case with glass side panel",
-      price: 14574,
-    },
-    {
-      id: 14,
-      name: "Power Supply",
-      description: "750W 80+ Gold PSU",
-      price: 6468,
-    },
-    {
-      id: 15,
-      name: "Cooling System",
-      description: "Liquid cooling system",
-      price: 1355,
-    },
-    {
-      id: 16,
-      name: "Mouse Pad",
-      description: "Extended mouse pad",
-      price: 1499,
-    },
-    {
-      id: 17,
-      name: "VR Headset",
-      description: "Virtual reality headset",
-      price: priceProducts(),
-    },
-    {
-      id: 18,
-      name: "Streaming Mic",
-      description: "Studio-quality microphone",
-      price: 7845,
-    },
-    {
-      id: 19,
-      name: "Webcam",
-      description: "1080p streaming webcam",
-      price: 9857,
-    },
-    {
-      id: 20,
-      name: "Cable Management Accessories",
-      description: "Cable organizers and ties",
-      price: 15679,
-    },
-  ];
-};
+export const productsGamers = [
+  {
+    id: 1,
+    name: "Gaming Keyboard",
+    description: "Mechanical RGB backlit keyboard",
+    price: 6000,
+  },
+  {
+    id: 2,
+    name: "Gaming Mouse",
+    description: "High precision optical mouse",
+    price: 7890,
+  },
+  {
+    id: 3,
+    name: "Gaming Headset",
+    description: "Surround sound gaming headset",
+    price: 4999,
+  },
+  {
+    id: 4,
+    name: "Gaming Monitor",
+    description: "27 inch 144Hz gaming monitor",
+    price: 9000,
+  },
+  {
+    id: 5,
+    name: "Gamepad",
+    description: "Wireless game controller",
+    price: 17000,
+  },
+  {
+    id: 6,
+    name: "Gaming Chair",
+    description: "Ergonomic high-back chair",
+    price: 12000,
+  },
+  {
+    id: 7,
+    name: "Gaming Desk",
+    description: "Adjustable desk with RGB lighting",
+    price: 6890,
+  },
+  {
+    id: 8,
+    name: "SSD",
+    description: "1TB NVMe solid state drive",
+    price: 5768,
+  },
+  {
+    id: 9,
+    name: "Graphics Card",
+    description: "High-end gaming graphics card",
+    price: 8578,
+  },
+  {
+    id: 10,
+    name: "RAM",
+    description: "16GB DDR4 memory kit",
+    price: 9667,
+  },
+  {
+    id: 11,
+    name: "CPU",
+    description: "Latest generation processor",
+    price: priceProducts(),
+  },
+  {
+    id: 12,
+    name: "Motherboard",
+    description: "Motherboard with overclocking capabilities",
+    price: 13577,
+  },
+  {
+    id: 13,
+    name: "PC Case",
+    description: "Mid-tower case with glass side panel",
+    price: 14574,
+  },
+  {
+    id: 14,
+    name: "Power Supply",
+    description: "750W 80+ Gold PSU",
+    price: 6468,
+  },
+  {
+    id: 15,
+    name: "Cooling System",
+    description: "Liquid cooling system",
+    price: 1355,
+  },
+  {
+    id: 16,
+    name: "Mouse Pad",
+    description: "Extended mouse pad",
+    price: 1499,
+  },
+  {
+    id: 17,
+    name: "VR Headset",
+    description: "Virtual reality headset",
+    price: priceProducts(),
+  },
+  {
+    id: 18,
+    name: "Streaming Mic",
+    description: "Studio-quality microphone",
+    price: 7845,
+  },
+  {
+    id: 19,
+    name: "Webcam",
+    description: "1080p streaming webcam",
+    price: 9857,
+  },
+  {
+    id: 20,
+    name: "Cable Management Accessories",
+    description: "Cable organizers and ties",
+    price: 15679,
+  },
+];
+
 export const company = [
   {
     id: 1,
@@ -75246,7 +75254,7 @@ export const company = [
     ],
   },
 ];
-export const mercado = [
+export let mercado = [
   {
     id: 1,
     nome: "Supermercado Exemplo",
@@ -75305,7 +75313,13 @@ export const eventos = [
     data: "2024-06-01",
     local: "Centro de Convenções",
     capacidade: 30,
-    participantes: [],
+    participantes: [
+      {
+        nome: "Sophia Almeida",
+        email: "sophia.almeida@example.com",
+        idade: 25,
+      },
+    ],
   },
   {
     id: 2,
@@ -75313,7 +75327,13 @@ export const eventos = [
     data: "2024-06-15",
     local: "Espaço Tech",
     capacidade: 40,
-    participantes: [],
+    participantes: [
+      {
+        "nome": "Louíse de Lima",
+        "email": "louise.delima@example.com",
+        "idade": 25
+      }
+    ],
   },
 ];
 

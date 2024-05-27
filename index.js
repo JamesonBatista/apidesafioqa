@@ -1,47 +1,19 @@
 import swaggerDocument from "./swaggerConfig.js";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
+// const admin = require("firebase-admin");
+
 import { param, body, validationResult } from "express-validator";
 import isValidCPF, { decrypt, encrypt } from "./functions.js";
+// const serviceAccount = require("./restapi.json");
 
 import enviarEmail from "./email.js";
 const app = express();
 import bodyParser from "body-parser";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import germany_json, {
-  company,
-  eventos,
-  productsGamers,
-} from "./swagger_jsons.js";
-import {
-  json_1,
-  json_2,
-  json_3,
-  json_4,
-  json_5,
-  json_6,
-  json_7,
-  json_8,
-  json_9,
-  json_10,
-  json_11,
-  json_12,
-  json_13,
-  json_14,
-  independent,
-  brasil,
-  big_json,
-  crud_get,
-  loja,
-  usuarios,
-  produtosDeLuxo,
-  projects,
-  membersProjet,
-  clients,
-  encryptedDataUser,
-  mercado,
-} from "./swagger_jsons.js";
+
+import { db, inicializeJSOns } from "./firebase.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
 const users = [
@@ -58,6 +30,23 @@ function generateToken(user) {
   return jwt.sign(payload, secretKey, { expiresIn: "1h" });
 }
 
+inicializeJSOns();
+const dbJSONget = async (res, endpoint) => {
+  try {
+    const ref = db.ref(endpoint);
+    ref.once("value", (snapshot) => {
+      const path = snapshot.val();
+      res.status(200).json(path);
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Erro, não foi possível obter o JSON." });
+  }
+};
+const buscar = async (endpoint) => {
+  const ref = await db.ref(endpoint).once("value");
+  const snapshot = ref.val() ? Object.values(ref.val()) : [];
+  return snapshot;
+};
 // Rota de login
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
@@ -141,74 +130,70 @@ app.post("/login-hard", (req, res) => {
   }
 });
 
-app.get("/json_1", (req, res) => {
-  res.send(json_1);
+app.get("/json_1", async (req, res) => {
+  dbJSONget(res, "json-1");
 });
 app.get("/json_2", (req, res) => {
-  res.send(json_2);
+  dbJSONget(res, "json-2");
 });
 app.get("/json_3", (req, res) => {
-  res.send(json_3);
+  dbJSONget(res, "json-3");
 });
 
 app.get("/json_4", (req, res) => {
-  res.send(json_4);
+  dbJSONget(res, "json-4");
 });
 app.get("/json_5", (req, res) => {
-  res.send(json_5);
+  dbJSONget(res, "json-5");
 });
 app.get("/json_6", (req, res) => {
-  res.send(json_6);
+  dbJSONget(res, "json-6");
 });
 app.get("/json_7", (req, res) => {
-  res.send(json_7);
+  dbJSONget(res, "json-7");
 });
 app.get("/json_8", (req, res) => {
-  res.send(json_8);
+  dbJSONget(res, "json-8");
 });
 app.get("/json_9", (req, res) => {
-  res.send(json_9);
-});
-app.get("/json_10", (req, res) => {
-  res.send(json_12);
-});
-app.get("/json_11", (req, res) => {
-  res.send(json_13);
+  dbJSONget(res, "json-9");
 });
 app.get("/json_12", (req, res) => {
-  res.send(json_14);
+  dbJSONget(res, "json-12");
 });
 app.post(
   "/validate-json_9",
   [
-    body("jogoId")
+    body("jogos").isArray().withMessage("O campo jogos deve ser uma matriz"),
+    body("jogos.*.jogoId")
       .notEmpty()
       .withMessage(
         "O campo jogoId é obrigatório e deverá ser buscado no /json_9"
       ),
-    body("totalGols")
+    body("jogos.*.totalGols")
       .notEmpty()
       .withMessage(
         "O campo totalGols é obrigatório e deverá ser buscado no /json_9"
       ),
-    body("totalFaltas")
+    body("jogos.*.totalFaltas")
       .notEmpty()
       .withMessage(
         "O campo totalFaltas é obrigatório e deverá ser buscado no /json_9"
       ),
-    body("totalCartoes")
+    body("jogos.*.totalCartoes")
       .notEmpty()
       .withMessage(
         "O campo totalCartoes é obrigatório e deverá ser buscado no /json_9"
       ),
   ],
-  (req, res) => {
+  async (req, res) => {
     const jogos = req.body.jogos;
     let resultados = [];
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const json_9 = await buscar("json-9");
 
     jogos.forEach(({ jogoId, totalGols, totalFaltas, totalCartoes }) => {
       const jogo = json_9.copaDoMundo.jogosDoBrasil.find(
@@ -311,33 +296,35 @@ app.post("/all-jsons-data", (req, res) => {
   });
 });
 app.get("/infinity-array", (req, res) => {
-  res.send(json_10);
+  dbJSONget(res, "json-10");
 });
 app.get("/deep-validation", (req, res) => {
-  res.send(json_11);
+  dbJSONget(res, "json-11");
 });
-// Others
+// // Others
 app.get("/germany-api", (req, res) => {
-  res.send(germany_json);
+  dbJSONget(res, "germany-api");
 });
 app.get("/independent", (req, res) => {
-  res.send(independent);
+  dbJSONget(res, "independent");
 });
 app.get("/brasil", (req, res) => {
-  res.send(brasil);
+  dbJSONget(res, "brasil");
 });
 app.get("/big-json", (req, res) => {
-  res.send(big_json);
+  dbJSONget(res, "big-json");
 });
-// CRUD
-app.get("/crud", (req, res) => {
-  res.send(crud_get);
+// // CRUD
+app.get("/crud", async (req, res) => {
+  dbJSONget(res, "crud_get");
 });
 function generateId(param) {
   let newId =
-    param.length > 0 ? Math.max(...param.map((user) => user.id)) + 1 : 1;
+    param.length > 0
+      ? Math.max(...param.map((user) => user.id || user.id_member)) + 1
+      : 1;
 
-  while (param.some((user) => user.id === newId)) {
+  while (param.some((user) => user.id || user.id_member === newId)) {
     newId++;
   }
 
@@ -349,8 +336,9 @@ app.post(
     body("nome")
       .notEmpty()
       .withMessage("O campo nome é obrigatório")
-      .custom((value) => {
-        const userExists = crud_get.users.some(
+      .custom(async (value) => {
+        const get = await buscar("crud_get");
+        const userExists = get.users.some(
           (user) => user.nome.trim() === value.trim()
         );
         if (userExists) {
@@ -365,7 +353,7 @@ app.post(
       .withMessage("O campo email é obrigatório"),
     body("idade")
       .isInt({ min: 18 })
-      .withMessage("A idade deve ser um número inteiro válido")
+      .withMessage("A idade deve ser um número inteiro válido e maior que 18")
       .notEmpty()
       .withMessage("O campo idade é obrigatório"),
     body("telefone").notEmpty().withMessage("O campo telefone é obrigatório"),
@@ -373,15 +361,16 @@ app.post(
     body("profissao").notEmpty().withMessage("O campo profissão é obrigatório"),
     body("empresa").notEmpty().withMessage("O campo empresa é obrigatório"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const search = await buscar("crud_get");
+    let get = search.users;
     // Atribuição automática de 'status' como 'ativo' e 'dataCadastro' para a data atual
     const newUser = {
-      id: generateId(crud_get.users),
+      id: generateId(get),
       nome: req.body.nome,
       email: req.body.email,
       idade: req.body.idade,
@@ -393,189 +382,177 @@ app.post(
       dataCadastro: new Date().toISOString().split("T")[0], // Data de cadastro definida como a data atual
     };
 
+    if (get.length > 50) {
+      get.splice(0, 10);
+    }
     // Adiciona o novo usuário ao array
-    crud_get.users.push(newUser);
+    get.push(newUser);
+    const ref = db.ref("crud_get/users");
 
-    // Verifica se o array atingiu 50 usuários e remove os 10 primeiros se necessário
-    if (crud_get.users.length > 50) {
-      crud_get.users.splice(0, 10); // Remove os 10 primeiros
+    await ref.set(get);
+
+    if (get.length > 50) {
+      get.splice(0, 10); // Remove os 10 primeiros
     }
 
     res.status(201).json(newUser);
   }
 );
 
-app.get("/crud/:id", (req, res) => {
-  const id = parseInt(req.params.id); // Converte o id de string para inteiro
-  const user = crud_get.users.find((u) => u.id === id);
-
-  if (!user) {
-    return res.status(404).send({ message: "Usuário não encontrado" });
-  }
-
-  res.status(200).json(user);
-});
-app.delete("/crud/:id", (req, res) => {
-  const id = parseInt(req.params.id); // Converte o id de string para inteiro
-  const originalLength = crud_get.users.length;
-  crud_get.users = crud_get.users.filter((user) => user.id !== id);
-
-  if (crud_get.users.length === originalLength) {
-    return res.status(404).json({ message: "Usuário não encontrado" });
-  }
-
-  res.status(200).json(crud_get.users);
-});
-
-app.get("/produtos", (req, res) => {
-  res.send(loja);
-});
-app.get("/produtos/:id", (req, res) => {
-  const id = req.params.id;
-  const produto = loja.produtos.find((p) => p.id === id);
-
-  if (!produto) {
-    return res.status(404).send({ message: "Produto não encontrado" });
-  }
-
-  res.status(200).json(produto);
-});
-
-app.post(
-  "/produtos",
-  [
-    body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
-    body("cpf")
-      .notEmpty()
-      .withMessage("O campo CPF é obrigatório")
-      .custom((value) => {
-        if (!isValidCPF(value)) {
-          throw new Error("CPF inválido");
-        }
-        return true;
-      }),
-    body("id_produto")
-      .notEmpty()
-      .withMessage("O campo id do produto é obrigatório"),
-    body("valor_na_carteira")
-      .notEmpty()
-      .withMessage("O campo valor na carteira é obrigatório")
-      .isFloat({ min: 0 })
-      .withMessage("O valor na carteira deve ser um número válido"),
-    body("receber_email")
-      .optional()
-      .isString()
-      .withMessage("O campo receber_email deve ser string"),
-    body("send_email")
-      .optional()
-      .isString()
-      .withMessage("O campo send_email deve ser string"),
-  ],
-  (req, res) => {
+app.get(
+  "/crud/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {
-      nome,
-      cpf,
-      id_produto,
-      valor_na_carteira,
-      receber_email,
-      send_email,
-    } = req.body;
-    const produto = loja.produtos.find((p) => p.id === id_produto);
-    if (!produto) {
-      return res.status(404).json({ message: "Produto não encontrado" });
+    const id = parseInt(req.params.id);
+
+    try {
+      const user = await buscar(`crud_get/users/${id - 1}`);
+      if (!user) {
+        return res.status(404).send({ message: "Usuário não encontrado" });
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).send({ message: "Erro ao buscar usuário" });
+    }
+  }
+);
+app.delete(
+  "/crud/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    if (valor_na_carteira < produto.preco) {
-      const diferenca = produto.preco - valor_na_carteira;
-      return res.status(400).json({
-        message: "O valor na carteira é insuficiente, preciaria de: ",
-        diferenca,
-        valor_produto: produto.preco,
-      });
+    const id = parseInt(req.params.id);
+
+    try {
+      const ref = db.ref(`crud_get/users/${id - 1}`);
+      const snapshot = await ref.once("value");
+      const user = snapshot.val();
+
+      if (!user) {
+        return res.status(404).send({ message: "Usuário não encontrado" });
+      }
+
+      await ref.remove();
+
+      res
+        .status(200)
+        .json({ message: `Usuário com ID ${id} foi removido com sucesso.` });
+    } catch (error) {
+      console.error("Erro ao remover usuário:", error);
+      res.status(500).send({ message: "Erro ao remover usuário" });
+    }
+  }
+);
+
+app.get("/produtos", (req, res) => {
+  dbJSONget(res, "produtos");
+});
+app.get(
+  "/produtos/:id",
+  [param("id").isInt().withMessage("O ID deve ser um numero inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    if (receber_email || send_email) {
-      let html = `<!DOCTYPE html>
-      <html lang="en">
-      <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Confirmação de Compra</title>
-      <style>
-          body {
-              font-family: 'Arial', sans-serif;
-              margin: 0;
-              padding: 0;
-              color: #333;
-          }
-          .container {
-              padding: 20px;
-              background-color: #f4f4f4;
-              border: 1px solid #ddd;
-              margin: 20px auto;
-              width: 80%;
-              box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          }
-          .header {
-              background-color: #007bff;
-              color: white;
-              padding: 10px;
-              text-align: center;
-          }
-          .content {
-              padding: 20px;
-              background-color: white;
-          }
-          .footer {
-              text-align: center;
-              padding: 10px;
-              font-size: 0.8em;
-              background-color: #eee;
-          }
-      </style>
-      </head>
-      <body>
-      <div class="container">
-          <div class="header">
-              <h1>Parabéns pela sua compra!</h1>
-          </div>
-          <div class="content">
-              <h2>Detalhes do Produto</h2>
-              <p><strong>Produto:</strong> ${produto.nome}</p>
-              <p><strong>Marca:</strong>${produto.marca}</p>
-              <p><strong>Preço:</strong> R$${produto.preco}</p>
-          </div>
-          <div class="footer">
-              Obrigado por comprar conosco!.
-          </div>
-      </div>
-      </body>
-      </html>
-       `;
-      enviarEmail(
-        receber_email || send_email,
-        `Parabéns senhor(a): ${nome || "Cliente"} pela compra do produto ${
-          produto.nome
-        }`,
-        html
-      );
+    const id = req.params.id;
+
+    const user = await buscar(`produtos/produtos/${id - 1}`);
+    if (!user) {
+      return res.status(404).send({ message: "Produto não encontrado" });
     }
 
-    res.status(201).send({
-      produto: produto,
-      message: `${nome}, Parabéns pela compra! Você comprou ${
-        produto.nome
-      }, Seu valor na cateira é de:  ${valor_na_carteira - produto.preco}`,
+    res.status(200).json(user);
+  }
+);
+
+app.post(
+  "/projects",
+  [
+    body("name")
+      .notEmpty()
+      .withMessage("O nome é obrigatório")
+      .isString()
+      .withMessage("O campo name deve ser uma string"),
+    body("leader")
+      .notEmpty()
+      .withMessage("Campo líder é obrigatório")
+      .isString()
+      .withMessage("O campo leader deve ser uma string"),
+    body("description")
+      .notEmpty()
+      .withMessage("A descrição é obrigatória")
+      .isString()
+      .withMessage("O campo description deve ser uma string"),
+    body("endDate")
+      .isISO8601()
+      .withMessage("Data de término inválida")
+      .custom((value) => {
+        const endDate = new Date(value);
+        const today = new Date();
+        if (endDate <= today) {
+          throw new Error("A data de término deve ser maior que a data atual");
+        }
+        return true;
+      }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, description, endDate, leader } = req.body;
+    const projects = await buscar("projects");
+    const projectExists = projects.some(
+      (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+    if (projectExists) {
+      return res
+        .status(400)
+        .json({ message: `Já existe um projeto com o nome ${name}` });
+    }
+
+    const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+    const newProject = {
+      id: projects.length + 1,
+      name,
+      leader,
+      description,
+      startDate,
+      endDate,
+      members: [],
+    };
+
+    // Limite e remoção de projetos antigos
+    if (projects.length >= 50) {
+      projects.splice(0, 10); // Remove os 10 primeiros
+    }
+
+    projects.push(newProject);
+    const ref = db.ref("projects");
+    await ref.set(projects);
+
+    res.status(201).json({
+      message: "Projeto criado com sucesso!",
+      project: newProject,
     });
   }
 );
 
-// BANK
+// // BANK
 function generateCode() {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -586,8 +563,8 @@ function generateCode() {
   }
   return code;
 }
-app.get("/clientes", (req, res) => {
-  res.send(usuarios);
+app.get("/clientes", async (req, res) => {
+  dbJSONget(res, "bank/clientes");
 });
 
 app.post(
@@ -611,11 +588,13 @@ app.post(
       .notEmpty()
       .withMessage("O campo de débito é obrigatório"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const usuarios = await buscar("bank/clientes");
+
     const { nome, cpf, contato, bank } = req.body;
     const novoCliente = {
       id: generateId(usuarios),
@@ -624,46 +603,77 @@ app.post(
       contato,
       bank,
     };
+
     if (usuarios.length >= 50) {
-      usuarios = usuarios.splice(10);
+      usuarios = usuarios.slice(10);
     }
 
     usuarios.push(novoCliente);
-    res.status(201).json(novoCliente);
+
+    try {
+      await db.ref(`bank/clientes`).set(usuarios);
+
+      res.status(201).json(novoCliente);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Erro ao salvar cliente no banco de dados", error });
+    }
   }
 );
-app.post("/emprestimo", (req, res) => {
-  code_emprestimo_bank = generateCode();
+app.post("/emprestimo", async (req, res) => {
   const { id_cliente, valor_emprestimo } = req.body;
 
-  const cliente = usuarios.find((user) => user.id === id_cliente);
+  try {
+    const snapshot = await db.ref("bank/clientes").once("value");
+    const usuarios = snapshot.val();
+    const cliente = Object.values(usuarios).find(
+      (user) => user.id === id_cliente
+    );
 
-  if (!cliente) {
-    return res.status(404).json({ error: "Cliente não encontrado" });
-  }
-  if (!isValidCPF(cliente.cpf)) {
-    return res.status(400).json({ error: "CPF inválido" });
-  }
-  if (valor_emprestimo <= 0) {
-    return res.status(400).json({ error: "Valor de empréstimo inválido" });
-  }
-  if (valor_emprestimo < cliente.bank.debito) {
-    return res.status(400).json({
-      error: "Valor de empréstimo menor que débito disponível",
-      debit_value: cliente.bank.debito,
-      loan: valor_emprestimo,
-    });
-  }
-  cliente.bank.credito = valor_emprestimo;
-  const clienteAtualizado = { ...cliente, emprestimo: code_emprestimo_bank };
+    if (!cliente) {
+      return res.status(404).json({ error: "Cliente não encontrado" });
+    }
+    if (!isValidCPF(cliente.cpf)) {
+      return res.status(400).json({ error: "CPF inválido" });
+    }
+    if (valor_emprestimo <= 0) {
+      return res.status(400).json({ error: "Valor de empréstimo inválido" });
+    }
+    if (valor_emprestimo < cliente.bank.debito) {
+      return res.status(400).json({
+        error: "Valor de empréstimo menor que débito disponível",
+        debit_value: cliente.bank.debito,
+        loan: valor_emprestimo,
+      });
+    }
+    const code_emprestimo_bank = generateCode();
+    const codeRef = db.ref("bank/codeemprestimo");
+    const snapshots = await codeRef.once("value");
+    let codes = snapshots.val();
 
-  const index = usuarios.findIndex((user) => user.id === id_cliente);
-  usuarios[index] = clienteAtualizado;
+    if (!codes) {
+      codes = [];
+    } else {
+      codes = Object.values(codes);
+    }
 
-  res.status(201).json(clienteAtualizado);
+    codes.push(code_emprestimo_bank);
+    await codeRef.set(codes);
+
+    cliente.bank.credito = valor_emprestimo;
+    const clienteAtualizado = { ...cliente, emprestimo: code_emprestimo_bank };
+
+    await db.ref(`bank/clientes/${cliente.id}`).set(clienteAtualizado);
+
+    res.status(201).json(clienteAtualizado);
+  } catch (error) {
+    console.error("Erro ao processar empréstimo:", error);
+    res.status(500).json({ error: "Erro ao processar empréstimo" });
+  }
 });
 app.get("/financiamento-produtos", (req, res) => {
-  res.send(produtosDeLuxo.produtosDeLuxo);
+  dbJSONget(res, "bank/produtosdeluxo");
 });
 app.post(
   "/contratar-financiamento",
@@ -680,7 +690,7 @@ app.post(
       .isString()
       .withMessage("O campo code_emprestimo é uma string"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -695,24 +705,28 @@ app.post(
     } = req.body;
 
     // Verificar se o cliente existe
-    const cliente = usuarios.find((user) => user.id === id_cliente);
+    const cliente = await buscar(`bank/clientes/${id_cliente}`);
     if (!cliente) {
       return res.status(404).json({ message: "Cliente não encontrado." });
     }
 
     // Verificar se o produto existe
-    const produto = produtosDeLuxo.produtosDeLuxo.find(
-      (produto) => produto.id === id_produto
-    );
+    const produtos = await buscar("bank/produtosdeluxo");
+    const produto = produtos.find((produto) => produto.id === id_produto);
     if (!produto) {
       return res.status(404).json({ message: "Produto não encontrado." });
     }
 
+    const codesSnapshot = await db.ref("bank/codeemprestimo").once("value");
+    const codes = codesSnapshot.val() ? Object.values(codesSnapshot.val()) : [];
+    const codeExists = codes.find((codeem) => codeem === code_emprestimo);
+
     // Verificar se o cliente possui o campo emprestimo
-    if (code_emprestimo !== code_emprestimo_bank) {
-      return res
-        .status(400)
-        .json({ message: "Cliente não passou pelo endpoint /emprestimo." });
+    if (!codeExists) {
+      return res.status(400).json({
+        message:
+          "Cliente não passou pelo endpoint /emprestimo para gerar código de emprestimo.",
+      });
     }
 
     // Verificar se o cliente tem crédito suficiente
@@ -727,6 +741,15 @@ app.post(
     // Atualizar o crédito do cliente
     cliente.bank.credito -= produto.preco;
 
+    await db.ref(`bank/clientes/${cliente.id}`).set(cliente);
+
+    // Retornar mensagem de sucesso
+    const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
+    res.status(200).json({
+      message: mensagem,
+      produto: produto,
+      valor_credito_atual: cliente.bank.credito,
+    });
     if (receber_email || send_email) {
       let html = `<!DOCTYPE html>
       <html lang="en">
@@ -775,7 +798,7 @@ app.post(
           <div class="content">
               <h2>Detalhes do Produto</h2>
               <p><strong>Produto:</strong> ${produto.nome}</p>
-              <p><strong>Marca:</strong>${produto.marca}</p>
+              <p><strong>Marca:</strong> ${produto.marca}</p>
               <p><strong>Preço:</strong> R$${produto.preco}</p>
           </div>
           <div class="footer">
@@ -791,18 +814,12 @@ app.post(
         html
       );
     }
-    // Retornar mensagem de sucesso
-    const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
-    res.status(200).json({
-      message: mensagem,
-      produto: produto,
-      valor_credito_atual: cliente.bank.credito,
-    });
   }
 );
-// PROJECT
+
+// // PROJECT
 app.get("/projects", (req, res) => {
-  res.send(projects);
+  dbJSONget(res, "projects");
 });
 app.post(
   "/projects",
@@ -834,14 +851,14 @@ app.post(
         return true;
       }),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { name, description, endDate, leader } = req.body;
-
+    const projects = await buscar("projects");
     const projectExists = projects.some(
       (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
     );
@@ -853,7 +870,7 @@ app.post(
 
     const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
     const newProject = {
-      id: generateId(projects),
+      id: projects.length + 1,
       name,
       leader,
       description,
@@ -868,6 +885,14 @@ app.post(
     }
 
     projects.push(newProject);
+    const ref = db.ref("projects");
+    await ref.set(
+      projects.reduce((acc, project) => {
+        acc[project.id] = project;
+        return acc;
+      }, {})
+    );
+
     res.status(201).json({
       message: "Projeto criado com sucesso!",
       project: newProject,
@@ -875,65 +900,104 @@ app.post(
   }
 );
 
-app.get("/projects/:id", (req, res) => {
-  const projectId = parseInt(req.params.id);
-  const project = projects.find((p) => p.id === projectId);
-  if (!project) {
-    return res.status(404).json({ message: "Projeto não encontrado" });
+app.get(
+  "/projects/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = parseInt(req.params.id);
+    const projects = await buscar("projects");
+    const project = projects.find((p) => p.id === id);
+    if (!project) {
+      return res.status(404).json({ message: "Projeto não encontrado" });
+    }
+    res.status(200).json(project);
   }
-  res.status(200).json(project);
-});
-app.put("/projects/:id", (req, res) => {
-  const projectId = parseInt(req.params.id);
-  const { name, description, startDate, endDate, members } = req.body;
+);
+app.put(
+  "/projects/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  // Encontrar o projeto pelo ID
-  const project = projects.find((p) => p.id === projectId);
-  if (!project) {
-    return res.status(404).json({ message: "Projeto não encontrado" });
+    const id = parseInt(req.params.id);
+    const { name, description, startDate, endDate, members } = req.body;
+
+    // Encontrar o projeto pelo ID
+    const projects = await buscar("projects");
+    const project = projects.find((p) => p.id === id);
+    if (!project) {
+      return res.status(404).json({ message: "Projeto não encontrado" });
+    }
+
+    // Atualizar os detalhes do projeto
+    if (name) project.name = name;
+    if (description) project.description = description;
+    if (startDate) project.startDate = startDate;
+    if (endDate) project.endDate = endDate;
+    if (members) project.members = members;
+
+    await db.ref("projects").set(project);
+
+    // Responder com o projeto atualizado
+    res.status(200).json({
+      message: "Projeto atualizado com sucesso",
+      project,
+    });
   }
-
-  // Atualizar os detalhes do projeto
-  if (name) project.name = name;
-  if (description) project.description = description;
-  if (startDate) project.startDate = startDate;
-  if (endDate) project.endDate = endDate;
-  if (members) project.members = members;
-
-  // Responder com o projeto atualizado
-  res.status(200).json({
-    message: "Projeto atualizado com sucesso",
-    project,
-  });
-});
-app.get("/projects/:id/members", (req, res) => {
-  const projectId = parseInt(req.params.id);
-  const project = projects.find((p) => p.id === projectId);
-  if (!project) {
-    return res
-      .status(404)
-      .json({ message: `Projeto com id ${projectId} não encontrado.` });
+);
+app.get(
+  "/projects/:id/members",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const projects = await buscar("projects");
+    const id = parseInt(req.params.id);
+    const project = projects.find((p) => p.id === id);
+    if (!project) {
+      return res
+        .status(404)
+        .json({ message: `Projeto com id ${id} não encontrado.` });
+    }
+    res.status(200).json(project.members);
   }
-  res.status(200).json(project.members);
-});
-app.delete("/projects/:id", (req, res) => {
-  const projectId = parseInt(req.params.id);
-  const projectIndex = projects.findIndex((p) => p.id === projectId);
-  const project = projects.find((p) => p.id === projectId);
+);
+app.delete(
+  "/projects/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const projects = await buscar("projects");
+    const projectId = parseInt(req.params.id);
+    const projectIndex = projects.findIndex((p) => p.id === projectId);
+    const project = projects.find((p) => p.id === projectId);
 
-  if (projectIndex === -1) {
-    return res.status(404).json({ message: "Projeto não encontrado" });
+    if (projectIndex === -1) {
+      return res.status(404).json({ message: "Projeto não encontrado" });
+    }
+
+    // Remove o projeto da lista
+    projects.splice(projectIndex, 1);
+    await db.ref("projects").set(projects);
+    res
+      .status(200)
+      .json({ message: `Projeto ${project.name} deletado com sucesso!` });
   }
+);
 
-  // Remove o projeto da lista
-  projects.splice(projectIndex, 1);
-  res
-    .status(200)
-    .json({ message: `Projeto ${project.name} deletado com sucesso!` });
-});
-app.get("/members", (req, res) => {
-  res.send(membersProjet);
-});
 app.post(
   "/member",
   [
@@ -948,7 +1012,7 @@ app.post(
       .isString()
       .withMessage("O campo send_email deve ser uma string"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -957,129 +1021,188 @@ app.post(
     let { name, office, projectId, send_email } = req.body;
     projectId = parseInt(projectId, 10);
 
+    try {
+      // Buscar o projeto específico pelo ID
+      const projectSnapshot = await db
+        .ref(`projects/${projectId - 1}`)
+        .once("value");
+      const project = projectSnapshot.val();
+
+      if (!project) {
+        return res.status(404).json({ message: "Projeto não encontrado" });
+      }
+
+      if (!project.members) {
+        project.members = [];
+      }
+
+      const membersProject = project.members;
+      const id_member = membersProject.length ? membersProject.length + 1 : 1;
+
+      // Verificar se o membro já existe no projeto
+      const project_member = membersProject.find(
+        (p) => p.name.trim() === name.trim()
+      );
+      if (project_member) {
+        return res
+          .status(400)
+          .json({ message: `Membro ${name} já se encontra na equipe.` });
+      }
+
+      // Criar o novo membro
+      const newMember = {
+        id_member,
+        name,
+        office,
+        send_email: send_email || "opcional",
+      };
+
+      // Limitar o número de membros a 50
+      if (membersProject.length >= 50) {
+        membersProject.splice(0, 10);
+      }
+
+      // Adicionar o novo membro ao array de membros do projeto
+      membersProject.push(newMember);
+      project.members = membersProject;
+
+      // Atualizar o projeto no Firebase
+      await db.ref(`projects/${projectId - 1}`).set(project);
+
+      // Simular o envio de e-mail
+      if (send_email) {
+        const html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Bem-vindo ao Projeto</title>
+            <style>
+                body {
+                    font-family: 'Arial', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    color: #333;
+                }
+                .container {
+                    padding: 20px;
+                    background-color: #f4f4f4;
+                    border: 1px solid #ddd;
+                    margin: 20px auto;
+                    width: 80%;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                .header {
+                    background-color: #007bff;
+                    color: white;
+                    padding: 10px;
+                    text-align: center;
+                }
+                .content {
+                    padding: 20px;
+                    background-color: white;
+                }
+                .footer {
+                    text-align: center;
+                    padding: 10px;
+                    font-size: 0.8em;
+                    background-color: #eee;
+                }
+            </style>
+        </head>
+        <body>
+        <div class="container">
+            <div class="header">
+                <h1>Bem-vindo ao Projeto ${project.name}!</h1>
+            </div>
+            <div class="content">
+                <h2>Detalhes da Adesão</h2>
+                <p><strong>Nome:</strong> ${newMember.name}</p>
+                <p><strong>Cargo:</strong> ${newMember.office}</p>
+                <p><strong>Projeto:</strong> ${project.name}</p>
+                <p><strong>Líder:</strong> ${project.leader}</p>
+            </div>
+            <div class="footer">
+                Obrigado por juntar-se a nós!
+            </div>
+        </div>
+        </body>
+        </html>
+        `;
+        enviarEmail(
+          newMember.send_email,
+          `Integração do(a) ${newMember.name} no projeto ${project.name}`,
+          html
+        );
+      }
+
+      // Responder com sucesso
+      res.status(201).json({
+        message: "Membro adicionado com sucesso ao projeto",
+        project,
+      });
+    } catch (error) {
+      console.error("Erro ao buscar projeto:", error);
+      res.status(500).send({ message: "Erro ao buscar projeto" });
+    }
+  }
+);
+
+app.delete(
+  "/member/:projectId/:id_member",
+  [
+    param("projectId")
+      .isInt()
+      .withMessage("O ID do projeto deve ser um número inteiro"),
+    param("id_member")
+      .isInt()
+      .withMessage("O ID do membro deve ser um número inteiro"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { projectId, id_member } = req.params;
+
+    // Buscar todos os projetos
+    const projects = await buscar("projects");
+
     // Encontrar o projeto pelo ID
-    const project = projects.find((p) => p.id === projectId);
+    const project = projects.find((p) => p.id === parseInt(projectId));
     if (!project) {
       return res.status(404).json({ message: "Projeto não encontrado" });
     }
-
-    let id_member = generateId(project.members);
-    // Criar o novo membro
-    const newMember = { id_member, name, office, send_email };
-    if (membersProjet.length >= 50) {
-      membersProjet = membersProjet.splice(10);
-    }
-    const project_members = project.members.find(
-      (p) => p.name.trim() === name.trim()
+    // Encontrar o índice do membro no projeto
+    const memberIndex = project.members.findIndex(
+      (m) => m.id_member === parseInt(id_member)
     );
-
-    if (project_members) {
-      return res
-        .status(404)
-        .json({ message: `Membro ${name} já se encontra na equipe.` });
+    if (memberIndex === -1) {
+      return res.status(404).json({ message: "Membro não encontrado" });
     }
 
-    membersProjet.push(newMember);
-    // Adicionar o novo membro ao array de membros do projeto
-    project.members.push(newMember);
+    const name = project.members[memberIndex].name;
+    // Remover o membro do array de membros do projeto
+    project.members.splice(memberIndex, 1);
 
-    // Se o campo send_email estiver presente, fazer o log (simula o envio de um e-mail)
-    if (send_email) {
-      let html = `
-      <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bem-vindo ao Projeto</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        .container {
-            padding: 20px;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            margin: 20px auto;
-            width: 80%;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .header {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-        .content {
-            padding: 20px;
-            background-color: white;
-        }
-        .footer {
-            text-align: center;
-            padding: 10px;
-            font-size: 0.8em;
-            background-color: #eee;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="header">
-        <h1>Bem-vindo ao Projeto ${project.name}!</h1>
-    </div>
-    <div class="content">
-        <h2>Detalhes da Adesão</h2>
-        <p><strong>Nome:</strong> ${newMember.name}</p>
-        <p><strong>Cargo:</strong> ${newMember.office}</p>
-        <p><strong>Projeto:</strong> ${project.name}</p>
-        <p><strong>Líder:</strong> ${project.leader}</p>
-    </div>
-    <div class="footer">
-        Obrigado por juntar-se a nós!
-    </div>
-</div>
-</body>
-</html>
-
-      `;
-      enviarEmail(
-        newMember.send_email,
-        `Integração do(a) ${newMember.name} no projeto ${project.name}`,
-        html
-      );
+    // Garantir que o campo members existe como um array vazio se não houver membros
+    if (!project.members.length) {
+      project.members = [];
     }
 
-    // Responder com sucesso
-    res.status(201).json({
-      message: "Membro adicionado com sucesso ao projeto",
-      project,
+    // Atualizar o projeto no Firebase
+    await db.ref(`projects/${projectId - 1}`).set(project);
+
+    res.status(200).json({
+      message: `Membro ${name} retirado do projeto ${project.name}`,
     });
   }
 );
-app.delete("/member/:projectId/:memberName", (req, res) => {
-  const { projectId, memberName } = req.params;
-  const project = projects.find((p) => p.id === parseInt(projectId));
-  if (!project) {
-    return res.status(404).json({ message: "Projeto não encontrado" });
-  }
 
-  const memberIndex = project.members.findIndex((m) => m.name === memberName);
-  if (memberIndex === -1) {
-    return res.status(404).json({ message: "Membro não encontrado" });
-  }
-
-  // Remove o membro do array de membros do projeto
-  project.members.splice(memberIndex, 1);
-  res.status(200).json({
-    message: `Membro ${memberName} retirado do projeto ${project.name}`,
-  });
-});
-
-//
-// PAYMENTS
+// //
+// // PAYMENTS
 app.post(
   "/clients",
   [
@@ -1094,11 +1217,12 @@ app.post(
       .isFloat({ min: 1000 })
       .withMessage("O crédito deve ser um número válido maior ou igual a 1000"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const clients = await buscar("payments/clients");
     const clients_name = clients.find(
       (p) => p.name.trim() === req.body.name.trim()
     );
@@ -1110,7 +1234,7 @@ app.post(
 
     // Cria um novo cliente e adiciona ao array de clientes
     const newClient = {
-      id: generateId(clients),
+      id: clients.length + 1,
       name: req.body.name,
       cpf: req.body.cpf,
       card: {
@@ -1123,22 +1247,32 @@ app.post(
     }
 
     clients.push(newClient);
+    await db.ref("payments/clients").set(clients);
     res
       .status(201)
       .json({ message: "Cliente registrado com sucesso!", client: newClient });
   }
 );
 app.get("/clients", (req, res) => {
-  res.send(clients);
+  dbJSONget(res, "payments/clients");
 });
-app.get("/clients/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const client = clients.find((client) => client.id === id);
-  if (!client) {
-    return res.status(404).json({ message: "Cliente não encontrado" });
+app.get(
+  "/clients/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const clients = await buscar("payments/clients");
+    const id = parseInt(req.params.id);
+    const client = clients.find((client) => client.id === id);
+    if (!client) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
+    res.status(200).json(client);
   }
-  res.status(200).json(client);
-});
+);
 app.put(
   "/clients/:id",
   [
@@ -1160,19 +1294,19 @@ app.put(
       .isFloat({ min: 0 })
       .withMessage("O crédito deve ser um número válido maior ou igual a zero"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const id = parseInt(req.params.id);
-    const clientIndex = clients.findIndex((client) => client.id === id);
-    if (clientIndex === -1) {
+
+    const client = await buscar(`payments/clients/${id - 1}`);
+
+    if (!client) {
       return res.status(404).json({ message: "Cliente não encontrado" });
     }
 
-    const client = clients[clientIndex];
     const updateData = req.body;
 
     // Atualizando os dados do cliente
@@ -1183,26 +1317,39 @@ app.put(
       client.card.credit = updateData.card.credit || client.card.credit;
     }
 
+    await db.ref(`payments/clients/${id - 1}`).update(client);
+
     res.status(200).json({
       message: "Cliente atualizado com sucesso",
       client,
     });
   }
 );
-app.delete("/clients/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const clientIndex = clients.findIndex((client) => client.id === id);
-  if (clientIndex === -1) {
-    return res.status(404).json({ message: "Cliente não encontrado" });
-  }
+app.delete(
+  "/clients/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const id = parseInt(req.params.id);
+    const clients = await buscar("payments/clients");
+    const clientIndex = clients.findIndex((client) => client.id === id);
+    if (clientIndex === -1) {
+      return res.status(404).json({ message: "Cliente não encontrado" });
+    }
 
-  // Remove o cliente do array
-  clients.splice(clientIndex, 1);
-  res.status(200).json({ message: "Cliente deletado com sucesso" });
-});
+    // Remove o cliente do array
+    clients.splice(clientIndex, 1);
+    await db.ref("payments/clients").set(clients);
+
+    res.status(200).json({ message: "Cliente deletado com sucesso" });
+  }
+);
 
 app.get("/products-gamers", (req, res) => {
-  res.json(productsGamers());
+  dbJSONget(res, "payments/productsgamers");
 });
 
 app.post(
@@ -1211,7 +1358,7 @@ app.post(
     body("id_client").isInt({ min: 1 }).withMessage("ID do cliente inválido"),
     body("id_product").isInt({ min: 1 }).withMessage("ID do produto inválido"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -1220,8 +1367,10 @@ app.post(
     let { id_client, id_product, send_email } = req.body;
     id_client = parseInt(id_client, 10);
     id_product = parseInt(id_product, 10);
+    const clients = await buscar("payments/clients");
     const client = clients.find((c) => c.id === id_client);
-    const product = productsGamers().find((p) => p.id === id_product);
+    const products = await buscar("payments/productsgamers");
+    const product = products.find((p) => p.id === id_product);
 
     if (!client) {
       return res.status(404).json({ message: "Cliente não encontrado" });
@@ -1237,6 +1386,9 @@ app.post(
         product: product.name,
         remainingCredit: client.card.credit,
       });
+
+      await db.ref(`payments/clients/${client.id - 1}`).update(client);
+
       if (send_email) {
         let html = `
         <!DOCTYPE html>
@@ -1295,7 +1447,7 @@ app.post(
   </div>
   </body>
   </html>
-  
+
         `;
         enviarEmail(
           send_email,
@@ -1321,7 +1473,7 @@ app.post(
       .isInt({ min: 1, max: 15000 })
       .withMessage("O valor de crédito solicitado deve ser menor que 15000"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -1330,8 +1482,10 @@ app.post(
     let { id_client, id_product, value_credit } = req.body;
     id_client = parseInt(id_client, 10);
     id_product = parseInt(id_product, 10);
+    const clients = await buscar("payments/clients");
     const client = clients.find((c) => c.id === id_client);
-    const product = productsGamers().find((p) => p.id === id_product);
+    const products = await buscar("payments/productsgamers");
+    const product = products.find((p) => p.id === id_product);
     const credit_client = client.card.credit;
     if (!client) {
       return res.status(404).json({ message: "Cliente não encontrado" });
@@ -1361,6 +1515,7 @@ app.post(
         message: `O valor do produto ${product.price} ainda é maior que o crédito atual somado ao emprestimo ${value_sum}, ${client.name} faça um novo emprestimo`,
       });
     }
+    await db.ref(`payments/clients/${client.id - 1}`).update(client);
 
     res.status(200).json({
       message: "Crédito adicionado com sucesso",
@@ -1370,80 +1525,11 @@ app.post(
     });
   }
 );
-// CRIPTO
-app.post(
-  "/encrypt-data",
-  [
-    body("id_product"),
-    body("id_financiamento_produtos"),
-    body("id_projetos").isInt({ min: 1 }),
-    body("id_product_gamers").isInt({ min: 1 }),
-  ],
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const {
-      id_product,
-      id_financiamento_produtos,
-      id_projetos,
-      id_product_gamers,
-    } = req.body;
-    const dataToEncrypt = {
-      id_product,
-      id_financiamento_produtos,
-      id_projetos,
-      id_product_gamers,
-    };
-
-    // Usar a função de criptografia aqui
-    const encryptedData = encrypt(dataToEncrypt);
-
-    res.json({ crypto: encryptedData });
-  }
-);
-app.post("/decrypt-validate", (req, res) => {
-  const { crypto } = req.body;
-  // Descriptografar os dados recebidos
-  const decryptedData = decrypt(crypto);
-
-  // Verificar a existência dos IDs
-  const dataValidation = {
-    id_product: loja.produtos.find((p) => p.id === decryptedData.id_product),
-    id_financiamento_produtos: produtosDeLuxo.produtosDeLuxo.find(
-      (f) => f.id === decryptedData.id_financiamento_produtos
-    ),
-    id_projetos: projects.find((p) => p.id === decryptedData.id_projetos),
-    id_product_gamers: productsGamers().find(
-      (p) => p.id === decryptedData.id_product_gamers
-    ),
-  };
-
-  // Organizar os dados para resposta
-  const responseData = {
-    id_product: dataValidation.id_product
-      ? `Produto [ ${dataValidation.id_product.nome} ] encontrado.`
-      : `Produto ${decryptedData.id_product} não encontrado.`,
-    id_financiamento_produtos: dataValidation.id_financiamento_produtos
-      ? `Financiamento [ ${dataValidation.id_financiamento_produtos.nome} ] encontrado.`
-      : `Financiamento ${decryptedData.id_financiamento_produtos} não encontrado.`,
-    id_projetos: dataValidation.id_projetos
-      ? `Projeto [ ${dataValidation.id_projetos.name} ] encontrado.`
-      : `Projeto ${decryptedData.id_projetos} não encontrado.`,
-    id_product_gamers: dataValidation.id_product_gamers
-      ? `Produto Gamer [ ${dataValidation.id_product_gamers.name} ] encontrado.`
-      : `Produto Gamer ${decryptedData.id_product_gamers} não encontrado.`,
-  };
-
-  res.json(responseData);
-});
-
-// COMPANY
+// // COMPANY
 
 app.get("/company", (req, res) => {
-  res.send(company);
+  dbJSONget(res, "company");
 });
 app.get(
   "/company/:companyId",
@@ -1452,13 +1538,14 @@ app.get(
       .isInt()
       .withMessage("ID da empresa deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { companyId } = req.params;
+    const company = await buscar("company");
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
@@ -1481,14 +1568,14 @@ app.post(
     body("address").notEmpty().withMessage("Endereço é obrigatório"),
     body("sector").notEmpty().withMessage("Setor é obrigatório"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { name, cnpj, state, city, address, sector } = req.body;
-
+    const company = await buscar("company");
     const projectExists = company.some(
       (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
     );
@@ -1501,7 +1588,7 @@ app.post(
       company.splice(0, 10); // Remove os 10 primeiros
     }
     let newCompany = {
-      id: generateId(company), // ID fictício
+      id: company.length + 1, // ID fictício
       name,
       cnpj,
       state,
@@ -1513,6 +1600,7 @@ app.post(
       services: [],
     };
     company.push(newCompany);
+    await db.ref("company").set(company);
     return res.status(201).send(newCompany);
   }
 );
@@ -1541,25 +1629,23 @@ app.put(
       .notEmpty()
       .withMessage("Setor não pode ser vazio"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const { id } = req.params;
-    const companyIndex = company.findIndex(
-      (company) => company.id === parseInt(id)
-    );
 
-    if (companyIndex === -1) {
+    const company = await buscar(`company/${parseInt(id - 1)}`);
+
+    if (!company) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
 
     const { name, cnpj, state, city, address, sector } = req.body;
 
     // Atualizar somente os campos fornecidos na requisição
-    const updatedCompany = company[companyIndex];
+    let updatedCompany = company;
     if (name) updatedCompany.name = name;
     if (cnpj) updatedCompany.cnpj = cnpj;
     if (state) updatedCompany.state = state;
@@ -1567,8 +1653,7 @@ app.put(
     if (address) updatedCompany.address = address;
     if (sector) updatedCompany.sector = sector;
 
-    company[companyIndex] = updatedCompany;
-
+    await db.ref(`company/${id - 1}`).set(updatedCompany);
     res.status(200).send({
       message: "Empresa atualizada com sucesso",
       company: updatedCompany,
@@ -1578,30 +1663,31 @@ app.put(
 
 app.delete(
   "/company/:id",
-  [param("id").isInt().withMessage("ID deve ser um número inteiro")],
-  (req, res) => {
+  param("id").isInt().withMessage("ID deve ser um número inteiro"),
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { id } = req.params;
+    const company = await buscar(`company`);
     const companyIndex = company.findIndex(
       (company) => company.id === parseInt(id)
     );
 
-    if (companyIndex === -1) {
+    if (!company) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
 
     // Remover a empresa
     company.splice(companyIndex, 1);
-
+    await db.ref("company").set(company);
     // Responder que a empresa foi deletada
     res.status(200).send({ message: "Empresa deletada com sucesso" });
   }
 );
-// PRODUCTS COMPANY
+// // PRODUCTS COMPANY
 app.get(
   "/company/:companyId/products",
   [
@@ -1609,17 +1695,20 @@ app.get(
       .isInt()
       .withMessage("ID da empresa deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { companyId, productId } = req.params;
+    const { companyId } = req.params;
+    const company = await buscar("company");
+
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
+    if (!company.products) company.products = [];
     const product = company_.products;
     res.status(200).send(product);
   }
@@ -1638,12 +1727,12 @@ app.post(
       .isInt({ min: 0 })
       .withMessage("Preço deve ser um número inteiro positivo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const company = await buscar("company");
     const { companyId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
@@ -1651,7 +1740,7 @@ app.post(
     }
 
     const { productName, productDescription, price } = req.body;
-
+    if (!company_.products) company_.products = [];
     const verify_name = company_.products.find(
       (c) =>
         c.productName.trim().toLowerCase() === productName.trim().toLowerCase()
@@ -1668,7 +1757,7 @@ app.post(
     const productId = company_.products.length + 1; // Simples ID incremental
     const newProduct = { productId, productName, productDescription, price };
     company_.products.push(newProduct);
-
+    await db.ref(`company/${companyId - 1}`).set(company_);
     res.status(201).send({
       message: "Produto adicionado com sucesso",
       product: newProduct,
@@ -1685,17 +1774,19 @@ app.get(
       .isInt()
       .withMessage("ID do produto deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { companyId, productId } = req.params;
+    const company = await buscar("company");
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
+    if (!company_.products) company_.products = [];
     const product = company_.products.find(
       (p) => p.productId === parseInt(productId)
     );
@@ -1727,18 +1818,19 @@ app.put(
       .isInt({ min: 0 })
       .withMessage("Preço deve ser um número inteiro positivo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { companyId, productId } = req.params;
+    const company = await buscar("company");
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
-
+    if (!company_.products) company_.products = [];
     const productIndex = company_.products.findIndex(
       (p) => p.productId === parseInt(productId)
     );
@@ -1751,6 +1843,10 @@ app.put(
     if (productName) product.productName = productName;
     if (productDescription) product.productDescription = productDescription;
     if (price) product.price = price;
+
+    await db
+      .ref(`company/${companyId - 1}/products/${productId - 1}`)
+      .set(product);
 
     res.status(200).send({
       message: "Produto atualizado com sucesso",
@@ -1768,18 +1864,19 @@ app.delete(
       .isInt()
       .withMessage("ID do produto deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
+    const company = await buscar("company");
     const { companyId, productId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
-
+    if (!company_.products) company_.products = [];
     const productIndex = company_.products.findIndex(
       (p) => p.productId === parseInt(productId)
     );
@@ -1789,13 +1886,15 @@ app.delete(
 
     company_.products.splice(productIndex, 1);
 
+    await db.ref(`company/${companyId - 1}`).set(company_);
+
     res.status(200).send({ message: "Produto removido com sucesso" });
   }
 );
 
-//
+// //
 
-// EMPLOYEES
+// // EMPLOYEES
 app.get(
   "/company/:companyId/employees",
   [
@@ -1803,16 +1902,18 @@ app.get(
       .isInt()
       .withMessage("ID da empresa deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const company = await buscar("company");
     const { companyId, productId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
+    if (!company_.employees) company_.employees = [];
 
     const employee = company_.employees;
 
@@ -1835,12 +1936,12 @@ app.post(
       .notEmpty()
       .withMessage("O campo email é obrigatório"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const company = await buscar("company");
     const { companyId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
@@ -1848,6 +1949,7 @@ app.post(
     }
 
     const { name, position, email } = req.body;
+    if (!company_.employees) company_.employees = [];
 
     const verify_name = company_.employees.find(
       (c) => c.name.trim().toLowerCase() === name.trim().toLowerCase()
@@ -1863,13 +1965,14 @@ app.post(
     const employeeId = company_.employees.length + 1; // Simples ID incremental
     const newProduct = { employeeId, name, position, email };
     company_.employees.push(newProduct);
-
+    await db.ref(`company/${companyId - 1}`).set(company_);
     res.status(201).send({
       message: "Funcionário(q) adicionado(a) com sucesso",
       employees: newProduct,
     });
   }
 );
+
 app.get(
   "/company/:companyId/employees/:employeeId",
   [
@@ -1880,17 +1983,21 @@ app.get(
       .isInt()
       .withMessage("ID do funcionário deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { companyId, employeeId } = req.params;
-    if (company.id !== parseInt(companyId)) {
+    const { employeeId, companyId } = req.params;
+    const company = await buscar("company");
+    const company_ = company.find((c) => c.id === parseInt(employeeId));
+    if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
 
-    const employee = company.employees.find(
+    if (!company_.employees) company_.employees = [];
+
+    const employee = company_.employees.find(
       (e) => e.employeeId === parseInt(employeeId)
     );
     if (!employee) {
@@ -1919,17 +2026,19 @@ app.put(
       .withMessage("position do produto não pode ser vazia"),
     body("email").optional().isEmail().withMessage("Deve ser um email válido"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
+    const company = await buscar("company");
     const { companyId, employeeId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
+    if (!company_.employees) company_.employees = [];
 
     const employeeIndex = company_.employees.findIndex(
       (p) => p.employeeId === parseInt(employeeId)
@@ -1944,6 +2053,9 @@ app.put(
     if (position) employee.position = position;
     if (email) employee.email = email;
 
+    await db
+      .ref(`company/${companyId - 1}/employees/${employeeId - 1}`)
+      .set(employee);
     res.status(200).send({
       message: `Funcionário(a) ${name} atualizado.`,
       employee,
@@ -1960,17 +2072,18 @@ app.delete(
       .isInt()
       .withMessage("ID do produto deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const company = await buscar("company");
     const { companyId, employeeId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
+    if (!company_.employees) company_.employees = [];
 
     const productIndex = company_.employees.findIndex(
       (p) => p.employeeId === parseInt(employeeId)
@@ -1980,13 +2093,14 @@ app.delete(
     }
 
     company_.employees.splice(productIndex, 1);
+    await db.ref(`company/${companyId - 1}`).set(company_);
 
     res.status(200).send({ message: "Funcionário(a) removido com sucesso" });
   }
 );
-//
+// //
 
-// SERVICE
+// // SERVICE
 app.get(
   "/company/:companyId/services",
   [
@@ -1994,17 +2108,18 @@ app.get(
       .isInt()
       .withMessage("ID da empresa deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const company = await buscar("company");
     const { companyId, productId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
+    if (!company_.services) company_.services = [];
 
     const service = company_.services;
 
@@ -2024,12 +2139,12 @@ app.post(
       .notEmpty()
       .withMessage("serviceDescription do produto é obrigatória"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const company = await buscar("company");
     const { companyId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
@@ -2037,6 +2152,8 @@ app.post(
     }
 
     const { serviceName, serviceDescription } = req.body;
+
+    if (!company_.services) company_.services = [];
 
     const verify_name = company_.services.find(
       (c) =>
@@ -2054,7 +2171,7 @@ app.post(
     const serviceId = company_.services.length + 1; // Simples ID incremental
     const newProduct = { serviceId, serviceName, serviceDescription };
     company_.services.push(newProduct);
-
+    await db.ref(`company/${companyId - 1}`).set(company_);
     res.status(201).send({
       message: "Serviço adicionado com sucesso",
       services: newProduct,
@@ -2071,18 +2188,20 @@ app.get(
       .isInt()
       .withMessage("ID do serviço deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    const { companyId, serviceId } = req.params;
-    if (company.id !== parseInt(companyId)) {
+    const { serviceId, companyId } = req.params;
+    const company = await buscar("company");
+    const company_ = company.find((c) => c.id === parseInt(serviceId));
+    if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
 
-    const service = company.services.find(
+    if (!company_.services) company_.services = [];
+    const service = company_.services.find(
       (s) => s.serviceId === parseInt(serviceId)
     );
     if (!service) {
@@ -2110,19 +2229,19 @@ app.put(
       .notEmpty()
       .withMessage("Descrição do serviço não pode ser vazia"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
     const { serviceName, serviceDescription } = req.body;
-
+    const company = await buscar("company");
     const { companyId, serviceId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
-
+    if (!company_.services) company_.services = [];
     const serviceIndex = company_.services.findIndex(
       (p) => p.serviceId === parseInt(serviceId)
     );
@@ -2142,7 +2261,9 @@ app.put(
     const service = company_.services[serviceIndex];
     if (serviceName) service.serviceName = serviceName;
     if (serviceDescription) service.serviceDescription = serviceDescription;
-
+    await db
+      .ref(`company/${companyId - 1}/services/${serviceId - 1}`)
+      .set(service);
     res.status(200).send({
       message: `Serviço ${serviceName} atualizado.`,
       service,
@@ -2159,12 +2280,12 @@ app.delete(
       .isInt()
       .withMessage("ID do serviceId deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const company = await buscar("company");
     const { companyId, serviceId } = req.params;
     const company_ = company.find((c) => c.id === parseInt(companyId));
     if (!company_) {
@@ -2179,14 +2300,15 @@ app.delete(
     }
 
     company_.services.splice(productIndex, 1);
+    await db.ref(`company/${companyId - 1}`).set(company_);
 
     res.status(200).send({ message: "Serviço removido com sucesso" });
   }
 );
 
-// MERCADO
+// // MERCADO
 app.get("/mercado", (req, res) => {
-  res.send(mercado);
+  dbJSONget(res, "mercado");
 });
 app.post(
   "/mercado",
@@ -2200,15 +2322,15 @@ app.post(
       .withMessage("CNPJ deve ter 14 dígitos"),
     body("endereco").not().isEmpty().withMessage("Endereço é obrigatório"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const mercado = await buscar("mercado");
     // Adicionando todos os campos de produtos com suas subcategorias inicialmente vazias
     const novoMercado = {
-      id: generateId(mercado),
+      id: mercado.length + 1,
       nome: req.body.nome,
       cnpj: req.body.cnpj,
       endereco: req.body.endereco,
@@ -2234,7 +2356,10 @@ app.post(
       mercado.splice(0, 10); // Remove os 10 primeiros
     }
     const verify_name = mercado.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+      (c) =>
+        c.nome &&
+        req.body.nome &&
+        c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
     );
     if (verify_name) {
       return res.status(400).send({
@@ -2242,6 +2367,7 @@ app.post(
       });
     }
     mercado.push(novoMercado);
+    await db.ref("mercado").set(mercado);
     // Simulando uma resposta de sucesso
     res.status(201).send({
       message: `Mercado '${novoMercado.nome}' adicionado com sucesso com todas as subcategorias iniciais vazias!`,
@@ -2256,11 +2382,12 @@ app.get(
       .isInt()
       .withMessage("ID do Mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const mercado = await buscar("mercado");
     const mercado_ = mercado.find(
       (m) => m.id === parseInt(req.params.mercadoId)
     );
@@ -2279,11 +2406,12 @@ app.get(
       .isInt()
       .withMessage("ID do Mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const mercado = await buscar("mercado");
     const mercado_ = mercado.find(
       (m) => m.id === parseInt(req.params.mercadoId)
     );
@@ -2292,6 +2420,93 @@ app.get(
         .status(404)
         .send("O mercado com o ID fornecido não foi encontrado.");
     }
+    if (!mercado_.produtos) {
+      mercado_.produtos = {
+        hortifruit: [
+          {
+            frutas: [],
+          },
+          {
+            legumes: [],
+          },
+        ],
+        padaria: [
+          {
+            doces: [],
+          },
+          {
+            salgados: [],
+          },
+        ],
+        acougue: [
+          {
+            bovinos: [],
+          },
+          {
+            suinos: [],
+          },
+          {
+            aves: [],
+          },
+        ],
+        peixaria: [
+          {
+            peixes: [],
+          },
+          {
+            frutos_do_mar: [],
+          },
+        ],
+        frios: [
+          {
+            queijos: [],
+          },
+          {
+            embutidos: [],
+          },
+          {
+            outros: [],
+          },
+        ],
+        mercearia: [
+          {
+            graos_cereais: [],
+          },
+          {
+            massas: [],
+          },
+          {
+            farinhas: [],
+          },
+          {
+            conservados_enlatados: [],
+          },
+          {
+            oleos: [],
+          },
+          {
+            temperos_condimentos: [],
+          },
+        ],
+        bebidas: [
+          {
+            com_alcool: [],
+          },
+          {
+            sem_alcool: [],
+          },
+        ],
+        higienelimpeza: [
+          {
+            higiene: [],
+          },
+          {
+            limpeza: [],
+          },
+        ],
+      };
+    }
+
     res.send(mercado_.produtos);
   }
 );
@@ -2314,14 +2529,14 @@ app.put(
       .isString()
       .withMessage("Endereço deve ser uma string válida"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const index = mercado.findIndex(
-      (m) => m.id === parseInt(req.params.mercadoId)
-    );
+    const mercadoId = parseInt(req.params.mercadoId);
+    const mercado = await buscar("mercado");
+    const index = mercado.findIndex((m) => m.id === mercadoId);
     if (index === -1) {
       return res
         .status(404)
@@ -2334,7 +2549,7 @@ app.put(
     };
 
     mercado[index] = updatedMercado;
-
+    await db.ref(`mercado/${mercadoId - 1}`).set(updatedMercado);
     res.send({
       message: `Mercado com ID ${req.params.mercadoId} atualizado com sucesso.`,
       updatedMercado,
@@ -2346,30 +2561,222 @@ app.delete(
   [
     param("mercadoId")
       .isInt()
-      .withMessage("ID do Mercado deve ser um número inteiro"),
+      .withMessage("O ID do mercado precisa ser informado"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const index = mercado.findIndex(
-      (m) => m.id === parseInt(req.params.mercadoId)
-    );
-    console.log(index)
-    if (index === -1) {
+    const mercado = await buscar("mercado");
+
+    const mercadoId = parseInt(req.params.mercadoId);
+
+    // Procurando o mercado pelo ID
+    const index = mercado.findIndex((m) => m.id === mercadoId);
+
+    if (!mercado[index]) {
       return res
         .status(404)
         .send("O mercado com o ID fornecido não foi encontrado.");
     }
+    // Removendo o mercado
+
     res.status(200).json({
-      message: `Mercado com ID ${req.params.mercadoId} foi removido com sucesso.`,
+      message: `Mercado com ID ${mercadoId} foi removido com sucesso.`,
     });
     mercado.splice(index, 1);
-
+    await db.ref(`mercado/${mercadoId - 1}`).set(mercado);
   }
 );
-// HORTIFRUIT
+// // HORTIFRUIT
+const postMercado = async (
+  categoria = "padaria",
+  item = "salgados",
+  id,
+  nome,
+  valor,
+  res
+) => {
+  let verify_name;
+
+  const mercado = await buscar("mercado");
+
+  // Encontrando o mercado com o ID fornecido
+  const mercado_ = mercado.find((m) => m.id === id);
+  if (!mercado_) {
+    return res.status(404).json({ message: "Mercado não encontrado." });
+  }
+
+  // Inicializa produtos se não existir
+  if (!mercado_.produtos) {
+    mercado_.produtos = {};
+  }
+
+  // Inicializa a categoria se não existir
+  if (!mercado_.produtos[categoria]) {
+    mercado_.produtos[categoria] = [];
+  }
+
+  // Encontrar o índice da posição onde a categoria está
+  const categoriaIndex = mercado_.produtos[categoria].findIndex((cat) =>
+    cat.hasOwnProperty(item)
+  );
+
+  // Se não encontrar a categoria, cria uma nova
+  if (categoriaIndex === -1) {
+    mercado_.produtos[categoria].push({ [item]: [] });
+  }
+
+  // Atualizar o índice da categoria após a possível adição
+  const updatedCategoriaIndex = mercado_.produtos[categoria].findIndex((cat) =>
+    cat.hasOwnProperty(item)
+  );
+
+  // Referência ao array de produtos para facilitar a manipulação
+  const produtosArray =
+    mercado_.produtos[categoria][updatedCategoriaIndex][item];
+
+  // Verificar se o nome do produto já existe
+  verify_name = produtosArray.find(
+    (c) => c.nome.trim().toLowerCase() === nome.trim().toLowerCase()
+  );
+
+  if (verify_name) {
+    return res.status(400).send({
+      message: `O nome ${nome} já existe na lista de ${item}.`,
+    });
+  }
+
+  // Calcular o novo ID do produto
+  const newId =
+    produtosArray.length > 0
+      ? produtosArray[produtosArray.length - 1].id + 1
+      : 1;
+
+  // Adicionar o produto
+  const product_item = {
+    id: newId,
+    nome,
+    valor,
+  };
+
+  produtosArray.push(product_item);
+  // Atualizar o mercado no Firebase
+  await db.ref(`mercado/${id - 1}`).set(mercado_);
+
+  res.status(201).send({
+    message: `Produto ${nome} adicionado com sucesso aos ${item} do mercado ${mercado_.nome} com valor R$ ${valor}.`,
+    product_item,
+  });
+};
+
+function removerObjetosVazios(array) {
+  for (let i = array.length - 1; i >= 0; i--) {
+    const item = array[i];
+
+    // Verificar se o item é um objeto vazio
+    if (
+      typeof item === "object" &&
+      item !== null &&
+      Object.keys(item).length === 0
+    ) {
+      array.splice(i, 1);
+    }
+    // Verificar se o item é um array e chamar a função recursivamente
+    else if (Array.isArray(item)) {
+      removerObjetosVazios(item);
+      // Após remover objetos vazios do array aninhado, verificar se ele ficou vazio
+      if (item.length === 0) {
+        array.splice(i, 1);
+      }
+    }
+  }
+}
+const getMercado = async (categoria, item, id, res) => {
+  const mercado = await buscar("mercado");
+  // Encontrando o mercado com o ID fornecido
+  const mercado_ = mercado.find((m) => m.id === id);
+  if (!mercado_) {
+    return res.status(404).json({ message: "Mercado não encontrado." });
+  }
+  if (!mercado_.produtos) {
+    mercado_.produtos = {};
+    if (!mercado_.produtos[categoria]) {
+      mercado_.produtos[categoria] = mercado_.produtos[categoria] = [];
+      mercado_.produtos = {
+        [categoria]: [
+          {
+            [item]: [],
+          },
+        ],
+      };
+    } else if (mercado_.produtos[categoria][position]) {
+      mercado_.produtos = {
+        [categoria]: [
+          {
+            [item]: [],
+          },
+        ],
+      };
+    }
+  }
+  const products = await buscar(`mercado/${id - 1}/produtos/${categoria}`);
+  if (!products) {
+    return res
+      .status(404)
+      .json({ message: `Produtos ${categoria} não encontrados.` });
+  }
+  // Encontrar o objeto legumes dentro de products
+  const produto = products.find((cat) => cat.hasOwnProperty(item));
+  if (!produto) {
+    return res.status(404).json({ message: `A key ${item} ainda não existe` });
+  }
+  const frutas = produto;
+  if (!frutas || frutas.length === 0) {
+    return res.status(404).send({
+      message: `Não há ${item} cadastradas neste mercado.`,
+    });
+  }
+  const produtos = produto;
+  res.status(200).json({
+    message: `Lista de ${item} do mercado ${mercado_.nome}`,
+    produtos,
+  });
+};
+const deleteMercado = async (categoria, item_cat, id, id_item, res) => {
+  const hortifruit = await buscar(`mercado/${id - 1}/produtos/${categoria}`);
+  if (!hortifruit) {
+    return res
+      .status(404)
+      .json({ message: `Produtos ${categoria} não encontrados.` });
+  }
+  // Encontrar o objeto legumes dentro de hortifruit
+  const produto = hortifruit.find((item) => item.hasOwnProperty(item_cat));
+  if (!produto) {
+    return res
+      .status(404)
+      .json({ message: `A key ${item_cat} ainda não existe` });
+  }
+
+  // Encontrar o índice do legume específico a ser removido
+  const index = produto[item_cat].findIndex((m) => m.id === id_item);
+  if (index === -1) {
+    return res.status(404).json({
+      message: `O ${item_cat} com o ID fornecido não foi encontrado.`,
+    });
+  }
+
+  // Remover o legume do array
+  produto[item_cat].splice(index, 1);
+
+  // Atualizar a lista de produtos hortifruit no Firebase
+  await db.ref(`mercado/${id - 1}/produtos/${categoria}`).set(hortifruit);
+
+  res.send({
+    message: `${item_cat} com ID ${id_item} foi removido com sucesso.`,
+  });
+};
 app.post(
   "/mercado/:id/produtos/hortifruit/frutas",
   [
@@ -2379,73 +2786,27 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
+    const id_mercado = parseInt(req.params.id);
     // Adicionando o novo produto na categoria de frutas do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.hortifruit[0].frutas.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de Frutas.`,
-      });
-    }
-
-    if (mercado_.produtos.hortifruit[0].frutas.length > 10) {
-      mercado_.produtos.hortifruit[0].frutas.splice(0, 3);
-    }
-
-    mercado_.produtos.hortifruit[0].frutas.push({
-      id: generateId(mercado_.produtos.hortifruit[0].frutas),
-      nome,
-      valor,
-    });
-    const frutas = mercado_.produtos.hortifruit[0].frutas;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às frutas do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      frutas,
-    });
+    await postMercado("hortifruit", "frutas", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/hortifruit/frutas",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de frutas do hortifruit do mercado especificado
-    const frutas = mercado_.produtos.hortifruit[0].frutas;
-    if (!frutas || frutas.length === 0) {
-      return res.status(404).send({
-        message: "Não há frutas cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de frutas do mercado ${mercado_.nome}`,
-      frutas,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("hortifruit", "frutas", mercadoId, res);
   }
 );
 app.delete(
@@ -2456,41 +2817,20 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const mercadoId = parseInt(req.params.id);
+    const frutaId = parseInt(req.params.frutaId);
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
+    await deleteMercado("hortifruit", "frutas", mercadoId, frutaId, res);
 
     // Recuperando a lista de frutas do hortifruit do mercado especificado
-    const frutas = mercado_.produtos.hortifruit[0].frutas;
-    if (!frutas || frutas.length === 0) {
-      return res.status(404).send({
-        message: "Não há frutas cadastradas neste mercado.",
-      });
-    }
-    const index = frutas.findIndex(
-      (m) => m.id === parseInt(req.params.frutaId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Fruta ${frutas[0].nome} com ID ${req.params.frutaId} foi removido com sucesso.`,
-    });
-    frutas.splice(index, 1);
   }
 );
-// LEGUMES
+// // LEGUMES
 app.post(
   "/mercado/:id/produtos/hortifruit/legumes",
   [
@@ -2500,117 +2840,52 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
+    const id_mercado = parseInt(req.params.id);
     // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.hortifruit[1].legumes.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de Legumes.`,
-      });
-    }
-    if (mercado_.produtos.hortifruit[1].legumes.length > 10) {
-      mercado_.produtos.hortifruit[1].legumes.splice(0, 3);
-    }
-
-    mercado_.produtos.hortifruit[1].legumes.push({
-      id: generateId(mercado_.produtos.hortifruit[1].legumes),
-      nome,
-      valor,
-    });
-    const legumes = mercado_.produtos.hortifruit[1].legumes;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às legumes do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      legumes,
-    });
+    await postMercado("hortifruit", "legumes", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/hortifruit/legumes",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de legumes do hortifruit do mercado especificado
-    const legumes = mercado_.produtos.hortifruit[1].legumes;
-    if (!legumes || legumes.length === 0) {
-      return res.status(404).send({
-        message: "Não há legumes cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de legumes do mercado ${mercado_.nome}`,
-      legumes,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("hortifruit", "legumes", mercadoId, res);
   }
 );
-
 app.delete(
   "/mercado/:id/produtos/hortifruit/legumes/:legumesId",
   [
     param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
     param("legumesId")
       .isInt()
-      .withMessage("ID do mercado deve ser um número inteiro"),
+      .withMessage("ID do legume deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
+    const mercadoId = parseInt(req.params.id);
+    const legumesId = parseInt(req.params.legumesId);
+    await deleteMercado("hortifruit", "legumes", mercadoId, legumesId, res);
 
-    // Recuperando a lista de frutas do hortifruit do mercado especificado
-    const legumes = mercado_.produtos.hortifruit[1].legumes;
-    if (!legumes || legumes.length === 0) {
-      return res.status(404).send({
-        message: "Não há legumes cadastradas neste mercado.",
-      });
-    }
-    const index = legumes.findIndex(
-      (m) => m.id === parseInt(req.params.legumesId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Legume ${legumes[0].nome} com ID ${req.params.legumesId} foi removido com sucesso.`,
-    });
-    legumes.splice(index, 1);
+    // Buscar os produtos hortifruit
   }
 );
-// PADARIA
+// // PADARIA
 app.post(
   "/mercado/:id/produtos/padaria/doces",
   [
@@ -2620,71 +2895,37 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Adicionando o novo produto na categoria de doces do padaria do mercado especificado
-    const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.padaria[0].doces.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    const id_mercado = parseInt(req.params.id);
+    const positionIndex = await buscar(
+      `mercado/${id_mercado - 1}/produtos/padaria`
     );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de doces.`,
-      });
-    }
-    if (mercado_.produtos.padaria[0].doces.length > 10) {
-      mercado_.produtos.padaria[0].doces.splice(0, 3);
-    }
+    const index =
+      positionIndex.length === 0
+        ? positionIndex.length
+        : positionIndex.length === 1
+        ? 1
+        : positionIndex.length + 1;
 
-    mercado_.produtos.padaria[0].doces.push({
-      id: generateId(mercado_.produtos.padaria[0].doces),
-      nome,
-      valor,
-    });
-    const doces = mercado_.produtos.padaria[0].doces;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso aos doces do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      doces,
-    });
+    // Adicionando o novo produto na categoria de frutas do padaria do mercado especificado
+    const { nome, valor } = req.body;
+    await postMercado("padaria", "doces", index, id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/padaria/doces",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de doces do padaria do mercado especificado
-    const doces = mercado_.produtos.padaria[0].doces;
-    if (!doces || doces.length === 0) {
-      return res.status(404).send({
-        message: "Não há doces cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de doces do mercado ${mercado_.nome}`,
-      doces,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("padaria", "doces", mercadoId, res);
   }
 );
 app.delete(
@@ -2695,40 +2936,19 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const mercadoId = parseInt(req.params.id);
+    const frutaId = parseInt(req.params.docesId);
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de frutas do padaria do mercado especificado
-    const doces = mercado_.produtos.padaria[0].doces;
-    if (!doces || doces.length === 0) {
-      return res.status(404).send({
-        message: "Não há doces cadastradas neste mercado.",
-      });
-    }
-    const index = doces.findIndex((m) => m.id === parseInt(req.params.docesId));
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Doce ${doces[0].nome} com ID ${req.params.docesId} foi removido com sucesso.`,
-    });
-    doces.splice(index, 1);
+    await deleteMercado("padaria", "doces", mercadoId, frutaId, res);
   }
 );
 
-// padaria salgado
+// // padaria salgado
 
 app.post(
   "/mercado/:id/produtos/padaria/salgados",
@@ -2739,72 +2959,32 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
     // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
+    const id_mercado = parseInt(req.params.id);
+    const positionIndex = await buscar(
+      `mercado/${id_mercado - 1}/produtos/padaria`
+    );
     // Adicionando o novo produto na categoria de salgados do padaria do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.padaria[1].salgados.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de salgados.`,
-      });
-    }
-
-    if (mercado_.produtos.padaria[1].salgados.length > 10) {
-      mercado_.produtos.padaria[1].salgados.splice(0, 3);
-    }
-
-    mercado_.produtos.padaria[1].salgados.push({
-      id: generateId(mercado_.produtos.padaria[1].salgados),
-      nome,
-      valor,
-    });
-    const salgados = mercado_.produtos.padaria[1].salgados;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso aos salgados do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      salgados,
-    });
+    await postMercado("padaria", "salgados", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/padaria/salgados",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de salgados do padaria do mercado especificado
-    const salgados = mercado_.produtos.padaria[1].salgados;
-    if (!salgados || salgados.length === 0) {
-      return res.status(404).send({
-        message: "Não há salgados cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de salgados do mercado ${mercado_.nome}`,
-      salgados,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("padaria", "salgados", mercadoId, res);
   }
 );
 app.delete(
@@ -2815,41 +2995,18 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const mercadoId = parseInt(req.params.id);
+    const salgadosId = parseInt(req.params.salgadosId);
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de frutas do padaria do mercado especificado
-    const salgados = mercado_.produtos.padaria[1].salgados;
-    if (!salgados || salgados.length === 0) {
-      return res.status(404).send({
-        message: "Não há salgados cadastradas neste mercado.",
-      });
-    }
-    const index = salgados.findIndex(
-      (m) => m.id === parseInt(req.params.salgadosId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Salgado ${salgados[0].nome} com ID ${req.params.salgadosId} foi removido com sucesso.`,
-    });
-    salgados.splice(index, 1);
+    await deleteMercado("padaria", "salgados", mercadoId, salgadosId, res);
   }
 );
-//  "acougue": [{ "bovinos": [] }, { "suinos": [] }, { "aves": [] }],
+// //  "acougue": [{ "bovinos": [] }, { "suinos": [] }, { "aves": [] }],
 app.post(
   "/mercado/:id/produtos/acougue/bovinos",
   [
@@ -2859,116 +3016,53 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
+    const id_mercado = parseInt(req.params.id);
     // Adicionando o novo produto na categoria de bovinos do acougue do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.acougue[0].bovinos.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de bovinos.`,
-      });
-    }
-    if (mercado_.produtos.acougue[0].bovinos.length > 10) {
-      mercado_.produtos.acougue[0].bovinos.splice(0, 3);
-    }
-    mercado_.produtos.acougue[0].bovinos.push({
-      id: generateId(mercado_.produtos.acougue[0].bovinos),
-      nome,
-      valor,
-    });
-    const bovinos = mercado_.produtos.acougue[0].bovinos;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às bovinos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      bovinos,
-    });
+    await postMercado("acougue", "bovinos", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/acougue/bovinos",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de bovinos do acougue do mercado especificado
-    const bovinos = mercado_.produtos.acougue[0].bovinos;
-    if (!bovinos || bovinos.length === 0) {
-      return res.status(404).send({
-        message: "Não há bovinos cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de bovinos do mercado ${mercado_.nome}`,
-      bovinos,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("acougue", "bovinos", mercadoId, res);
   }
 );
 app.delete(
-  "/mercado/:id/produtos/acougue/bovinos/:frutaId",
+  "/mercado/:id/produtos/acougue/bovinos/:bovinosId",
   [
     param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
-    param("frutaId")
+    param("bovinosId")
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
+    const mercadoId = parseInt(req.params.id);
+    const bovinosId = parseInt(req.params.bovinosId);
 
-    // Recuperando a lista de bovinos do acougue do mercado especificado
-    const bovinos = mercado_.produtos.acougue[0].bovinos;
-    if (!bovinos || bovinos.length === 0) {
-      return res.status(404).send({
-        message: "Não há bovinos cadastradas neste mercado.",
-      });
-    }
-    const index = bovinos.findIndex(
-      (m) => m.id === parseInt(req.params.frutaId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Bovino ${bovinos[0].nome} com ID ${req.params.frutaId} foi removido com sucesso.`,
-    });
-    bovinos.splice(index, 1);
+    await deleteMercado("acougue", "bovinos", mercadoId, bovinosId, res);
   }
 );
 
-// suinos
+// // suinos
 app.post(
   "/mercado/:id/produtos/acougue/suinos",
   [
@@ -2978,70 +3072,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de suinos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de frutas do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.acougue[1].suinos.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de suinos.`,
-      });
-    }
-    if (mercado_.produtos.acougue[1].suinos.length > 10) {
-      mercado_.produtos.acougue[1].suinos.splice(0, 3);
-    }
-    mercado_.produtos.acougue[1].suinos.push({
-      id: generateId(mercado_.produtos.acougue[1].suinos),
-      nome,
-      valor,
-    });
-    const suinos = mercado_.produtos.acougue[1].suinos;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso no setor [suinos] do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      suinos,
-    });
+    await postMercado("acougue", "suinos", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/acougue/suinos",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de suinos do acougue do mercado especificado
-    const suinos = mercado_.produtos.acougue[1].suinos;
-    if (!suinos || suinos.length === 0) {
-      return res.status(404).send({
-        message: "Não há suinos cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de suinos do mercado ${mercado_.nome}`,
-      suinos,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("acougue", "suinos", mercadoId, res);
   }
 );
 app.delete(
@@ -3052,42 +3104,19 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de suinos do acougue do mercado especificado
-    const suinos = mercado_.produtos.acougue[1].suinos;
-    if (!suinos || suinos.length === 0) {
-      return res.status(404).send({
-        message: "Não há suinos cadastradas neste mercado.",
-      });
-    }
-    const index = suinos.findIndex(
-      (m) => m.id === parseInt(req.params.suinoId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Suíno ${suinos[0].nome} com ID ${req.params.suinoId} foi removido com sucesso.`,
-    });
-    suinos.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const suinoId = parseInt(req.params.suinoId);
+    await deleteMercado("acougue", "suinos", mercadoId, suinoId, res);
   }
 );
 
-// aves
+// // aves
 app.post(
   "/mercado/:id/produtos/acougue/aves",
   [
@@ -3097,115 +3126,50 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de aves do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.acougue[2].aves.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de aves.`,
-      });
-    }
-
-    if (mercado_.produtos.acougue[2].aves.length > 10) {
-      mercado_.produtos.acougue[2].aves.splice(0, 3);
-    }
-
-    mercado_.produtos.acougue[2].aves.push({
-      id: generateId(mercado_.produtos.acougue[2].aves),
-      nome,
-      valor,
-    });
-    const aves = mercado_.produtos.acougue[2].aves;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso no setor [aves] do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      aves,
-    });
+    await postMercado("acougue", "aves", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/acougue/aves",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de aves do acougue do mercado especificado
-    const aves = mercado_.produtos.acougue[2].aves;
-    if (!aves || aves.length === 0) {
-      return res.status(404).send({
-        message: "Não há aves cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de aves do mercado ${mercado_.nome}`,
-      aves,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("acougue", "aves", mercadoId, res);
   }
 );
 app.delete(
-  "/mercado/:id/produtos/acougue/aves/:suinoId",
+  "/mercado/:id/produtos/acougue/aves/:avesId",
   [
     param("id").isInt().withMessage("ID do mercado deve ser um número inteiro"),
-    param("suinoId")
+    param("avesId")
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de aves do acougue do mercado especificado
-    const aves = mercado_.produtos.acougue[2].aves;
-    if (!aves || aves.length === 0) {
-      return res.status(404).send({
-        message: "Não há aves cadastradas neste mercado.",
-      });
-    }
-    const index = aves.findIndex((m) => m.id === parseInt(req.params.suinoId));
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Ave ${aves[0].nome} com ID ${req.params.suinoId} foi removido com sucesso.`,
-    });
-    aves.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const avesId = parseInt(req.params.avesId);
+    await deleteMercado("acougue", "aves", mercadoId, avesId, res);
   }
 );
-// peixaria
+// // peixaria
 app.post(
   "/mercado/:id/produtos/peixaria/peixes",
   [
@@ -3215,70 +3179,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de peixes do peixaria do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.peixaria[0].peixes.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de peixes.`,
-      });
-    }
-    if (mercado_.produtos.peixaria[0].peixes.length > 10) {
-      mercado_.produtos.peixaria[0].peixes.splice(0, 3);
-    }
-    mercado_.produtos.peixaria[0].peixes.push({
-      id: generateId(mercado_.produtos.peixaria[0].peixes),
-      nome,
-      valor,
-    });
-    const peixes = mercado_.produtos.peixaria[0].peixes;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso no setor [peixes] do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      peixes,
-    });
+    await postMercado("peixaria", "peixes", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/peixaria/peixes",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de peixes do peixaria do mercado especificado
-    const peixes = mercado_.produtos.peixaria[0].peixes;
-    if (!peixes || peixes.length === 0) {
-      return res.status(404).send({
-        message: "Não há peixes cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de peixes do mercado ${mercado_.nome}`,
-      peixes,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("peixaria", "peixes", mercadoId, res);
   }
 );
 app.delete(
@@ -3289,43 +3211,20 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de peixes do peixaria do mercado especificado
-    const peixes = mercado_.produtos.peixaria[0].peixes;
-    if (!peixes || peixes.length === 0) {
-      return res.status(404).send({
-        message: "Não há peixes cadastradas neste mercado.",
-      });
-    }
-    const index = peixes.findIndex(
-      (m) => m.id === parseInt(req.params.peixeId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Peixe ${peixes[0].nome} com ID ${req.params.peixeId} foi removido com sucesso.`,
-    });
-    peixes.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const peixeId = parseInt(req.params.peixeId);
+    await deleteMercado("peixaria", "peixes", mercadoId, peixeId, res);
   }
 );
-//
+// //
 
-//  "frios": [{ "queijos": [] }, { "embutidos": [] }, { "outros": [] }],
+// //  "frios": [{ "queijos": [] }, { "embutidos": [] }, { "outros": [] }],
 app.post(
   "/mercado/:id/produtos/frios/queijos",
   [
@@ -3335,72 +3234,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de queijos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.frios[0].queijos.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de queijos.`,
-      });
-    }
-
-    if (mercado_.produtos.frios[0].queijos.length > 10) {
-      mercado_.produtos.frios[0].queijos.splice(0, 3);
-    }
-
-    mercado_.produtos.frios[0].queijos.push({
-      id: generateId(mercado_.produtos.frios[0].queijos),
-      nome,
-      valor,
-    });
-    const queijos = mercado_.produtos.frios[0].queijos;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às queijos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      queijos,
-    });
+    await postMercado("frios", "queijos", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/frios/queijos",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijos do frios do mercado especificado
-    const queijos = mercado_.produtos.frios[0].queijos;
-    if (!queijos || queijos.length === 0) {
-      return res.status(404).send({
-        message: "Não há queijos cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de queijos do mercado ${mercado_.nome}`,
-      queijos,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("frios", "queijos", mercadoId, res);
   }
 );
 app.delete(
@@ -3411,42 +3266,19 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do frios do mercado especificado
-    const queijos = mercado_.produtos.frios[0].queijos;
-    if (!queijos || queijos.length === 0) {
-      return res.status(404).send({
-        message: "Não há queijos cadastradas neste mercado.",
-      });
-    }
-    const index = queijos.findIndex(
-      (m) => m.id === parseInt(req.params.queijosId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Queijo ${queijos[0].nome} com ID ${req.params.queijosId} foi removido com sucesso.`,
-    });
-    queijos.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const queijosId = parseInt(req.params.queijosId);
+    await deleteMercado("frios", "queijos", mercadoId, queijosId, res);
   }
 );
 
-// embutidos
+// // embutidos
 app.post(
   "/mercado/:id/produtos/frios/embutidos",
   [
@@ -3456,71 +3288,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de embutidos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.frios[1].embutidos.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de embutidos.`,
-      });
-    }
-
-    if (mercado_.produtos.frios[1].embutidos.length > 10) {
-      mercado_.produtos.frios[1].embutidos.splice(0, 3);
-    }
-    mercado_.produtos.frios[1].embutidos.push({
-      id: generateId(mercado_.produtos.frios[1].embutidos),
-      nome,
-      valor,
-    });
-    const embutidos = mercado_.produtos.frios[1].embutidos;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às embutidos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      embutidos,
-    });
+    await postMercado("frios", "embutidos", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/frios/embutidos",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de embutidos do frios do mercado especificado
-    const embutidos = mercado_.produtos.frios[1].embutidos;
-    if (!embutidos || embutidos.length === 0) {
-      return res.status(404).send({
-        message: "Não há embutidos cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de embutidos do mercado ${mercado_.nome}`,
-      embutidos,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("frios", "embutidos", mercadoId, res);
   }
 );
 app.delete(
@@ -3531,41 +3320,18 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do frios do mercado especificado
-    const embutidos = mercado_.produtos.frios[1].embutidos;
-    if (!embutidos || embutidos.length === 0) {
-      return res.status(404).send({
-        message: "Não há embutidos cadastradas neste mercado.",
-      });
-    }
-    const index = embutidos.findIndex(
-      (m) => m.id === parseInt(req.params.embutidosId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Embutido ${embutidos[0].nome} com ID ${req.params.embutidosId} foi removido com sucesso.`,
-    });
-    embutidos.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const embutidosId = parseInt(req.params.embutidosId);
+    await deleteMercado("frios", "embutidos", mercadoId, embutidosId, res);
   }
 );
-// outros
+// // outros
 app.post(
   "/mercado/:id/produtos/frios/outros",
   [
@@ -3575,71 +3341,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de outros do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.frios[2].outros.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de outros.`,
-      });
-    }
-    if (mercado_.produtos.frios[2].outros.length > 10) {
-      mercado_.produtos.frios[2].outros.splice(0, 3);
-    }
-
-    mercado_.produtos.frios[2].outros.push({
-      id: generateId(mercado_.produtos.frios[2].outros),
-      nome,
-      valor,
-    });
-    const outros = mercado_.produtos.frios[2].outros;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às outros do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      outros,
-    });
+    await postMercado("frios", "outros", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/frios/outros",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de outros do frios do mercado especificado
-    const outros = mercado_.produtos.frios[2].outros;
-    if (!outros || outros.length === 0) {
-      return res.status(404).send({
-        message: "Não há outros cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de outros do mercado ${mercado_.nome}`,
-      outros,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("frios", "outros", mercadoId, res);
   }
 );
 app.delete(
@@ -3650,41 +3373,18 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do frios do mercado especificado
-    const outros = mercado_.produtos.frios[2].outros;
-    if (!outros || outros.length === 0) {
-      return res.status(404).send({
-        message: "Não há outros cadastradas neste mercado.",
-      });
-    }
-    const index = outros.findIndex(
-      (m) => m.id === parseInt(req.params.outrosId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `Outros ${outros[0].nome} com ID ${req.params.outrosId} foi removido com sucesso.`,
-    });
-    outros.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const outrosId = parseInt(req.params.outrosId);
+    await deleteMercado("frios", "outros", mercadoId, outrosId, res);
   }
 );
-// frutos do mar
+// // frutos do mar
 app.post(
   "/mercado/:id/produtos/peixaria/frutosDoMar",
   [
@@ -3694,70 +3394,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de frutosDoMar do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.peixaria[1].frutos_do_mar.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de frutosDoMar.`,
-      });
-    }
-    if (mercado_.produtos.peixaria[1].frutos_do_mar.length > 10) {
-      mercado_.produtos.peixaria[1].frutos_do_mar.splice(0, 3);
-    }
-    mercado_.produtos.peixaria[1].frutos_do_mar.push({
-      id: generateId(mercado_.produtos.peixaria[1].frutos_do_mar),
-      nome,
-      valor,
-    });
-    const frutosDoMar = mercado_.produtos.peixaria[1].frutos_do_mar;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às frutosDoMar do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      frutosDoMar,
-    });
+    await postMercado("peixaria", "frutosDoMar", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/peixaria/frutosDoMar",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de frutosDoMar do frios do mercado especificado
-    const frutosDoMar = mercado_.produtos.peixaria[1].frutos_do_mar;
-    if (!frutosDoMar || frutosDoMar.length === 0) {
-      return res.status(404).send({
-        message: "Não há frutosDoMar cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de frutosDoMar do mercado ${mercado_.nome}`,
-      frutosDoMar,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("peixaria", "frutosDoMar", mercadoId, res);
   }
 );
 app.delete(
@@ -3768,41 +3426,24 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do peixaria do mercado especificado
-    const frutosDoMar = mercado_.produtos.peixaria[1].frutos_do_mar;
-    if (!frutosDoMar || frutosDoMar.length === 0) {
-      return res.status(404).send({
-        message: "Não há frutosDoMar cadastradas neste mercado.",
-      });
-    }
-    const index = frutosDoMar.findIndex(
-      (m) => m.id === parseInt(req.params.frutosDoMarId)
+    const mercadoId = parseInt(req.params.id);
+    const frutosDoMarId = parseInt(req.params.frutosDoMarId);
+    await deleteMercado(
+      "peixaria",
+      "frutosDoMar",
+      mercadoId,
+      frutosDoMarId,
+      res
     );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `frutosDoMar ${frutosDoMar[0].nome} com ID ${req.params.frutosDoMarId} foi removido com sucesso.`,
-    });
-    frutosDoMar.splice(index, 1);
   }
 );
-// mercearia graos cereais
+// // mercearia graos cereais
 app.post(
   "/mercado/:id/produtos/mercearia/graosCereais",
   [
@@ -3812,70 +3453,35 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de graosCereais do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.mercearia[0].graos_cereais.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de graosCereais.`,
-      });
-    }
-    if (mercado_.produtos.mercearia[0].graos_cereais.length > 10) {
-      mercado_.produtos.mercearia[0].graos_cereais.splice(0, 3);
-    }
-    mercado_.produtos.mercearia[0].graos_cereais.push({
-      id: generateId(mercado_.produtos.mercearia[0].graos_cereais),
+    await postMercado(
+      "mercearia",
+      "graosCereais",
+      id_mercado,
       nome,
       valor,
-    });
-    const graosCereais = mercado_.produtos.mercearia[0].graos_cereais;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às graosCereais do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      graosCereais,
-    });
+      res
+    );
   }
 );
 app.get(
   "/mercado/:id/produtos/mercearia/graosCereais",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de graosCereais do mercearia do mercado especificado
-    const graosCereais = mercado_.produtos.mercearia[0].graos_cereais;
-    if (!graosCereais || graosCereais.length === 0) {
-      return res.status(404).send({
-        message: "Não há graosCereais cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de graosCereais do mercado ${mercado_.nome}`,
-      graosCereais,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("mercearia", "graosCereais", mercadoId, res);
   }
 );
 app.delete(
@@ -3886,42 +3492,25 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do mercearia do mercado especificado
-    const graosCereais = mercado_.produtos.mercearia[0].graos_cereais;
-    if (!graosCereais || graosCereais.length === 0) {
-      return res.status(404).send({
-        message: "Não há graosCereais cadastradas neste mercado.",
-      });
-    }
-    const index = graosCereais.findIndex(
-      (m) => m.id === parseInt(req.params.graosCereaisId)
+    const mercadoId = parseInt(req.params.id);
+    const graosCereaisId = parseInt(req.params.graosCereaisId);
+    await deleteMercado(
+      "mercearia",
+      "graosCereais",
+      mercadoId,
+      graosCereaisId,
+      res
     );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-
-    res.send({
-      message: `graosCereais ${graosCereais[0].nome} com ID ${req.params.graosCereaisId} foi removido com sucesso.`,
-    });
-    graosCereais.splice(index, 1);
   }
 );
 
-// massas
+// // massas
 app.post(
   "/mercado/:id/produtos/mercearia/massas",
   [
@@ -3931,71 +3520,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de massas do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.mercearia[1].massas.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de massas.`,
-      });
-    }
-    if (mercado_.produtos.mercearia[1].massas.length > 10) {
-      mercado_.produtos.mercearia[1].massas.splice(0, 3);
-    }
-
-    mercado_.produtos.mercearia[1].massas.push({
-      id: generateId(mercado_.produtos.mercearia[1].massas),
-      nome,
-      valor,
-    });
-    const massas = mercado_.produtos.mercearia[1].massas;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às massas do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      massas,
-    });
+    await postMercado("mercearia", "massas", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/mercearia/massas",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de massas do mercearia do mercado especificado
-    const massas = mercado_.produtos.mercearia[1].massas;
-    if (!massas || massas.length === 0) {
-      return res.status(404).send({
-        message: "Não há massas cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de massas do mercado ${mercado_.nome}`,
-      massas,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("mercearia", "massas", mercadoId, res);
   }
 );
 app.delete(
@@ -4006,41 +3552,19 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do mercearia do mercado especificado
-    const massas = mercado_.produtos.mercearia[1].massas;
-    if (!massas || massas.length === 0) {
-      return res.status(404).send({
-        message: "Não há massas cadastradas neste mercado.",
-      });
-    }
-    const index = massas.findIndex(
-      (m) => m.id === parseInt(req.params.massasId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${massas[0].nome} com ID ${req.params.massasId} foi removido com sucesso.`,
-    });
-    massas.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const massasId = parseInt(req.params.massasId);
+    await deleteMercado("mercearia", "massas", mercadoId, massasId, res);
   }
 );
 
-// merc farinhas
+// // merc farinhas
 
 app.post(
   "/mercado/:id/produtos/mercearia/farinhas",
@@ -4051,70 +3575,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de farinhas do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.mercearia[2].farinhas.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de farinhas.`,
-      });
-    }
-    if (mercado_.produtos.mercearia[2].farinhas.length > 9) {
-      mercado_.produtos.mercearia[2].farinhas.splice(0, 3);
-    }
-    mercado_.produtos.mercearia[2].farinhas.push({
-      id: generateId(mercado_.produtos.mercearia[2].farinhas),
-      nome,
-      valor,
-    });
-    const farinhas = mercado_.produtos.mercearia[2].farinhas;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às farinhas do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      farinhas,
-    });
+    await postMercado("mercearia", "farinhas", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/mercearia/farinhas",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de farinhas do mercearia do mercado especificado
-    const farinhas = mercado_.produtos.mercearia[2].farinhas;
-    if (!farinhas || farinhas.length === 0) {
-      return res.status(404).send({
-        message: "Não há farinhas cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de farinhas do mercado ${mercado_.nome}`,
-      farinhas,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("mercearia", "farinhas", mercadoId, res);
   }
 );
 app.delete(
@@ -4125,40 +3607,18 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do mercearia do mercado especificado
-    const farinhas = mercado_.produtos.mercearia[2].farinhas;
-    if (!farinhas || farinhas.length === 0) {
-      return res.status(404).send({
-        message: "Não há farinhas cadastradas neste mercado.",
-      });
-    }
-    const index = farinhas.findIndex(
-      (m) => m.id === parseInt(req.params.farinhasId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${farinhas[0].nome} com ID ${req.params.farinhasId} foi removido com sucesso.`,
-    });
-    farinhas.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const farinhasId = parseInt(req.params.farinhasId);
+    await deleteMercado("mercearia", "farinhas", mercadoId, farinhasId, res);
   }
 );
-// conservados emlatados
+// // conservados emlatados
 
 app.post(
   "/mercado/:id/produtos/mercearia/conservadosEnlatados",
@@ -4169,74 +3629,35 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de conservadosEnlatados do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name =
-      mercado_.produtos.mercearia[3].conservados_enlatados.find(
-        (c) =>
-          c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-      );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de conservadosEnlatados.`,
-      });
-    }
-    if (mercado_.produtos.mercearia[3].conservados_enlatados.length > 9) {
-      mercado_.produtos.mercearia[3].conservados_enlatados.splice(0, 3);
-    }
-    mercado_.produtos.mercearia[3].conservados_enlatados.push({
-      id: generateId(mercado_.produtos.mercearia[3].conservados_enlatados),
+    await postMercado(
+      "mercearia",
+      "conservadosEnlatados",
+      id_mercado,
       nome,
       valor,
-    });
-    const conservados_enlatados =
-      mercado_.produtos.mercearia[3].conservados_enlatados;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às conservados_enlatados do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      conservados_enlatados,
-    });
+      res
+    );
   }
 );
 app.get(
   "/mercado/:id/produtos/mercearia/conservadosEnlatados",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de conservadosEnlatados do mercearia do mercado especificado
-    const conservadosEnlatados =
-      mercado_.produtos.mercearia[3].conservados_enlatados;
-    if (!conservadosEnlatados || conservadosEnlatados.length === 0) {
-      return res.status(404).send({
-        message: "Não há conservadosEnlatados cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de conservadosEnlatados do mercado ${mercado_.nome}`,
-      conservadosEnlatados,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("mercearia", "conservadosEnlatados", mercadoId, res);
   }
 );
 app.delete(
@@ -4247,41 +3668,24 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do mercearia do mercado especificado
-    const conservadosEnlatados =
-      mercado_.produtos.mercearia[3].conservados_enlatados;
-    if (!conservadosEnlatados || conservadosEnlatados.length === 0) {
-      return res.status(404).send({
-        message: "Não há conservadosEnlatados cadastradas neste mercado.",
-      });
-    }
-    const index = conservadosEnlatados.findIndex(
-      (m) => m.id === parseInt(req.params.conservadosEnlatadosId)
+    const mercadoId = parseInt(req.params.id);
+    const conservadosEnlatadosId = parseInt(req.params.conservadosEnlatadosId);
+    await deleteMercado(
+      "mercearia",
+      "conservadosEnlatados",
+      mercadoId,
+      conservadosEnlatadosId,
+      res
     );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${conservadosEnlatados[0].nome} com ID ${req.params.conservadosEnlatadosId} foi removido com sucesso.`,
-    });
-    conservadosEnlatados.splice(index, 1);
   }
 );
-// merc oleos
+// // merc oleos
 app.post(
   "/mercado/:id/produtos/mercearia/oleos",
   [
@@ -4291,70 +3695,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.mercearia[4].oleos.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de oleos.`,
-      });
-    }
-    if (mercado_.produtos.mercearia[4].oleos.length > 9) {
-      mercado_.produtos.mercearia[4].oleos.splice(0, 3);
-    }
-    mercado_.produtos.mercearia[4].oleos.push({
-      id: generateId(mercado_.produtos.mercearia[4].oleos),
-      nome,
-      valor,
-    });
-    const oleos = mercado_.produtos.mercearia[4].oleos;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às oleos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      oleos,
-    });
+    await postMercado("mercearia", "oleos", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/mercearia/oleos",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de oleos do mercearia do mercado especificado
-    const oleos = mercado_.produtos.mercearia[4].oleos;
-    if (!oleos || oleos.length === 0) {
-      return res.status(404).send({
-        message: "Não há oleos cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de oleos do mercado ${mercado_.nome}`,
-      oleos,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("mercearia", "oleos", mercadoId, res);
   }
 );
 app.delete(
@@ -4365,38 +3727,18 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do mercearia do mercado especificado
-    const oleos = mercado_.produtos.mercearia[4].oleos;
-    if (!oleos || oleos.length === 0) {
-      return res.status(404).send({
-        message: "Não há oleos cadastradas neste mercado.",
-      });
-    }
-    const index = oleos.findIndex((m) => m.id === parseInt(req.params.oleosId));
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${oleos[0].nome} com ID ${req.params.oleosId} foi removido com sucesso.`,
-    });
-    oleos.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const oleosId = parseInt(req.params.oleosId);
+    await deleteMercado("mercearia", "oleos", mercadoId, oleosId, res);
   }
 );
-// merce temperos condimentos
+// // merce temperos condimentos
 app.post(
   "/mercado/:id/produtos/mercearia/temperosCondimentos",
   [
@@ -4406,74 +3748,35 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name =
-      mercado_.produtos.mercearia[5].temperos_condimentos.find(
-        (c) =>
-          c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-      );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de temperosCondimentos.`,
-      });
-    }
-    if (mercado_.produtos.mercearia[5].temperos_condimentos.length > 9) {
-      mercado_.produtos.mercearia[5].temperos_condimentos.splice(0, 3);
-    }
-    mercado_.produtos.mercearia[5].temperos_condimentos.push({
-      id: generateId(mercado_.produtos.mercearia[5].temperos_condimentos),
+    await postMercado(
+      "mercearia",
+      "temperosCondimentos",
+      id_mercado,
       nome,
       valor,
-    });
-    const temperosCondimentos =
-      mercado_.produtos.mercearia[5].temperos_condimentos;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às temperosCondimentos do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      temperosCondimentos,
-    });
+      res
+    );
   }
 );
 app.get(
   "/mercado/:id/produtos/mercearia/temperosCondimentos",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de temperosCondimentos do mercearia do mercado especificado
-    const temperosCondimentos =
-      mercado_.produtos.mercearia[5].temperos_condimentos;
-    if (!temperosCondimentos || temperosCondimentos.length === 0) {
-      return res.status(404).send({
-        message: "Não há temperosCondimentos cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de temperosCondimentos do mercado ${mercado_.nome}`,
-      temperosCondimentos,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("mercearia", "temperosCondimentos", mercadoId, res);
   }
 );
 app.delete(
@@ -4484,42 +3787,25 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do mercearia do mercado especificado
-    const temperosCondimentos =
-      mercado_.produtos.mercearia[5].temperos_condimentos;
-    if (!temperosCondimentos || temperosCondimentos.length === 0) {
-      return res.status(404).send({
-        message: "Não há temperosCondimentos cadastradas neste mercado.",
-      });
-    }
-    const index = temperosCondimentos.findIndex(
-      (m) => m.id === parseInt(req.params.temperosCondimentosId)
+    const mercadoId = parseInt(req.params.id);
+    const temperosCondimentosId = parseInt(req.params.temperosCondimentosId);
+    await deleteMercado(
+      "mercearia",
+      "temperosCondimentos",
+      mercadoId,
+      temperosCondimentosId,
+      res
     );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${temperosCondimentos[0].nome} com ID ${req.params.temperosCondimentosId} foi removido com sucesso.`,
-    });
-    temperosCondimentos.splice(index, 1);
   }
 );
 
-// bebidas com alcool
+// // bebidas com alcool
 app.post(
   "/mercado/:id/produtos/bebidas/comAlcool",
   [
@@ -4529,70 +3815,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.bebidas[0].com_alcool.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de comAlcool.`,
-      });
-    }
-    if (mercado_.produtos.bebidas[0].com_alcool.length > 9) {
-      mercado_.produtos.bebidas[0].com_alcool.splice(0, 3);
-    }
-    mercado_.produtos.bebidas[0].com_alcool.push({
-      id: generateId(mercado_.produtos.bebidas[0].com_alcool),
-      nome,
-      valor,
-    });
-    const comAlcool = mercado_.produtos.bebidas[0].com_alcool;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às comAlcool do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      comAlcool,
-    });
+    await postMercado("bebidas", "comAlcool", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/bebidas/comAlcool",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de comAlcool do bebidas do mercado especificado
-    const comAlcool = mercado_.produtos.bebidas[0].com_alcool;
-    if (!comAlcool || comAlcool.length === 0) {
-      return res.status(404).send({
-        message: "Não há comAlcool cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de bebidas sem alcool do mercado ${mercado_.nome}`,
-      comAlcool,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("bebidas", "comAlcool", mercadoId, res);
   }
 );
 app.delete(
@@ -4603,41 +3847,19 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do bebidas do mercado especificado
-    const comAlcool = mercado_.produtos.bebidas[0].com_alcool;
-    if (!comAlcool || comAlcool.length === 0) {
-      return res.status(404).send({
-        message: "Não há comAlcool cadastradas neste mercado.",
-      });
-    }
-    const index = comAlcool.findIndex(
-      (m) => m.id === parseInt(req.params.comAlcoolId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${comAlcool[0].nome} com ID ${req.params.comAlcoolId} foi removido com sucesso.`,
-    });
-    comAlcool.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const comAlcoolId = parseInt(req.params.comAlcoolId);
+    await deleteMercado("bebidas", "comAlcool", mercadoId, comAlcoolId, res);
   }
 );
 
-// bebiidas sem alcool
+// // bebiidas sem alcool
 app.post(
   "/mercado/:id/produtos/bebidas/semAlcool",
   [
@@ -4647,70 +3869,28 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de oleos do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.bebidas[1].sem_alcool.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de semAlcool.`,
-      });
-    }
-    if (mercado_.produtos.bebidas[1].sem_alcool.length > 9) {
-      mercado_.produtos.bebidas[1].sem_alcool.splice(0, 3);
-    }
-    mercado_.produtos.bebidas[1].sem_alcool.push({
-      id: generateId(mercado_.produtos.bebidas[1].sem_alcool),
-      nome,
-      valor,
-    });
-    const semAlcool = mercado_.produtos.bebidas[1].sem_alcool;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às semAlcool do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      semAlcool,
-    });
+    await postMercado("bebidas", "semAlcool", id_mercado, nome, valor, res);
   }
 );
 app.get(
   "/mercado/:id/produtos/bebidas/semAlcool",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de semAlcool do bebidas do mercado especificado
-    const semAlcool = mercado_.produtos.bebidas[1].sem_alcool;
-    if (!semAlcool || semAlcool.length === 0) {
-      return res.status(404).send({
-        message: "Não há semAlcool cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de bebidas sem alcool do mercado ${mercado_.nome}`,
-      semAlcool,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("bebidas", "semAlcool", mercadoId, res);
   }
 );
 app.delete(
@@ -4721,41 +3901,19 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do bebidas do mercado especificado
-    const semAlcool = mercado_.produtos.bebidas[1].sem_alcool;
-    if (!semAlcool || semAlcool.length === 0) {
-      return res.status(404).send({
-        message: "Não há semAlcool cadastradas neste mercado.",
-      });
-    }
-    const index = semAlcool.findIndex(
-      (m) => m.id === parseInt(req.params.semAlcoolId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${semAlcool[0].nome} com ID ${req.params.semAlcoolId} foi removido com sucesso.`,
-    });
-    semAlcool.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const semAlcoolId = parseInt(req.params.semAlcoolId);
+    await deleteMercado("bebidas", "semAlcool", mercadoId, semAlcoolId, res);
   }
 );
 
-//  higiene e limpeza
+// //  higiene e limpeza
 
 app.post(
   "/mercado/:id/produtos/higienelimpeza/higiene",
@@ -4766,70 +3924,35 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de higiene do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.higienelimpeza[0].higiene.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de higiene.`,
-      });
-    }
-    if (mercado_.produtos.higienelimpeza[0].higiene.length > 9) {
-      mercado_.produtos.higienelimpeza[0].higiene.splice(0, 3);
-    }
-    mercado_.produtos.higienelimpeza[0].higiene.push({
-      id: generateId(mercado_.produtos.higienelimpeza[0].higiene),
+    await postMercado(
+      "higienelimpeza",
+      "higiene",
+      id_mercado,
       nome,
       valor,
-    });
-    const higiene = mercado_.produtos.higienelimpeza[0].higiene;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às higiene do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      higiene,
-    });
+      res
+    );
   }
 );
 app.get(
   "/mercado/:id/produtos/higienelimpeza/higiene",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de higiene do higienelimpeza do mercado especificado
-    const higiene = mercado_.produtos.higienelimpeza[0].higiene;
-    if (!higiene || higiene.length === 0) {
-      return res.status(404).send({
-        message: "Não há higiene cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de higiene do mercado ${mercado_.nome}`,
-      higiene,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("higienelimpeza", "higiene", mercadoId, res);
   }
 );
 app.delete(
@@ -4840,40 +3963,18 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do higienelimpeza do mercado especificado
-    const higiene = mercado_.produtos.higienelimpeza[0].higiene;
-    if (!higiene || higiene.length === 0) {
-      return res.status(404).send({
-        message: "Não há higiene cadastradas neste mercado.",
-      });
-    }
-    const index = higiene.findIndex(
-      (m) => m.id === parseInt(req.params.higieneId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${higiene[0].nome} com ID ${req.params.higieneId} foi removido com sucesso.`,
-    });
-    higiene.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const higieneId = parseInt(req.params.higieneId);
+    await deleteMercado("higienelimpeza", "higiene", mercadoId, higieneId, res);
   }
 );
-// limpeza
+// // limpeza
 
 app.post(
   "/mercado/:id/produtos/higienelimpeza/limpeza",
@@ -4884,70 +3985,35 @@ app.post(
       .isInt({ min: 1 })
       .withMessage("Valor deve ser um número inteiro e não negativo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-    // Adicionando o novo produto na categoria de limpeza do acougue do mercado especificado
+    const id_mercado = parseInt(req.params.id);
+    // Adicionando o novo produto na categoria de legumes do hortifruit do mercado especificado
     const { nome, valor } = req.body;
-
-    const verify_name = mercado_.produtos.higienelimpeza[1].limpeza.find(
-      (c) => c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de higiene.`,
-      });
-    }
-    if (mercado_.produtos.higienelimpeza[1].limpeza.length > 9) {
-      mercado_.produtos.higienelimpeza[1].limpeza.splice(0, 3);
-    }
-    mercado_.produtos.higienelimpeza[1].limpeza.push({
-      id: generateId(mercado_.produtos.higienelimpeza[1].limpeza),
+    await postMercado(
+      "higienelimpeza",
+      "limpeza",
+      id_mercado,
       nome,
       valor,
-    });
-    const limpeza = mercado_.produtos.higienelimpeza[1].limpeza;
-    res.status(201).send({
-      message: `Produto ${nome} adicionado com sucesso às limpeza do mercado ${mercado_.nome} com valor R$ ${valor}.`,
-      limpeza,
-    });
+      res
+    );
   }
 );
 app.get(
   "/mercado/:id/produtos/higienelimpeza/limpeza",
   [param("id").isInt().withMessage("ID do mercado deve ser um número inteiro")],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de higiene do higienelimpeza do mercado especificado
-    const limpeza = mercado_.produtos.higienelimpeza[1].limpeza;
-    if (!limpeza || limpeza.length === 0) {
-      return res.status(404).send({
-        message: "Não há limpeza cadastradas neste mercado.",
-      });
-    }
-
-    res.status(200).send({
-      message: `Lista de limpeza do mercado ${mercado_.nome}`,
-      limpeza,
-    });
+    const mercadoId = parseInt(req.params.id);
+    await getMercado("higienelimpeza", "limpeza", mercadoId, res);
   }
 );
 app.delete(
@@ -4958,42 +4024,20 @@ app.delete(
       .isInt()
       .withMessage("ID do mercado deve ser um número inteiro"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    // Encontrando o mercado com o ID fornecido
-    const mercado_ = mercado.find((m) => m.id === parseInt(req.params.id));
-    if (!mercado_) {
-      return res.status(404).send("Mercado não encontrado.");
-    }
-
-    // Recuperando a lista de queijo do limpezalimpeza do mercado especificado
-    const limpeza = mercado_.produtos.higienelimpeza[1].limpeza;
-    if (!limpeza || limpeza.length === 0) {
-      return res.status(404).send({
-        message: "Não há higiene cadastradas neste mercado.",
-      });
-    }
-    const index = limpeza.findIndex(
-      (m) => m.id === parseInt(req.params.limpezaId)
-    );
-    if (index === -1) {
-      return res
-        .status(404)
-        .send("O mercado com o ID fornecido não foi encontrado.");
-    }
-    res.send({
-      message: `${limpeza[0].nome} com ID ${req.params.limpezaId} foi removido com sucesso.`,
-    });
-    limpeza.splice(index, 1);
+    const mercadoId = parseInt(req.params.id);
+    const limpezaId = parseInt(req.params.limpezaId);
+    await deleteMercado("higienelimpeza", "limpeza", mercadoId, limpezaId, res);
   }
 );
-// EVENTOS
+// // EVENTOS
 app.get("/eventos", (req, res) => {
-  res.send(eventos);
+  dbJSONget(res, "eventos");
 });
 const isFutureDate = (date) => {
   const today = new Date();
@@ -5005,7 +4049,8 @@ app.post(
   [
     body("nome")
       .trim()
-      .custom((value) => {
+      .custom(async (value) => {
+        const eventos = await buscar("eventos");
         const eventoExistente = eventos.some(
           (evento) =>
             evento.nome.trim().toLowerCase() === value.trim().toLowerCase()
@@ -5026,7 +4071,8 @@ app.post(
       }),
     body("local")
       .trim()
-      .custom((value, { req }) => {
+      .custom(async (value, { req }) => {
+        const eventos = await buscar("eventos");
         const eventoNoLocal = eventos.some(
           (evento) =>
             evento.local.trim().toLowerCase() === value.trim().toLowerCase() &&
@@ -5043,16 +4089,17 @@ app.post(
         "A capacidade deve ser um número inteiro maior que 5 e menor que 50"
       ),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const eventos = await buscar("eventos");
 
     const { nome, data, local, capacidade } = req.body;
 
     const novoEvento = {
-      id: generateId(eventos),
+      id: eventos.length ? eventos[eventos.length - 1].id + 1 : 1,
       nome,
       data,
       local,
@@ -5064,6 +4111,7 @@ app.post(
       eventos.splice(0, 10);
     }
     eventos.push(novoEvento);
+    await db.ref("eventos").set(eventos);
     res.status(201).json(novoEvento);
   }
 );
@@ -5075,11 +4123,12 @@ app.get(
       .isInt({ gt: 0 })
       .withMessage("O ID deve ser um número inteiro positivo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const eventos = await buscar("eventos");
 
     const eventoId = parseInt(req.params.id, 10);
     const evento = eventos.find((evento) => evento.id === eventoId);
@@ -5092,7 +4141,7 @@ app.get(
   }
 );
 
-// Rota para deletar um evento por ID
+// // Rota para deletar um evento por ID
 app.delete(
   "/eventos/:id",
   [
@@ -5100,21 +4149,22 @@ app.delete(
       .isInt({ gt: 0 })
       .withMessage("O ID deve ser um número inteiro positivo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const eventos = await buscar("eventos");
     const eventoId = parseInt(req.params.id, 10);
     const eventoIndex = eventos.findIndex((evento) => evento.id === eventoId);
 
     if (eventoIndex === -1) {
       return res.status(404).json({ message: "Evento não encontrado" });
     }
-
-    res.status(204).send({ message: "Evento finalizado." });
     eventos.splice(eventoIndex, 1);
+
+    await db.ref("eventos").set(eventos);
+    res.status(200).send({ message: "Evento finalizado." });
   }
 );
 
@@ -5124,19 +4174,23 @@ app.put(
     param("id")
       .isInt({ gt: 0 })
       .withMessage("O ID deve ser um número inteiro positivo"),
-    body("nome").custom((value, { req }) => {
-      const eventoExistente = eventos.some(
-        (evento) =>
-          evento.nome.trim().toLowerCase() === value.trim().toLowerCase() &&
-          evento.id !== parseInt(req.params.id, 10)
-      );
-      if (eventoExistente) {
-        throw new Error("O nome do evento já existe");
-      }
-      return true;
-    }),
+    body("nome")
+      .optional()
+      .custom(async (value, { req }) => {
+        const eventos = await buscar("eventos");
+        const eventoExistente = eventos.some(
+          (evento) =>
+            evento.nome.trim().toLowerCase() === value.trim().toLowerCase() &&
+            evento.id !== parseInt(req.params.id, 10)
+        );
+        if (eventoExistente) {
+          throw new Error("O nome do evento já existe");
+        }
+        return true;
+      }),
     body("data")
       .isISO8601()
+      .optional()
       .withMessage("A data deve estar no formato ISO8601 (AAAA-MM-DD)")
       .custom((value) => {
         const isFutureDate = (date) => {
@@ -5150,30 +4204,34 @@ app.put(
         }
         return true;
       }),
-    body("local").custom((value, { req }) => {
-      const eventoNoLocal = eventos.some(
-        (evento) =>
-          evento.local.trim().toLowerCase() === value.trim().toLowerCase() &&
-          evento.data === req.body.data &&
-          evento.id !== parseInt(req.params.id, 10)
-      );
-      if (eventoNoLocal) {
-        throw new Error("Já existe um evento no local na mesma data");
-      }
-      return true;
-    }),
+    body("local")
+      .optional()
+      .custom(async (value, { req }) => {
+        const eventos = await buscar("eventos");
+        const eventoNoLocal = eventos.some(
+          (evento) =>
+            evento.local.trim().toLowerCase() === value.trim().toLowerCase() &&
+            evento.data === req.body.data &&
+            evento.id !== parseInt(req.params.id, 10)
+        );
+        if (eventoNoLocal) {
+          throw new Error("Já existe um evento no local na mesma data");
+        }
+        return true;
+      }),
     body("capacidade")
       .isInt({ gt: 5, max: 50 })
+      .optional()
       .withMessage(
         "A capacidade deve ser um número inteiro maior que 5 e menor que 50"
       ),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const eventos = await buscar("eventos");
     const eventoId = parseInt(req.params.id, 10);
     const eventoIndex = eventos.findIndex((evento) => evento.id === eventoId);
 
@@ -5182,14 +4240,20 @@ app.put(
     }
 
     const { nome, data, local, capacidade } = req.body;
+    const update = await buscar(`eventos`);
+    const evento_ = update.find((evento) => evento.id === eventoId);
+    evento_.id = evento_.id;
+    evento_.nome = nome || evento_.nome;
+    evento_.data = data || evento_.data;
+    evento_.local = local || evento_.local;
+    evento_.capacidade = capacidade || evento_.capacidade;
 
-    eventos[eventoIndex] = { id: eventoId, nome, data, local, capacidade };
-
+    await db.ref(`eventos/${eventoIndex}`).set(evento_);
     res.status(201).json(eventos[eventoIndex]);
   }
 );
 
-// PARTICIPANTES
+// // PARTICIPANTES
 app.get(
   "/eventos/:id/participantes",
   [
@@ -5197,19 +4261,19 @@ app.get(
       .isInt({ gt: 0 })
       .withMessage("O ID do evento deve ser um número inteiro positivo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const eventos = await buscar("eventos");
     const eventoId = parseInt(req.params.id, 10);
     const evento = eventos.find((evento) => evento.id === eventoId);
 
     if (!evento) {
       return res.status(404).json({ message: "Evento não encontrado" });
     }
-
+    if (!evento.participantes) evento.participantes = [];
     res.json(evento.participantes);
   }
 );
@@ -5224,13 +4288,15 @@ app.post(
     body("idade")
       .isInt({ gt: 12 })
       .withMessage("A idade deve ser maior que 12"),
-    body("nome").custom((value, { req }) => {
+    body("nome").custom(async (value, { req }) => {
+      const eventos = await buscar("eventos");
       const eventoId = parseInt(req.params.id, 10);
       const evento = eventos.find((evento) => evento.id === eventoId);
 
       if (!evento) {
         throw new Error("Evento não encontrado");
       }
+      if (!evento.participantes) evento.participantes = [];
 
       const participanteExistente = eventos.some(
         (evento) =>
@@ -5251,11 +4317,12 @@ app.post(
       return true;
     }),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const eventos = await buscar("eventos");
 
     const eventoId = parseInt(req.params.id, 10);
     const evento = eventos.find((evento) => evento.id === eventoId);
@@ -5263,10 +4330,15 @@ app.post(
     if (!evento) {
       return res.status(404).json({ message: "Evento não encontrado" });
     }
+    if (!evento.participantes) evento.participantes = [];
 
+    const newId =
+      evento.participantes.length > 0
+        ? evento.participantes[evento.participantes.length - 1].id + 1
+        : 1;
     const { nome, email, idade } = req.body;
     const novoParticipante = {
-      id: evento.participantes.length + 1,
+      id: newId,
       nome,
       email,
       idade,
@@ -5348,6 +4420,7 @@ app.post(
         .send({ message: "O Evento não suporta mais participantes." });
     }
     evento.participantes.push(novoParticipante);
+    await db.ref(`eventos/${eventoId - 1}`).set(evento);
     res.status(201).json(novoParticipante);
   }
 );
@@ -5361,12 +4434,12 @@ app.delete(
       .isInt({ gt: 0 })
       .withMessage("O ID do participante deve ser um número inteiro positivo"),
   ],
-  (req, res) => {
+  async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
+    const eventos = await buscar("eventos");
     const eventoId = parseInt(req.params.id, 10);
     const participanteId = parseInt(req.params.participanteId, 10);
     const evento = eventos.find((evento) => evento.id === eventoId);
@@ -5374,6 +4447,7 @@ app.delete(
     if (!evento) {
       return res.status(404).json({ message: "Evento não encontrado" });
     }
+    if (!evento.participantes) evento.participantes = [];
 
     const participanteIndex = evento.participantes.findIndex(
       (participante) => participante.id === participanteId
@@ -5383,17 +4457,159 @@ app.delete(
       return res.status(404).json({ message: "Participante não encontrado" });
     }
     evento.capacidade += 1;
-
-    res.status(204).send({ message: "Participante excluído." });
     evento.participantes.splice(participanteIndex, 1);
-
+    await db.ref(`eventos/${eventoId - 1}`).set(evento);
+    res.status(200).send({ message: "Participante excluído." });
   }
 );
-//
-
+// //
+const htmlApresentation = 
+`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo à API de Teste</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: url('https://st3.depositphotos.com/10325396/17238/i/450/depositphotos_172385004-stock-photo-programming-code-abstract-technology-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            position: relative;
+        }
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin: 0 20px;
+            z-index: 1;
+            position: relative;
+        }
+        .container h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .container p {
+            color: #ccc;
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 25px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .container a:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        .icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .icons i {
+            font-size: 3em;
+            color: rgba(255, 255, 255, 0.4);
+            animation: float 10s infinite;
+        }
+        .icons i:nth-child(odd) {
+            animation-delay: 0s;
+        }
+        .icons i:nth-child(even) {
+            animation-delay: 5s;
+        }
+        @keyframes float {
+            0% {
+                transform: translateY(100vh);
+            }
+            50% {
+                transform: translateY(-50vh);
+            }
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container animate__animated animate__fadeIn">
+        <h1><i class="fas fa-laptop-code"></i> Bem-vindo à API de Teste</h1>
+        <p>Esta API foi criada para ajudar novos testers a praticar automação.</p>
+        <p>Integrada com Firebase RealTime.</p>
+        <p>Construída com NodeJs, Express, Express-validator e Swagger-ui-express.</p>
+        <a href="/docs"><i class="fas fa-book"></i> Ir para a documentação do Swagger</a>
+    </div>
+    <div class="icons">
+        <i class="fab fa-js"></i>
+        <i class="fab fa-node-js"></i>
+        <i class="fab fa-java"></i>
+        <i class="fab fa-python"></i>
+        <i class="fab fa-react"></i>
+        <i class="fab fa-html5"></i>
+        <i class="fab fa-css3-alt"></i>
+        <i class="fas fa-database"></i>
+        <i class="fas fa-cogs"></i>
+        <i class="fas fa-robot"></i>
+        <i class="fas fa-code"></i>
+        <i class="fas fa-vial"></i>
+        <i class="fas fa-mobile-alt"></i>
+        <i class="fas fa-globe"></i>
+    </div>
+</body>
+</html>
+`;
 app.get("/", (req, res) => {
-  res.send("API OK");
+
+  res.send(htmlApresentation);
 });
+app.get("/apresentation", (req, res) => {
+
+  res.send(htmlApresentation);
+});
+app.get("/api", (req, res) => {
+
+  res.send(htmlApresentation);
+});
+app.get("/html", (req, res) => {
+
+  res.send(htmlApresentation);
+});
+app.get("/doc", (req, res) => {
+
+  res.send(htmlApresentation);
+});
+
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
