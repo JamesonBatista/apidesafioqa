@@ -2327,7 +2327,22 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const mercado = await buscar("mercado");
+
+    const mercadoSnapshot = await db.ref("mercado").once("value");
+    const mercado = mercadoSnapshot.val() ? Object.values(mercadoSnapshot.val()) : [];
+
+    const verify_name = mercado.find(
+      (c) =>
+        c.nome &&
+        req.body.nome &&
+        c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
+    );
+    if (verify_name) {
+      return res.status(400).send({
+        message: `O nome ${req.body.nome} já existe na lista de Mercados.`,
+      });
+    }
+
     // Adicionando todos os campos de produtos com suas subcategorias inicialmente vazias
     const novoMercado = {
       id: mercado.length + 1,
@@ -2352,29 +2367,21 @@ app.post(
         higienelimpeza: [{ higiene: [] }, { limpeza: [] }],
       },
     };
+
     if (mercado.length > 50) {
       mercado.splice(0, 10); // Remove os 10 primeiros
     }
-    const verify_name = mercado.find(
-      (c) =>
-        c.nome &&
-        req.body.nome &&
-        c.nome.trim().toLowerCase() === req.body.nome.trim().toLowerCase()
-    );
-    if (verify_name) {
-      return res.status(400).send({
-        message: `O nome ${req.body.nome} já exista na lista de Mercados.`,
-      });
-    }
+
     mercado.push(novoMercado);
     await db.ref("mercado").set(mercado);
-    // Simulando uma resposta de sucesso
+
     res.status(201).send({
       message: `Mercado '${novoMercado.nome}' adicionado com sucesso com todas as subcategorias iniciais vazias!`,
       novoMercado,
     });
   }
 );
+
 app.get(
   "/mercado/:mercadoId",
   [
