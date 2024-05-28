@@ -337,8 +337,8 @@ app.post(
       .notEmpty()
       .withMessage("O campo nome é obrigatório")
       .custom(async (value) => {
-        const get = await buscar("crud_get");
-        const userExists = get.users.some(
+        const get = await buscar("crud_get/users");
+        const userExists = get.find(
           (user) => user.nome.trim() === value.trim()
         );
         if (userExists) {
@@ -366,11 +366,11 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const search = await buscar("crud_get");
-    let get = search.users;
+    const search = await buscar("crud_get/users");
+    let get = search;
     // Atribuição automática de 'status' como 'ativo' e 'dataCadastro' para a data atual
     const newUser = {
-      id: generateId(get),
+      id: search.length + 1,
       nome: req.body.nome,
       email: req.body.email,
       idade: req.body.idade,
