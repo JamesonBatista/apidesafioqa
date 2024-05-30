@@ -48649,6 +48649,78 @@ const swaggerDocument = {
           },
         },
       },
+      Heroi: {
+        type: "object",
+        properties: {
+          id: {
+            type: "integer",
+            example: 1,
+          },
+          nome: {
+            type: "string",
+            example: "Homem-Sombra",
+          },
+          habilidade: {
+            type: "string",
+            example: "Pode se transformar em uma sombra",
+          },
+          problema: {
+            type: "string",
+            example:
+              "Só pode usar seus poderes em áreas bem iluminadas, ficando invisível",
+          },
+        },
+      },
+      HeroiResponse: {
+        type: "object",
+        properties: {
+          message: {
+            type: "string",
+            example: "Herói adicionado com sucesso",
+          },
+          newUser: {
+            $ref: "#/components/schemas/Heroi",
+          },
+        },
+      },
+      Erro: {
+        type: "object",
+        properties: {
+          message: {
+            type: "string",
+            example: "Erro de validação",
+          },
+          errors: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                msg: {
+                  type: "string",
+                  example: "O campo nome é obrigatório",
+                },
+                param: {
+                  type: "string",
+                  example: "nome",
+                },
+                location: {
+                  type: "string",
+                  example: "body",
+                },
+              },
+            },
+          },
+        },
+      },
+      Mensagem: {
+        type: "object",
+        properties: {
+          message: {
+            type: "string",
+            example: "Herói com ID 1 foi removido com sucesso.",
+          },
+        },
+      },
     },
   },
   definitions: {
