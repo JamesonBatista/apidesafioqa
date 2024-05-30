@@ -11,7 +11,7 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `150` endpoints.",
+      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `158` endpoints.",
   },
 
   components: {
@@ -88,6 +88,11 @@ const swaggerDocument = {
     {
       name: "Eventos",
       description: "Simulação de criação de Eventos, e adesão de participantes",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
+    {
+      name: "Heroes",
+      description: "Simulação de criação de hérois",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
   ],
@@ -48174,6 +48179,332 @@ const swaggerDocument = {
                       example: "Evento ou participante não encontrado",
                     },
                   },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/herois": {
+      get: {
+        tags: ["Heroes"],
+        summary: "Obter todos os heróis",
+        responses: {
+          200: {
+            description: "Lista de heróis",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    $ref: "#/components/schemas/Heroi",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Heroes"],
+        summary: "Adicionar um novo herói",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Heroi",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Herói adicionado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/HeroiResponse",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/herois/{id}": {
+      get: {
+        tags: ["Heroes"],
+        summary: "Obter um herói por ID",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do herói",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Herói encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Heroi",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Herói não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ["Heroes"],
+        summary: "Deletar um herói por ID",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do herói",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Herói deletado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Mensagem",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Herói não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/herois-inuteis": {
+      get: {
+        tags: ["Heroes"],
+        summary: "Obter todos os heróis",
+        responses: {
+          200: {
+            description: "Lista de heróis",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "array",
+                  items: {
+                    $ref: "#/components/schemas/Heroi",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ["Heroes"],
+        summary: "Adicionar um novo herói",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/Heroi",
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Herói adicionado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/HeroiResponse",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/herois-inuteis/{id}": {
+      get: {
+        tags: ["Heroes"],
+        summary: "Obter um herói por ID",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do herói",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Herói encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Heroi",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Herói não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ["Heroes"],
+        summary: "Deletar um herói por ID",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "integer",
+            },
+            description: "ID do herói",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Herói deletado com sucesso",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Mensagem",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Herói não encontrado",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+          400: {
+            description: "Erro de validação",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
+                },
+              },
+            },
+          },
+          500: {
+            description: "Erro interno",
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/Erro",
                 },
               },
             },

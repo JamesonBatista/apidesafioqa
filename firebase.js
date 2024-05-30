@@ -13,6 +13,8 @@ import germany_json, {
   codeemprestimo,
   company,
   eventos,
+  herois,
+  heroisInuteis,
   productsGamers,
 } from "./swagger_jsons.js";
 import {
@@ -134,6 +136,14 @@ const initialData = {
   },
   eventos:{
     ...eventos
+  },
+  heroes:{
+    herois:{
+      ...herois
+    },
+    "herois-inuteis":{
+      ...heroisInuteis
+    }
   }
 };
 export const inicializeJSOns = async () => {

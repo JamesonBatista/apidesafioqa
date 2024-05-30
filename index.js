@@ -388,7 +388,6 @@ app.post(
     // Adiciona o novo usuário ao array
     get.push(newUser);
     const ref = db.ref("crud_get/users");
-
     await ref.set(get);
 
     if (get.length > 50) {
@@ -2329,7 +2328,9 @@ app.post(
     }
 
     const mercadoSnapshot = await db.ref("mercado").once("value");
-    const mercado = mercadoSnapshot.val() ? Object.values(mercadoSnapshot.val()) : [];
+    const mercado = mercadoSnapshot.val()
+      ? Object.values(mercadoSnapshot.val())
+      : [];
 
     const verify_name = mercado.find(
       (c) =>
@@ -2915,8 +2916,8 @@ app.post(
       positionIndex.length === 0
         ? positionIndex.length
         : positionIndex.length === 1
-        ? 1
-        : positionIndex.length + 1;
+          ? 1
+          : positionIndex.length + 1;
 
     // Adicionando o novo produto na categoria de frutas do padaria do mercado especificado
     const { nome, valor } = req.body;
@@ -4412,8 +4413,7 @@ app.post(
        `;
       enviarEmail(
         email,
-        `Evento * ${evento.nome} * Parabéns senhor(a): ${
-          nome || "Participante"
+        `Evento * ${evento.nome} * Parabéns senhor(a): ${nome || "Participante"
         } pela adesão ao Evento`,
         html
       );
@@ -4469,9 +4469,256 @@ app.delete(
     res.status(200).send({ message: "Participante excluído." });
   }
 );
+
+// herois uteis
+
+app.get("/herois", async (req, res) => {
+  dbJSONget(res, "heroes/herois");
+});
+
+app.post(
+  "/herois",
+  [
+    body("nome")
+      .notEmpty()
+      .withMessage("O campo nome é obrigatório")
+      .custom(async (value) => {
+        const get = await buscar("heroes/herois");
+        const userExists = get.find(
+          (user) => user.nome.trim() === value.trim()
+        );
+        if (userExists) {
+          throw new Error("Nome já existe");
+        }
+        return true;
+      }),
+    body("habilidade")
+      .notEmpty()
+      .withMessage("O campo habilidade é obrigatório"),
+    body("problema")
+      .notEmpty()
+      .withMessage(
+        "O campo problema é obrigatório, e deve descrever um problema que o héroi tem."
+      ),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const search = await buscar("heroes/herois");
+    let get = search;
+    // Atribuição automática de 'status' como 'ativo' e 'dataCadastro' para a data atual
+    const newUser = {
+      id: search.length + 1,
+      nome: req.body.nome,
+      habilidade: req.body.habilidade,
+      problema: req.body.problema,
+    };
+
+    if (get.length > 50) {
+      get.splice(0, 10);
+    }
+    // Adiciona o novo usuário ao array
+    get.push(newUser);
+    const ref = db.ref("heroes/herois");
+    await ref.set(get);
+
+    if (get.length > 50) {
+      get.splice(0, 10); // Remove os 10 primeiros
+    }
+
+    res
+      .status(201)
+      .json({
+        message: `Héroi *${req.body.nome}* adicionado a lista de hérois.`,
+        newUser,
+      });
+  }
+);
+
+app.get(
+  "/herois/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = parseInt(req.params.id);
+
+    try {
+      let user = await buscar(`heroes/herois`);
+      user = user.find(heroi => heroi.id === id)
+      if (!user) {
+        return res.status(404).send({ message: "Héroi não encontrado" });
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).send({ message: "Erro ao buscar héroi" });
+    }
+  }
+);
+app.delete(
+  "/herois/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = parseInt(req.params.id);
+
+    try {
+      const ref = db.ref(`heroes/herois/${id - 1}`);
+      const snapshot = await ref.once("value");
+      const user = snapshot.val();
+
+      if (!user) {
+        return res.status(404).send({ message: "héroi não encontrado" });
+      }
+
+      await ref.remove();
+
+      res
+        .status(200)
+        .json({ message: `héroi com ID ${id} foi removido com sucesso.` });
+    } catch (error) {
+      console.error("Erro ao remover héroi:", error);
+      res.status(500).send({ message: "Erro ao remover héroi" });
+    }
+  }
+);
+// herois inuteis
+
+app.get("/herois-inuteis", async (req, res) => {
+  dbJSONget(res, "heroes/herois-inuteis");
+});
+
+app.post(
+  "/herois-inuteis",
+  [
+    body("nome")
+      .notEmpty()
+      .withMessage("O campo nome é obrigatório")
+      .custom(async (value) => {
+        const get = await buscar("heroes/herois-inuteis");
+        const userExists = get.find(
+          (user) => user.nome.trim() === value.trim()
+        );
+        if (userExists) {
+          throw new Error("Nome já existe");
+        }
+        return true;
+      }),
+    body("habilidade")
+      .notEmpty()
+      .withMessage("O campo habilidade é obrigatório"),
+    body("problema")
+      .notEmpty()
+      .withMessage(
+        "O campo problema é obrigatório, e deve descrever um problema que o héroi inútil tem."
+      ),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const search = await buscar("heroes/herois-inuteis");
+    let get = search;
+    // Atribuição automática de 'status' como 'ativo' e 'dataCadastro' para a data atual
+    const newUser = {
+      id: search.length + 1,
+      nome: req.body.nome,
+      habilidade: req.body.habilidade,
+      problema: req.body.problema,
+    };
+
+    if (get.length > 50) {
+      get.splice(0, 10);
+    }
+    // Adiciona o novo usuário ao array
+    get.push(newUser);
+    const ref = db.ref("heroes/herois-inuteis");
+    await ref.set(get);
+
+    if (get.length > 50) {
+      get.splice(0, 10); // Remove os 10 primeiros
+    }
+
+    res
+      .status(201)
+      .json({
+        message: `Héroi *${req.body.nome}* adicionado a lista de hérois inúteis.`,
+        newUser,
+      });
+  }
+);
+
+app.get(
+  "/herois-inuteis/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = parseInt(req.params.id);
+
+    try {
+      let user = await buscar(`heroes/herois-inuteis`);
+      user = user.find(heroi => heroi.id === id)
+      if (!user) {
+        return res.status(404).send({ message: "Héroi inútil não encontrado" });
+      }
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      res.status(500).send({ message: "Erro ao buscar héroi inútil" });
+    }
+  }
+);
+app.delete(
+  "/herois-inuteis/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const id = parseInt(req.params.id);
+
+    try {
+      const ref = db.ref(`heroes/herois-inuteis/${id - 1}`);
+      const snapshot = await ref.once("value");
+      const user = snapshot.val();
+
+      if (!user) {
+        return res.status(404).send({ message: "héroi inútil não encontrado" });
+      }
+
+      await ref.remove();
+
+      res
+        .status(200)
+        .json({ message: `héroi inútil com ID ${id} foi removido com sucesso.` });
+    } catch (error) {
+      console.error("Erro ao remover héroi:", error);
+      res.status(500).send({ message: "Erro ao remover héroi inútil" });
+    }
+  }
+);
+
 // //
-const htmlApresentation = 
-`
+const htmlApresentation = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4597,29 +4844,23 @@ const htmlApresentation =
 </html>
 `;
 app.get("/", (req, res) => {
-
   res.send(htmlApresentation);
 });
 app.get("/apresentation", (req, res) => {
-
   res.send(htmlApresentation);
 });
 app.get("/api", (req, res) => {
-
   res.send(htmlApresentation);
 });
 app.get("/html", (req, res) => {
-
   res.send(htmlApresentation);
 });
 app.get("/doc", (req, res) => {
-
   res.send(htmlApresentation);
 });
-
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {});
+app.listen(PORT, () => { });
