@@ -30,7 +30,7 @@ const swaggerDocument = {
   ],
   servers: [
     {
-      url: "https://tranquil-cove-07655-38b519d38c2f.herokuapp.com/",
+      url: "https://api-desafio-qa.onrender.com/",
     },
   ],
   tags: [
