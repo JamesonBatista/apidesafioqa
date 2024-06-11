@@ -48189,7 +48189,7 @@ const swaggerDocument = {
     "/herois": {
       get: {
         tags: ["Heroes"],
-        summary: "Obter todos os heróis",
+        summary: "Obter todos os heróis " + count(),
         responses: {
           200: {
             description: "Lista de heróis",
@@ -48208,7 +48208,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Heroes"],
-        summary: "Adicionar um novo herói",
+        summary: "Adicionar um novo herói " + count(),
         requestBody: {
           required: true,
           content: {
@@ -48246,7 +48246,7 @@ const swaggerDocument = {
     "/herois/{id}": {
       get: {
         tags: ["Heroes"],
-        summary: "Obter um herói por ID",
+        summary: "Obter um herói por ID " + count(),
         parameters: [
           {
             name: "id",
@@ -48293,7 +48293,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Heroes"],
-        summary: "Deletar um herói por ID",
+        summary: "Deletar um herói por ID " + count(),
         parameters: [
           {
             name: "id",
@@ -48352,7 +48352,7 @@ const swaggerDocument = {
     "/herois-inuteis": {
       get: {
         tags: ["Heroes"],
-        summary: "Obter todos os heróis",
+        summary: "Obter todos os heróis " + count(),
         responses: {
           200: {
             description: "Lista de heróis",
@@ -48371,7 +48371,7 @@ const swaggerDocument = {
       },
       post: {
         tags: ["Heroes"],
-        summary: "Adicionar um novo herói",
+        summary: "Adicionar um novo herói " + count(),
         requestBody: {
           required: true,
           content: {
@@ -48409,7 +48409,7 @@ const swaggerDocument = {
     "/herois-inuteis/{id}": {
       get: {
         tags: ["Heroes"],
-        summary: "Obter um herói por ID",
+        summary: "Obter um herói por ID " + count(),
         parameters: [
           {
             name: "id",
@@ -48456,7 +48456,7 @@ const swaggerDocument = {
       },
       delete: {
         tags: ["Heroes"],
-        summary: "Deletar um herói por ID",
+        summary: "Deletar um herói por ID " + count(),
         parameters: [
           {
             name: "id",
