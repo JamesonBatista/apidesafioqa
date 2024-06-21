@@ -11,7 +11,7 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `158` endpoints.",
+      "Pix: `projetoqaswagger@gmail.com` \n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Heroku, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `157` endpoints.",
   },
 
   components: {
@@ -1749,6 +1749,120 @@ const swaggerDocument = {
         },
       },
     },
+    "/json_9": {
+      get: {
+        tags: ["Challenger"],
+        summary: "Open challenger 9 " + count(),
+        description:
+          "Desafio de Validação Complexo: Total de Gols: Calcule o total de gols marcados pelo Brasil ao longo dos sete jogos da Copa do Mundo.\n\n Total de Faltas: Determine o total de faltas cometidas pela equipe brasileira durante toda a competição.\n\n Total de Cartões: Conte quantos cartões amarelos e vermelhos foram recebidos pelos jogadores do Brasil durante os sete jogos.\n\nDesafio de Relatórios Detalhados: Crie uma função que processe o JSON dos jogos do Brasil na Copa do Mundo e retorne um relatório detalhado para cada jogo, incluindo: - Total de gols marcados pelo Brasil e pelos adversários. - Nomes dos jogadores que marcaram gols para o Brasil e para os adversários, juntamente com os minutos em que os gols foram marcados. - Total de faltas cometidas pelo Brasil e pelos adversários. - Nomes dos jogadores que cometeram faltas para o Brasil e para os adversários, juntamente com os minutos em que as faltas ocorreram. - Total de cartões (amarelos e vermelhos) recebidos pelo Brasil e pelos adversários. - Nomes dos jogadores que receberam cartões para o Brasil e para os adversários, juntamente com os minutos em que os cartões foram mostrados.\nDesafio de Estatísticas: - Calcule a média de gols por jogo marcados pelo Brasil e pelos adversários. - Identifique o jogo com o maior número de gols. - Determine o jogador brasileiro com mais gols ao longo da competição.",
+        parameters: [
+          {
+            name: "body",
+            in: "body",
+            schema: {
+              $schema: "http://json-schema.org/draft-07/schema#",
+              title: "Generated schema for Root",
+              type: "object",
+              properties: {
+                copaDoMundo: {
+                  type: "object",
+                  properties: {
+                    jogosDoBrasil: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: {
+                            type: "number",
+                          },
+                          adversario: {
+                            type: "string",
+                          },
+                          resultado: {
+                            type: "string",
+                          },
+                          placar: {
+                            type: "string",
+                          },
+                          detalhes: {
+                            type: "object",
+                            properties: {
+                              gols: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    jogador: {
+                                      type: "string",
+                                    },
+                                    minuto: {
+                                      type: "number",
+                                    },
+                                  },
+                                  required: ["jogador", "minuto"],
+                                },
+                              },
+                              faltas: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    jogador: {
+                                      type: "string",
+                                    },
+                                    minuto: {
+                                      type: "number",
+                                    },
+                                  },
+                                  required: ["jogador", "minuto"],
+                                },
+                              },
+                              cartoes: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    jogador: {
+                                      type: "string",
+                                    },
+                                    tipo: {
+                                      type: "string",
+                                    },
+                                    minuto: {
+                                      type: "number",
+                                    },
+                                  },
+                                  required: ["jogador", "tipo", "minuto"],
+                                },
+                              },
+                            },
+                            required: ["gols", "faltas", "cartoes"],
+                          },
+                        },
+                        required: [
+                          "id",
+                          "adversario",
+                          "resultado",
+                          "placar",
+                          "detalhes",
+                        ],
+                      },
+                    },
+                  },
+                  required: ["jogosDoBrasil"],
+                },
+              },
+              required: ["copaDoMundo"],
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Challenger Automation 9 successful",
+          },
+        },
+      },
+    },
     "/json_10": {
       get: {
         tags: ["Challenger"],
@@ -2394,69 +2508,6 @@ const swaggerDocument = {
         responses: {
           200: {
             description: "Challenger Automation 12 successful",
-          },
-        },
-      },
-    },
-    "/validate-json_9": {
-      post: {
-        tags: ["Challenger"],
-        summary: "Open challenger 9 validate " + count(),
-        description:
-          "Desafio de Validação envie os dados extraídos do json_9 para validação de extração e resultado.",
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  jogos: {
-                    type: "array",
-                    description: "Array of game statistics to validate.",
-                    items: {
-                      type: "object",
-                      required: [
-                        "jogoId",
-                        "totalGols",
-                        "totalFaltas",
-                        "totalCartoes",
-                      ],
-                      properties: {
-                        jogoId: {
-                          type: "integer",
-                          description: "The unique identifier for each game.",
-                          example: 1,
-                        },
-                        totalGols: {
-                          type: "integer",
-                          description:
-                            "The total number of goals predicted for the game.",
-                          example: 3,
-                        },
-                        totalFaltas: {
-                          type: "integer",
-                          description:
-                            "The total number of fouls predicted for the game.",
-                          example: 5,
-                        },
-                        totalCartoes: {
-                          type: "integer",
-                          description:
-                            "The total number of cards predicted for the game.",
-                          example: 2,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          201: {
-            description: "Challenger Automation 9 successful validate",
           },
         },
       },
