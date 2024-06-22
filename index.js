@@ -2846,7 +2846,7 @@ app.post(
 
     // Adicionando o novo produto na categoria de frutas do padaria do mercado especificado
     const { nome, valor } = req.body;
-    await postMercado("padaria", "doces", index, id_mercado, nome, valor, res);
+    await postMercado("padaria", "doces", id_mercado, nome, valor, res);
   }
 );
 app.get(
