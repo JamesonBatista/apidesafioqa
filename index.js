@@ -1560,17 +1560,18 @@ app.put(
     }
     const { id } = req.params;
 
-    const company = await buscar(`company/${parseInt(id - 1)}`);
+    const companys = await db.ref(`company/${parseInt(id - 1)}`).once("value");
+    const company = companys.val()
 
     if (!company) {
       return res.status(404).send({ message: "Empresa não encontrada" });
     }
 
-    const { name, cnpj, state, city, address, sector } = req.body;
-
     // Atualizar somente os campos fornecidos na requisição
-    let updatedCompany = company;
-    updatedCompany.id = id;
+    const { name, cnpj, state, city, address, sector } = req.body;
+    let updatedCompany = {};
+
+
     if (name) updatedCompany.name = name;
     if (cnpj) updatedCompany.cnpj = cnpj;
     if (state) updatedCompany.state = state;
@@ -1579,13 +1580,13 @@ app.put(
     if (sector) updatedCompany.sector = sector;
 
     await db.ref(`company/${id - 1}`).set(updatedCompany);
+
     res.status(200).send({
       message: "Empresa atualizada com sucesso",
       company: updatedCompany,
     });
   }
 );
-
 app.delete(
   "/company/:id",
   param("id").isInt().withMessage("ID deve ser um número inteiro"),
