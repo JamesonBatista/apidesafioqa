@@ -1570,6 +1570,7 @@ app.put(
 
     // Atualizar somente os campos fornecidos na requisição
     let updatedCompany = company;
+    updatedCompany.id = id;
     if (name) updatedCompany.name = name;
     if (cnpj) updatedCompany.cnpj = cnpj;
     if (state) updatedCompany.state = state;
