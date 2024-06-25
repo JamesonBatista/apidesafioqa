@@ -43454,7 +43454,22 @@ const swaggerDocument = {
             content: {
               "application/json": {
                 schema: {
-                  $ref: "#/components/schemas/Product",
+                  type: "object",
+                  required: ["productName", "productDescription", "price"],
+                  properties: {
+                    productName: {
+                      type: "string",
+                      description: "Nome do produto",
+                    },
+                    productDescription: {
+                      type: "string",
+                      description: "Descrição do produto",
+                    },
+                    price: {
+                      type: "integer",
+                      description: "Preço do produto em centavos",
+                    },
+                  },
                 },
               },
             },
