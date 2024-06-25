@@ -1571,7 +1571,7 @@ app.put(
     const { name, cnpj, state, city, address, sector } = req.body;
     let updatedCompany = {};
 
-    updatedCompany.id = id
+    updatedCompany.id = parseInt(id)
     if (name) updatedCompany.name = name;
     if (cnpj) updatedCompany.cnpj = cnpj;
     if (state) updatedCompany.state = state;
