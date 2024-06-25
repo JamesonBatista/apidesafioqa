@@ -1571,7 +1571,7 @@ app.put(
     const { name, cnpj, state, city, address, sector } = req.body;
     let updatedCompany = {};
 
-
+updatedCompany.id = id
     if (name) updatedCompany.name = name;
     if (cnpj) updatedCompany.cnpj = cnpj;
     if (state) updatedCompany.state = state;
@@ -1580,7 +1580,7 @@ app.put(
     if (sector) updatedCompany.sector = sector;
 
     await db.ref(`company/${id - 1}`).set(updatedCompany);
-
+console.log(updatedCompany);
     res.status(200).send({
       message: "Empresa atualizada com sucesso",
       company: updatedCompany,
