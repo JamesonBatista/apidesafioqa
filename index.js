@@ -922,7 +922,7 @@ app.delete(
 );
 
 app.post(
-  "/member",
+  "/projects/:projectId/member",
   [
     body("name").not().isEmpty().withMessage("O nome do membro é obrigatório"),
     body("office")
@@ -1073,7 +1073,7 @@ app.post(
 );
 
 app.delete(
-  "/member/:projectId/:id_member",
+  "/projects/:projectId/member/:id_member",
   [
     param("projectId")
       .isInt()

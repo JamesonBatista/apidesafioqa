@@ -42497,7 +42497,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/member": {
+    "/projects/{id}/member": {
       post: {
         tags: ["Projetos"],
         summary:
@@ -42599,7 +42599,7 @@ const swaggerDocument = {
         },
       },
     },
-    "/member/{projectId}/{memberName}": {
+    "/projects/{id}/member/{id_member}": {
       delete: {
         tags: ["Projetos"],
         summary: "Deleta um membro de um projeto" + count(),
@@ -42617,12 +42617,12 @@ const swaggerDocument = {
             },
           },
           {
-            name: "memberName",
+            name: "id_member",
             in: "path",
             required: true,
-            description: "Nome do membro a ser deletado",
+            description: "id do membro a ser deletado",
             schema: {
-              type: "string",
+              type: "integer",
             },
           },
         ],
