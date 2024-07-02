@@ -34,7 +34,7 @@ inicializeJSOns();
 const dbJSONget = async (res, endpoint) => {
   try {
     const ref = db.ref(endpoint);
-    ref.once("value", (snapshot) => {
+    await ref.once("value", (snapshot) => {
       const path = snapshot.val();
       res.status(200).json(path);
     });
@@ -161,7 +161,6 @@ app.get("/json_9", (req, res) => {
 app.get("/json_12", (req, res) => {
   dbJSONget(res, "json-12");
 });
-
 
 const dados = {
   produtos: [{ id: 1 }, { id: 2 }, { id: 3 }],
@@ -1200,15 +1199,14 @@ app.get(
 app.put(
   "/clients/:id",
   [
-    body("name")
-      .optional()
-      .not()
-      .isEmpty()
-      .withMessage("O nome não pode ser vazio"),
+    param("id").isInt().withMessage("ID deve ser um número inteiro"),
+    body("name").optional().notEmpty().withMessage("O nome não pode ser vazio"),
     body("cpf")
       .optional()
-      .matches(/^\d{11}$/)
-      .withMessage("CPF inválido. Deve conter 11 dígitos sem pontos ou traços"),
+      .isLength({ min: 11, max: 11 })
+      .withMessage("CPF inválido. Deve conter 11 dígitos sem pontos ou traços")
+      .isNumeric()
+      .withMessage("CPF deve conter apenas números"),
     body("card.flag")
       .optional()
       .isIn(["MASTER", "VISA"])
@@ -1223,30 +1221,39 @@ app.put(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const id = parseInt(req.params.id);
 
-    const client = await buscar(`payments/clients/${id - 1}`);
+    const { id } = req.params;
 
-    if (!client) {
-      return res.status(404).json({ message: "Cliente não encontrado" });
+    try {
+      const clientSnapshot = await db.ref(`payments/clients/${parseInt(id - 1)}`).once("value");
+      const client = clientSnapshot.val();
+
+      if (!client) {
+        return res.status(404).send({ message: "Cliente não encontrado" });
+      }
+
+      // Atualizar somente os campos fornecidos na requisição
+      const { name, cpf, card } = req.body;
+      let updatedClient = { ...client };
+
+      if (name) updatedClient.name = name;
+      if (cpf) updatedClient.cpf = cpf;
+      if (card) {
+        if (!updatedClient.card) {
+          updatedClient.card = {};
+        }
+        if (card.flag) updatedClient.card.flag = card.flag;
+        if (card.credit) updatedClient.card.credit = card.credit;
+      }
+
+      await db.ref(`payments/clients/${id - 1}`).set(updatedClient);
+      res.status(200).send({
+        message: "Cliente atualizado com sucesso",
+        client: updatedClient,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar cliente", error });
     }
-
-    const updateData = req.body;
-
-    // Atualizando os dados do cliente
-    client.name = updateData.name || client.name;
-    client.cpf = updateData.cpf || client.cpf;
-    if (updateData.card) {
-      client.card.flag = updateData.card.flag || client.card.flag;
-      client.card.credit = updateData.card.credit || client.card.credit;
-    }
-
-    await db.ref(`payments/clients/${id - 1}`).update(client);
-
-    res.status(200).json({
-      message: "Cliente atualizado com sucesso",
-      client,
-    });
   }
 );
 app.delete(
@@ -1561,7 +1568,7 @@ app.put(
     const { id } = req.params;
 
     const companys = await db.ref(`company/${parseInt(id - 1)}`).once("value");
-    const company = companys.val()
+    const company = companys.val();
 
     if (!company) {
       return res.status(404).send({ message: "Empresa não encontrada" });
@@ -1571,7 +1578,7 @@ app.put(
     const { name, cnpj, state, city, address, sector } = req.body;
     let updatedCompany = {};
 
-    updatedCompany.id = parseInt(id)
+    updatedCompany.id = parseInt(id);
     if (name) updatedCompany.name = name;
     if (cnpj) updatedCompany.cnpj = cnpj;
     if (state) updatedCompany.state = state;
@@ -2842,8 +2849,8 @@ app.post(
       positionIndex.length === 0
         ? positionIndex.length
         : positionIndex.length === 1
-          ? 1
-          : positionIndex.length + 1;
+        ? 1
+        : positionIndex.length + 1;
 
     // Adicionando o novo produto na categoria de frutas do padaria do mercado especificado
     const { nome, valor } = req.body;
@@ -4339,7 +4346,8 @@ app.post(
        `;
       enviarEmail(
         email,
-        `Evento * ${evento.nome} * Parabéns senhor(a): ${nome || "Participante"
+        `Evento * ${evento.nome} * Parabéns senhor(a): ${
+          nome || "Participante"
         } pela adesão ao Evento`,
         html
       );
@@ -4454,12 +4462,10 @@ app.post(
       get.splice(0, 10); // Remove os 10 primeiros
     }
 
-    res
-      .status(201)
-      .json({
-        message: `Héroi *${req.body.nome}* adicionado a lista de hérois.`,
-        newUser,
-      });
+    res.status(201).json({
+      message: `Héroi *${req.body.nome}* adicionado a lista de hérois.`,
+      newUser,
+    });
   }
 );
 
@@ -4476,7 +4482,7 @@ app.get(
 
     try {
       let user = await buscar(`heroes/herois`);
-      user = user.find(heroi => heroi.id === id)
+      user = user.find((heroi) => heroi.id === id);
       if (!user) {
         return res.status(404).send({ message: "Héroi não encontrado" });
       }
@@ -4577,12 +4583,10 @@ app.post(
       get.splice(0, 10); // Remove os 10 primeiros
     }
 
-    res
-      .status(201)
-      .json({
-        message: `Héroi *${req.body.nome}* adicionado a lista de hérois inúteis.`,
-        newUser,
-      });
+    res.status(201).json({
+      message: `Héroi *${req.body.nome}* adicionado a lista de hérois inúteis.`,
+      newUser,
+    });
   }
 );
 
@@ -4599,7 +4603,7 @@ app.get(
 
     try {
       let user = await buscar(`heroes/herois-inuteis`);
-      user = user.find(heroi => heroi.id === id)
+      user = user.find((heroi) => heroi.id === id);
       if (!user) {
         return res.status(404).send({ message: "Héroi inútil não encontrado" });
       }
@@ -4635,7 +4639,9 @@ app.delete(
 
       res
         .status(200)
-        .json({ message: `héroi inútil com ID ${id} foi removido com sucesso.` });
+        .json({
+          message: `héroi inútil com ID ${id} foi removido com sucesso.`,
+        });
     } catch (error) {
       console.error("Erro ao remover héroi:", error);
       res.status(500).send({ message: "Erro ao remover héroi inútil" });
@@ -4789,4 +4795,4 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => { });
+app.listen(PORT, () => {});
