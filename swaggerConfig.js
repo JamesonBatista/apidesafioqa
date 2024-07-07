@@ -41429,6 +41429,76 @@ const swaggerDocument = {
           },
         },
       },
+      put: {
+        tags: ["CRUD"],
+        summary: "JSON CRUD validações " + count(),
+        description: "JSON para treino de validação",
+        operationId: "updateUserById",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            description: "The ID of the user to update",
+            schema: {
+              type: "integer",
+              format: "int64",
+            },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  nome: {
+                    type: "string",
+                    description: "Nome do usuário",
+                  },
+                  email: {
+                    type: "string",
+                    description: "Email do usuário",
+                  },
+                  idade: {
+                    type: "integer",
+                    description: "Idade do usuário",
+                  },
+                  telefone: {
+                    type: "string",
+                    description: "Telefone do usuário",
+                  },
+                  endereco: {
+                    type: "string",
+                    description: "Endereço do usuário",
+                  },
+                  profissao: {
+                    type: "string",
+                    description: "Profissão do usuário",
+                  },
+                  empresa: {
+                    type: "string",
+                    description: "Empresa do usuário",
+                  },
+                },
+                required: ["nome"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Usuário atualizado com sucesso",
+          },
+          400: {
+            description: "Erro na requisição",
+          },
+          404: {
+            description: "Usuário não encontrado",
+          },
+        },
+      },
       delete: {
         tags: ["CRUD"],
         summary: "JSON CRUD validações" + count(),
