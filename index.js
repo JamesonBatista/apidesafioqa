@@ -334,12 +334,13 @@ app.get(
     const id = parseInt(req.params.id);
 
     try {
-      const user = await buscar(`crud_get/users/${id - 1}`);
-      if (!user) {
+      const user = await buscar(`crud_get/users`);
+      const users = user.find((p) => p.id === id);
+      if (!users) {
         return res.status(404).send({ message: "Usuário não encontrado" });
       }
 
-      res.status(200).json(user);
+      res.status(200).json(users);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
       res.status(500).send({ message: "Erro ao buscar usuário" });
@@ -401,79 +402,79 @@ app.get(
   }
 );
 
-app.post(
-  "/projects",
-  [
-    body("name")
-      .notEmpty()
-      .withMessage("O nome é obrigatório")
-      .isString()
-      .withMessage("O campo name deve ser uma string"),
-    body("leader")
-      .notEmpty()
-      .withMessage("Campo líder é obrigatório")
-      .isString()
-      .withMessage("O campo leader deve ser uma string"),
-    body("description")
-      .notEmpty()
-      .withMessage("A descrição é obrigatória")
-      .isString()
-      .withMessage("O campo description deve ser uma string"),
-    body("endDate")
-      .isISO8601()
-      .withMessage("Data de término inválida")
-      .custom((value) => {
-        const endDate = new Date(value);
-        const today = new Date();
-        if (endDate <= today) {
-          throw new Error("A data de término deve ser maior que a data atual");
-        }
-        return true;
-      }),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+// app.post(
+//   "/projects",
+//   [
+//     body("name")
+//       .notEmpty()
+//       .withMessage("O nome é obrigatório")
+//       .isString()
+//       .withMessage("O campo name deve ser uma string"),
+//     body("leader")
+//       .notEmpty()
+//       .withMessage("Campo líder é obrigatório")
+//       .isString()
+//       .withMessage("O campo leader deve ser uma string"),
+//     body("description")
+//       .notEmpty()
+//       .withMessage("A descrição é obrigatória")
+//       .isString()
+//       .withMessage("O campo description deve ser uma string"),
+//     body("endDate")
+//       .isISO8601()
+//       .withMessage("Data de término inválida")
+//       .custom((value) => {
+//         const endDate = new Date(value);
+//         const today = new Date();
+//         if (endDate <= today) {
+//           throw new Error("A data de término deve ser maior que a data atual");
+//         }
+//         return true;
+//       }),
+//   ],
+//   async (req, res) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({ errors: errors.array() });
+//     }
 
-    const { name, description, endDate, leader } = req.body;
-    const projects = await buscar("projects");
-    const projectExists = projects.some(
-      (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
-    );
-    if (projectExists) {
-      return res
-        .status(400)
-        .json({ message: `Já existe um projeto com o nome ${name}` });
-    }
+//     const { name, description, endDate, leader } = req.body;
+//     const projects = await buscar("projects");
+//     const projectExists = projects.some(
+//       (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase()
+//     );
+//     if (projectExists) {
+//       return res
+//         .status(400)
+//         .json({ message: `Já existe um projeto com o nome ${name}` });
+//     }
 
-    const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
-    const newProject = {
-      id: projects.length + 1,
-      name,
-      leader,
-      description,
-      startDate,
-      endDate,
-      members: [],
-    };
+//     const startDate = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+//     const newProject = {
+//       id: projects.length + 1,
+//       name,
+//       leader,
+//       description,
+//       startDate,
+//       endDate,
+//       members: [],
+//     };
 
-    // Limite e remoção de projetos antigos
-    if (projects.length >= 50) {
-      projects.splice(0, 10); // Remove os 10 primeiros
-    }
+//     // Limite e remoção de projetos antigos
+//     if (projects.length >= 50) {
+//       projects.splice(0, 10); // Remove os 10 primeiros
+//     }
 
-    projects.push(newProject);
-    const ref = db.ref("projects");
-    await ref.set(projects);
+//     projects.push(newProject);
+//     const ref = db.ref("projects");
+//     await ref.set(projects);
 
-    res.status(201).json({
-      message: "Projeto criado com sucesso!",
-      project: newProject,
-    });
-  }
-);
+//     res.status(201).json({
+//       message: "Projeto criado com sucesso!",
+//       project: newProject,
+//     });
+//   }
+// );
 
 // // BANK
 function generateCode() {
