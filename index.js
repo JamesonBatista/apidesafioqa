@@ -240,7 +240,7 @@ app.get("/big-json", (req, res) => {
 });
 // // CRUD
 app.get("/crud", async (req, res) => {
-  dbJSONget(res, "crud_get");
+  dbJSONget(res, "crud_get/users");
 });
 function generateId(param) {
   let newId =
