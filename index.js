@@ -321,6 +321,60 @@ app.post(
     res.status(201).json(newUser);
   }
 );
+app.put(
+  "/crud/:id",
+  [
+    body("nome")
+      .notEmpty()
+      .withMessage("O campo nome é obrigatório")
+      .custom(async (value, { req }) => {
+        const get = await buscar("crud_get/users");
+        const userExists = get.find(
+          (user) => user.nome.trim() === value.trim() && user.id !== parseInt(req.params.id)
+        );
+        if (userExists) {
+          throw new Error("Nome já existe");
+        }
+        return true;
+      }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const search = await buscar("crud_get/users");
+    const userId = parseInt(req.params.id);
+    const userIndex = search.findIndex((user) => user.id === userId);
+
+    if (userIndex === -1) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    // Atualiza apenas os campos enviados
+    const updatedUser = {
+      ...search[userIndex],
+      nome: req.body.nome,
+      email: req.body.email || search[userIndex].email,
+      idade: req.body.idade || search[userIndex].idade,
+      telefone: req.body.telefone || search[userIndex].telefone,
+      endereco: req.body.endereco || search[userIndex].endereco,
+      profissao: req.body.profissao || search[userIndex].profissao,
+      empresa: req.body.empresa || search[userIndex].empresa,
+      status: search[userIndex].status || "ativo",
+      dataCadastro: search[userIndex].dataCadastro || new Date().toISOString().split("T")[0],
+    };
+
+    // Atualiza o usuário no array
+    search[userIndex] = updatedUser;
+
+    const ref = db.ref("crud_get/users");
+    await ref.set(search);
+
+    res.status(200).json(updatedUser);
+  }
+);
+
 
 app.get(
   "/crud/:id",
@@ -378,6 +432,7 @@ app.delete(
     }
   }
 );
+
 
 app.get("/produtos", (req, res) => {
   dbJSONget(res, "produtos");
