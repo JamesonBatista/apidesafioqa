@@ -330,7 +330,9 @@ app.put(
       .custom(async (value, { req }) => {
         const get = await buscar("crud_get/users");
         const userExists = get.find(
-          (user) => user.nome.trim() === value.trim() && user.id !== parseInt(req.params.id)
+          (user) =>
+            user.nome.trim() === value.trim() &&
+            user.id !== parseInt(req.params.id)
         );
         if (userExists) {
           throw new Error("Nome já existe");
@@ -362,7 +364,9 @@ app.put(
       profissao: req.body.profissao || search[userIndex].profissao,
       empresa: req.body.empresa || search[userIndex].empresa,
       status: search[userIndex].status || "ativo",
-      dataCadastro: search[userIndex].dataCadastro || new Date().toISOString().split("T")[0],
+      dataCadastro:
+        search[userIndex].dataCadastro ||
+        new Date().toISOString().split("T")[0],
     };
 
     // Atualiza o usuário no array
@@ -374,7 +378,6 @@ app.put(
     res.status(200).json(updatedUser);
   }
 );
-
 
 app.get(
   "/crud/:id",
@@ -433,10 +436,126 @@ app.delete(
   }
 );
 
-
 app.get("/produtos", (req, res) => {
   dbJSONget(res, "produtos");
 });
+app.post(
+  "/produtos",
+  [
+    body("nome").isString().withMessage("Nome do cliente deve ser uma string"),
+    body("cpf").isString().withMessage("CPF do cliente deve ser uma string"),
+    body("id_produto")
+      .isInt({ min: 1 })
+      .withMessage("ID do produto deve ser um inteiro válido"),
+    body("valor_na_carteira")
+      .isFloat({ min: 0 })
+      .withMessage("Valor na carteira deve ser um número positivo"),
+    body("send_email")
+      .optional()
+      .isEmail()
+      .withMessage("Se fornecido, send_email deve ser um email válido"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { nome, cpf, id_produto, valor_na_carteira, send_email } = req.body;
+    const id_parse = parseInt(id_produto);
+    // Lógica para verificar o saldo na carteira e realizar a compra do produto
+    // Supondo que temos uma função para buscar o produto por ID
+    let produto = await buscar(`produtos/produtos/${id_parse -1}`);
+    produto = { id: id_parse, marca: produto[1], nome: produto[2], preco: produto[3]}
+
+    if (!produto) {
+      return res.status(404).json({ message: "Produto não encontrado" });
+    }
+
+    if (valor_na_carteira < produto.valor) {
+      return res.status(400).json({
+        errors: [
+          {
+            msg: "Saldo insuficiente na carteira",
+            param: "valor_na_carteira",
+            location: "body",
+          },
+        ],
+      });
+    }
+
+    res.status(201).json({
+      produto,
+      message: "Compra realizada com sucesso",
+    });
+
+    if (send_email) {
+      let html = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Confirmação de Compra</title>
+      <style>
+          body {
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 0;
+              color: #333;
+          }
+          .container {
+              padding: 20px;
+              background-color: #f4f4f4;
+              border: 1px solid #ddd;
+              margin: 20px auto;
+              width: 80%;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          }
+          .header {
+              background-color: #007bff;
+              color: white;
+              padding: 10px;
+              text-align: center;
+          }
+          .content {
+              padding: 20px;
+              background-color: white;
+          }
+          .footer {
+              text-align: center;
+              padding: 10px;
+              font-size: 0.8em;
+              background-color: #eee;
+          }
+      </style>
+      </head>
+      <body>
+      <div class="container">
+          <div class="header">
+              <h1>Parabéns pela sua compra! ${nome}</h1>
+          </div>
+          <div class="content">
+              <h2>Detalhes do Produto</h2>
+              <p><strong>Produto:</strong> ${produto.nome}</p>
+              <p><strong>Marca:</strong> ${produto.marca}</p>
+              <p><strong>Preço:</strong> R$${produto.preco}</p>
+          </div>
+          <div class="footer">
+              Obrigado por comprar conosco!.
+          </div>
+      </div>
+      </body>
+      </html>
+       `;
+      enviarEmail(
+        send_email,
+        `Parabéns pela compra do produto ${produto.nome}`,
+        html
+      );
+    }
+  }
+);
+
 app.get(
   "/produtos/:id",
   [param("id").isInt().withMessage("O ID deve ser um numero inteiro")],
@@ -448,11 +567,11 @@ app.get(
 
     const id = req.params.id;
 
-    const user = await buscar(`produtos/produtos/${id - 1}`);
+    let user = await buscar(`produtos/produtos/${id - 1}`);
     if (!user) {
       return res.status(404).send({ message: "Produto não encontrado" });
     }
-
+    user = { id: id, marca: user[1], nome: user[2], preco: user[3]}
     res.status(200).json(user);
   }
 );
@@ -1281,7 +1400,9 @@ app.put(
     const { id } = req.params;
 
     try {
-      const clientSnapshot = await db.ref(`payments/clients/${parseInt(id - 1)}`).once("value");
+      const clientSnapshot = await db
+        .ref(`payments/clients/${parseInt(id - 1)}`)
+        .once("value");
       const client = clientSnapshot.val();
 
       if (!client) {
@@ -4693,11 +4814,9 @@ app.delete(
 
       await ref.remove();
 
-      res
-        .status(200)
-        .json({
-          message: `héroi inútil com ID ${id} foi removido com sucesso.`,
-        });
+      res.status(200).json({
+        message: `héroi inútil com ID ${id} foi removido com sucesso.`,
+      });
     } catch (error) {
       console.error("Erro ao remover héroi:", error);
       res.status(500).send({ message: "Erro ao remover héroi inútil" });
