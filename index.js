@@ -860,7 +860,7 @@ app.post(
 
     // Retornar mensagem de sucesso
     const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
-    res.status(200).json({
+    res.status(201).json({
       message: mensagem,
       produto: produto,
       valor_credito_atual: cliente.bank.credito,
