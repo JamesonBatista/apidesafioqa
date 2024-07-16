@@ -465,8 +465,13 @@ app.post(
     const id_parse = parseInt(id_produto);
     // Lógica para verificar o saldo na carteira e realizar a compra do produto
     // Supondo que temos uma função para buscar o produto por ID
-    let produto = await buscar(`produtos/produtos/${id_parse -1}`);
-    produto = { id: id_parse, marca: produto[1], nome: produto[2], preco: produto[3]}
+    let produto = await buscar(`produtos/produtos/${id_parse - 1}`);
+    produto = {
+      id: id_parse,
+      marca: produto[1],
+      nome: produto[2],
+      preco: produto[3],
+    };
 
     if (!produto) {
       return res.status(404).json({ message: "Produto não encontrado" });
@@ -571,7 +576,7 @@ app.get(
     if (!user) {
       return res.status(404).send({ message: "Produto não encontrado" });
     }
-    user = { id: id, marca: user[1], nome: user[2], preco: user[3]}
+    user = { id: id, marca: user[1], nome: user[2], preco: user[3] };
     res.status(200).json(user);
   }
 );
@@ -672,7 +677,7 @@ app.post(
     body("cpf").notEmpty().withMessage("O campo CPF é obrigatório"),
     body("cpf").custom(async (cpf) => {
       const usuarios = await buscar("bank/clientes");
-      const cpfExistente = usuarios.find(user => user.cpf === cpf);
+      const cpfExistente = usuarios.find((user) => user.cpf === cpf);
       if (cpfExistente) {
         throw new Error("CPF já cadastrado");
       }
@@ -707,7 +712,7 @@ app.post(
       usuarios.splice(0, 10); // Remove os primeiros 10 clientes
     }
     const novoCliente = {
-      id: usuarios.length +1,
+      id: usuarios.length + 1,
       nome,
       cpf,
       contato,
@@ -727,8 +732,9 @@ app.post(
   }
 );
 app.post("/emprestimo", async (req, res) => {
-  const { id_cliente, valor_emprestimo } = req.body;
+  let { id_cliente, emprestimo } = req.body;
 
+  id_cliente = parseInt(id_cliente);
   try {
     const snapshot = await db.ref("bank/clientes").once("value");
     const usuarios = snapshot.val();
@@ -736,20 +742,22 @@ app.post("/emprestimo", async (req, res) => {
       (user) => user.id === id_cliente
     );
 
+
+
     if (!cliente) {
       return res.status(404).json({ error: "Cliente não encontrado" });
     }
-    if (!isValidCPF(cliente.cpf)) {
-      return res.status(400).json({ error: "CPF inválido" });
-    }
-    if (valor_emprestimo <= 0) {
+    // if (!isValidCPF(cliente.cpf)) {
+    //   return res.status(400).json({ error: "CPF inválido" });
+    // }
+    if (emprestimo <= 0) {
       return res.status(400).json({ error: "Valor de empréstimo inválido" });
     }
-    if (valor_emprestimo < cliente.bank.debito) {
+    if (emprestimo < cliente.bank.debito) {
       return res.status(400).json({
         error: "Valor de empréstimo menor que débito disponível",
         debit_value: cliente.bank.debito,
-        loan: valor_emprestimo,
+        loan: emprestimo,
       });
     }
     const code_emprestimo_bank = generateCode();
@@ -766,9 +774,9 @@ app.post("/emprestimo", async (req, res) => {
     codes.push(code_emprestimo_bank);
     await codeRef.set(codes);
 
-    cliente.bank.credito = valor_emprestimo;
-    const clienteAtualizado = { ...cliente, emprestimo: code_emprestimo_bank };
+    cliente.bank.credito += emprestimo;
 
+    const clienteAtualizado = { ...cliente, emprestimo_aprovado: code_emprestimo_bank };
     await db.ref(`bank/clientes/${cliente.id}`).set(clienteAtualizado);
 
     res.status(201).json(clienteAtualizado);
