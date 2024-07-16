@@ -670,6 +670,14 @@ app.post(
   [
     body("nome").notEmpty().withMessage("O campo nome é obrigatório"),
     body("cpf").notEmpty().withMessage("O campo CPF é obrigatório"),
+    body("cpf").custom(async (cpf) => {
+      const usuarios = await buscar("bank/clientes");
+      const cpfExistente = usuarios.find(user => user.cpf === cpf);
+      if (cpfExistente) {
+        throw new Error("CPF já cadastrado");
+      }
+      // Adicione aqui a lógica de validação de formato de CPF, se necessário
+    }),
     body("contato.email")
       .isEmail()
       .withMessage("O campo email deve ser um email válido"),
@@ -691,26 +699,25 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const usuarios = await buscar("bank/clientes");
 
+    const usuarios = await buscar("bank/clientes");
     const { nome, cpf, contato, bank } = req.body;
+
+    if (usuarios.length >= 50) {
+      usuarios.splice(0, 10); // Remove os primeiros 10 clientes
+    }
     const novoCliente = {
-      id: generateId(usuarios),
+      id: usuarios.length +1,
       nome,
       cpf,
       contato,
       bank,
     };
 
-    if (usuarios.length >= 50) {
-      usuarios = usuarios.slice(10);
-    }
-
     usuarios.push(novoCliente);
 
     try {
       await db.ref(`bank/clientes`).set(usuarios);
-
       res.status(201).json(novoCliente);
     } catch (error) {
       res
