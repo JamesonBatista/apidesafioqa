@@ -42123,6 +42123,10 @@ const swaggerDocument = {
                     type: "string",
                     description: "ID do produto a ser financiado.",
                   },
+                  code_emprestimo: {
+                    type: "string",
+                    description: "código gerado ao contratar.",
+                  },
                   receber_email: {
                     type: "string",
                     description:

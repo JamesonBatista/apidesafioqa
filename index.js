@@ -736,12 +736,9 @@ app.post("/emprestimo", async (req, res) => {
 
   id_cliente = parseInt(id_cliente);
   try {
-    const snapshot = await db.ref("bank/clientes").once("value");
-    const usuarios = snapshot.val();
-    const cliente = Object.values(usuarios).find(
-      (user) => user.id === id_cliente
-    );
-
+    const cli = await db.ref("bank/clientes").once("value");
+   const clien = cli.val() ? Object.values(cli.val()) : [];
+   const cliente = clien.find((user) => user.id === id_cliente);
 
 
     if (!cliente) {
@@ -776,9 +773,10 @@ app.post("/emprestimo", async (req, res) => {
 
     cliente.bank.credito += emprestimo;
 
-    const clienteAtualizado = { ...cliente, emprestimo_aprovado: code_emprestimo_bank };
-    await db.ref(`bank/clientes/${cliente.id}`).set(clienteAtualizado);
 
+
+    const clienteAtualizado = { ...cliente, emprestimo_aprovado: code_emprestimo_bank };
+    await db.ref(`bank/clientes/${cliente.id -1}`).set(clienteAtualizado);
     res.status(201).json(clienteAtualizado);
   } catch (error) {
     console.error("Erro ao processar empréstimo:", error);
@@ -820,11 +818,12 @@ app.post(
     id_cliente = parseInt(id_cliente)
     id_produto = parseInt(id_produto)
     // Verificar se o cliente existe
-    const cliente = await buscar(`bank/clientes/${id_cliente}`);
+   const cli = await db.ref("bank/clientes").once("value");
+   const clien = cli.val() ? Object.values(cli.val()) : [];
+   const cliente = clien.find((user) => user.id === id_cliente);
     if (!cliente) {
-      return res.status(404).json({ message: "Cliente não encontrado." });
+      return res.status(404).json({ error: "Cliente não encontrado" });
     }
-
     // Verificar se o produto existe
     const produtos = await buscar("bank/produtosdeluxo");
     const produto = produtos.find((produto) => produto.id === id_produto);
@@ -844,6 +843,7 @@ app.post(
       });
     }
 
+
     // Verificar se o cliente tem crédito suficiente
     if (cliente.bank.credito < produto.preco) {
       const diferenca = produto.preco - cliente.bank.credito;
@@ -856,7 +856,7 @@ app.post(
     // Atualizar o crédito do cliente
     cliente.bank.credito -= produto.preco;
 
-    await db.ref(`bank/clientes/${cliente.id}`).set(cliente);
+    await db.ref(`bank/clientes/${cliente.id -1}`).set(cliente);
 
     // Retornar mensagem de sucesso
     const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;
