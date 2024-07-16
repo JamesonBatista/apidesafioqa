@@ -809,7 +809,7 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const {
+    let {
       id_cliente,
       id_produto,
       code_emprestimo,
@@ -817,6 +817,8 @@ app.post(
       send_email,
     } = req.body;
 
+    id_cliente = parseInt(id_cliente)
+    id_produto = parseInt(id_produto)
     // Verificar se o cliente existe
     const cliente = await buscar(`bank/clientes/${id_cliente}`);
     if (!cliente) {
