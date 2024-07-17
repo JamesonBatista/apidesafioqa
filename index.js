@@ -570,8 +570,7 @@ app.get(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const id = req.params.id;
-
+    const id = parseInt(req.params.id);
     let user = await buscar(`produtos/produtos/${id - 1}`);
     if (!user) {
       return res.status(404).send({ message: "Produto não encontrado" });
@@ -737,9 +736,8 @@ app.post("/emprestimo", async (req, res) => {
   id_cliente = parseInt(id_cliente);
   try {
     const cli = await db.ref("bank/clientes").once("value");
-   const clien = cli.val() ? Object.values(cli.val()) : [];
-   const cliente = clien.find((user) => user.id === id_cliente);
-
+    const clien = cli.val() ? Object.values(cli.val()) : [];
+    const cliente = clien.find((user) => user.id === id_cliente);
 
     if (!cliente) {
       return res.status(404).json({ error: "Cliente não encontrado" });
@@ -773,10 +771,11 @@ app.post("/emprestimo", async (req, res) => {
 
     cliente.bank.credito += emprestimo;
 
-
-
-    const clienteAtualizado = { ...cliente, emprestimo_aprovado: code_emprestimo_bank };
-    await db.ref(`bank/clientes/${cliente.id -1}`).set(clienteAtualizado);
+    const clienteAtualizado = {
+      ...cliente,
+      emprestimo_aprovado: code_emprestimo_bank,
+    };
+    await db.ref(`bank/clientes/${cliente.id - 1}`).set(clienteAtualizado);
     res.status(201).json(clienteAtualizado);
   } catch (error) {
     console.error("Erro ao processar empréstimo:", error);
@@ -807,20 +806,15 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    let {
-      id_cliente,
-      id_produto,
-      code_emprestimo,
-      receber_email,
-      send_email,
-    } = req.body;
+    let { id_cliente, id_produto, code_emprestimo, receber_email, send_email } =
+      req.body;
 
-    id_cliente = parseInt(id_cliente)
-    id_produto = parseInt(id_produto)
+    id_cliente = parseInt(id_cliente);
+    id_produto = parseInt(id_produto);
     // Verificar se o cliente existe
-   const cli = await db.ref("bank/clientes").once("value");
-   const clien = cli.val() ? Object.values(cli.val()) : [];
-   const cliente = clien.find((user) => user.id === id_cliente);
+    const cli = await db.ref("bank/clientes").once("value");
+    const clien = cli.val() ? Object.values(cli.val()) : [];
+    const cliente = clien.find((user) => user.id === id_cliente);
     if (!cliente) {
       return res.status(404).json({ error: "Cliente não encontrado" });
     }
@@ -843,7 +837,6 @@ app.post(
       });
     }
 
-
     // Verificar se o cliente tem crédito suficiente
     if (cliente.bank.credito < produto.preco) {
       const diferenca = produto.preco - cliente.bank.credito;
@@ -856,7 +849,7 @@ app.post(
     // Atualizar o crédito do cliente
     cliente.bank.credito -= produto.preco;
 
-    await db.ref(`bank/clientes/${cliente.id -1}`).set(cliente);
+    await db.ref(`bank/clientes/${cliente.id - 1}`).set(cliente);
 
     // Retornar mensagem de sucesso
     const mensagem = `Financiamento do produto ${produto.nome} (${produto.marca}, ${produto.tipo}) aprovado para o cliente ${cliente.nome}.`;

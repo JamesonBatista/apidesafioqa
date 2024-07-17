@@ -41730,7 +41730,8 @@ const swaggerDocument = {
             description: "ID do produto",
             schema: {
               type: "integer",
-              example: 1,
+              format: "int64",
+              example: 1
             },
           },
         ],
