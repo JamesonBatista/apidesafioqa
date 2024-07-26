@@ -42591,11 +42591,6 @@ const swaggerDocument = {
                     type: "string",
                     description: "Cargo do novo membro",
                   },
-                  projectId: {
-                    type: "integer",
-                    description:
-                      "ID do projeto ao qual o membro será adicionado",
-                  },
                   send_email: {
                     type: "string",
                     description:
@@ -42603,7 +42598,7 @@ const swaggerDocument = {
                     nullable: true,
                   },
                 },
-                required: ["name", "office", "projectId"],
+                required: ["name", "office"],
               },
             },
           },

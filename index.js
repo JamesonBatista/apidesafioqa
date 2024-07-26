@@ -1124,19 +1124,16 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const projectId = parseInt(req.params.id);
-
+    const projectId = parseInt(req.params.projectId);
     let { name, office, send_email } = req.body;
 
     try {
       // Buscar o projeto específico pelo ID
-      const projectSnapshot = await db
-        .ref(`projects/${projectId - 1}`)
-        .once("value");
-      const project = projectSnapshot.val();
+      const projects = await buscar("projects");
+    const project = projects.find((p) => p.id === projectId);
 
       if (!project) {
-        return res.status(404).json({ message: "Projeto não encontrado" });
+        return res.status(404).json({ message: "Projeto não encontrado." });
       }
 
       if (!project.members) {
@@ -1174,7 +1171,7 @@ app.post(
       project.members = membersProject;
 
       // Atualizar o projeto no Firebase
-      await db.ref(`projects/${projectId - 1}`).set(project);
+      await db.ref(`projects/${projectId}`).set(project);
 
       // Simular o envio de e-mail
       if (send_email) {
