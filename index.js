@@ -1287,7 +1287,7 @@ app.delete(
       return res.status(404).json({ message: "Membro não encontrado" });
     }
 
-    const name = project.members[memberIndex].name;
+    const member_name = project.members[memberIndex].member_name;
     // Remover o membro do array de membros do projeto
     project.members.splice(memberIndex, 1);
 
@@ -1300,7 +1300,7 @@ app.delete(
     await db.ref(`projects/${projectId - 1}`).set(project);
 
     res.status(200).json({
-      message: `Membro ${name} retirado do projeto ${project.name}`,
+      message: `Membro ${member_name} retirado do projeto ${project.name}`,
     });
   }
 );
