@@ -1114,7 +1114,6 @@ app.post(
       .not()
       .isEmpty()
       .withMessage("O cargo do membro é obrigatório"),
-    body("projectId").isInt({ gt: 0 }).withMessage("ID do projeto inválido"),
     body("send_email")
       .optional()
       .isString()
@@ -1125,9 +1124,9 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    const projectId = parseInt(req.params.id);
 
-    let { name, office, projectId, send_email } = req.body;
-    projectId = parseInt(projectId, 10);
+    let { name, office, send_email } = req.body;
 
     try {
       // Buscar o projeto específico pelo ID
