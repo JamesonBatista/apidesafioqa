@@ -1109,7 +1109,7 @@ app.delete(
 app.post(
   "/projects/:projectId/member",
   [
-    body("name").not().isEmpty().withMessage("O nome do membro é obrigatório"),
+    body("member_name").not().isEmpty().withMessage("O nome do membro é obrigatório"),
     body("office")
       .not()
       .isEmpty()
@@ -1125,12 +1125,12 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
     const projectId = parseInt(req.params.projectId);
-    let { name, office, send_email } = req.body;
+    let { member_name, office, send_email } = req.body;
 
     try {
       // Buscar o projeto específico pelo ID
       const projects = await buscar("projects");
-    const project = projects.find((p) => p.id === projectId);
+      const project = projects.find((p) => p.id === projectId);
 
       if (!project) {
         return res.status(404).json({ message: "Projeto não encontrado." });
@@ -1145,18 +1145,18 @@ app.post(
 
       // Verificar se o membro já existe no projeto
       const project_member = membersProject.find(
-        (p) => p.name.trim() === name.trim()
+        (p) => p.member_name.trim() === member_name.trim()
       );
       if (project_member) {
         return res
           .status(400)
-          .json({ message: `Membro ${name} já se encontra na equipe.` });
+          .json({ message: `Membro ${member_name} já se encontra na equipe.` });
       }
 
       // Criar o novo membro
       const newMember = {
         id_member,
-        name,
+        member_name,
         office,
         send_email: send_email || "opcional",
       };
@@ -1236,7 +1236,7 @@ app.post(
         `;
         enviarEmail(
           newMember.send_email,
-          `Integração do(a) ${newMember.name} no projeto ${project.name}`,
+          `Integração do(a) ${newMember.member_name} no projeto ${project.name}`,
           html
         );
       }

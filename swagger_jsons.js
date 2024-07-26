@@ -75064,7 +75064,7 @@ export let projects = [
     members: [
       {
         id_member: 1,
-        name: "Jam Batista",
+        member_name: "Jam Batista",
         office: "QA",
         projectId: 1,
         send_email: "opcional",

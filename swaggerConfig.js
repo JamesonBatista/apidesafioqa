@@ -42583,7 +42583,7 @@ const swaggerDocument = {
               schema: {
                 type: "object",
                 properties: {
-                  name: {
+                  member_name: {
                     type: "string",
                     description: "Nome do novo membro",
                   },
@@ -42598,7 +42598,7 @@ const swaggerDocument = {
                     nullable: true,
                   },
                 },
-                required: ["name", "office"],
+                required: ["member_name", "office"],
               },
             },
           },
