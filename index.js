@@ -356,6 +356,7 @@ app.put(
     // Atualiza apenas os campos enviados
     const updatedUser = {
       ...search[userIndex],
+      id: userId,
       nome: req.body.nome,
       email: req.body.email || search[userIndex].email,
       idade: req.body.idade || search[userIndex].idade,
