@@ -75329,10 +75329,10 @@ export const eventos = [
     capacidade: 40,
     participantes: [
       {
-        "nome": "Louíse de Lima",
-        "email": "louise.delima@example.com",
-        "idade": 25
-      }
+        nome: "Louíse de Lima",
+        email: "louise.delima@example.com",
+        idade: 25,
+      },
     ],
   },
 ];
@@ -75342,62 +75342,68 @@ export const herois = [
     id: 1,
     nome: "Superman",
     habilidade: "Super força, voo, visão de raio-X",
-    problema: "Vulnerabilidade à Kryptonita e dificuldade em se conectar com humanos"
+    problema:
+      "Vulnerabilidade à Kryptonita e dificuldade em se conectar com humanos",
   },
   {
     id: 2,
     nome: "Batman",
     habilidade: "Inteligência e habilidades de combate",
-    problema: "Falta de poderes super-humanos o coloca em risco constante"
+    problema: "Falta de poderes super-humanos o coloca em risco constante",
   },
   {
     id: 3,
     nome: "Homem-Aranha",
     habilidade: "Agilidade, força aumentada e sentido aranha",
-    problema: "Responsabilidade de proteger os entes queridos e esconder sua identidade"
+    problema:
+      "Responsabilidade de proteger os entes queridos e esconder sua identidade",
   },
   {
-    id: 4, 
+    id: 4,
     nome: "Mulher-Maravilha",
     habilidade: "Força sobre-humana, voo, imortalidade",
-    problema: "Conflito entre seu dever com Themyscira e o mundo dos humanos"
+    problema: "Conflito entre seu dever com Themyscira e o mundo dos humanos",
   },
   {
     id: 5,
     nome: "Homem de Ferro",
     habilidade: "Armadura tecnológica avançada, inteligência superior",
-    problema: "Dependência da armadura para sobreviver e pressão para inovar constantemente"
+    problema:
+      "Dependência da armadura para sobreviver e pressão para inovar constantemente",
   },
   {
     id: 6,
     nome: "Flash",
     habilidade: "Super velocidade",
-    problema: "Dificuldade em controlar o tempo e as consequências de viagens temporais"
+    problema:
+      "Dificuldade em controlar o tempo e as consequências de viagens temporais",
   },
   {
     id: 7,
     nome: "Thor",
     habilidade: "Força divina, controle sobre o trovão",
-    problema: "Arrogância e a responsabilidade de governar Asgard"
+    problema: "Arrogância e a responsabilidade de governar Asgard",
   },
   {
     id: 8,
     nome: "Capitão América",
     habilidade: "Força, agilidade e resistência aumentadas",
-    problema: "Dificuldade em se adaptar ao mundo moderno após décadas congelado"
+    problema:
+      "Dificuldade em se adaptar ao mundo moderno após décadas congelado",
   },
   {
     id: 9,
     nome: "Hulk",
     habilidade: "Força e resistência sobre-humanas",
-    problema: "Incapacidade de controlar sua raiva, resultando em destruição"
+    problema: "Incapacidade de controlar sua raiva, resultando em destruição",
   },
   {
     id: 10,
     nome: "Mulher-Gato",
     habilidade: "Habilidades de combate, agilidade, furtividade",
-    problema: "Conflito moral entre suas tendências criminosas e seu desejo de fazer o bem"
-  }
+    problema:
+      "Conflito moral entre suas tendências criminosas e seu desejo de fazer o bem",
+  },
 ];
 
 export const heroisInuteis = [
@@ -75405,64 +75411,100 @@ export const heroisInuteis = [
     id: 1,
     nome: "Homem-Sombra",
     habilidade: "Pode se transformar em uma sombra",
-    problema: "Só pode usar seus poderes em áreas bem iluminadas, ficando invisível"
+    problema:
+      "Só pode usar seus poderes em áreas bem iluminadas, ficando invisível",
   },
   {
     id: 2,
     nome: "Mulher-Eco",
     habilidade: "Pode repetir o que os outros dizem",
-    problema: "Incapaz de falar por conta própria, só consegue ecoar"
+    problema: "Incapaz de falar por conta própria, só consegue ecoar",
   },
   {
     id: 3,
     nome: "Capitão Congelador",
     habilidade: "Pode fazer cubos de gelo instantaneamente",
-    problema: "A habilidade só funciona em temperaturas abaixo de zero"
+    problema: "A habilidade só funciona em temperaturas abaixo de zero",
   },
   {
     id: 4,
     nome: "Garoto-Balão",
     habilidade: "Pode inflar como um balão",
-    problema: "É extremamente suscetível a ventos fortes e pode ser levado facilmente"
+    problema:
+      "É extremamente suscetível a ventos fortes e pode ser levado facilmente",
   },
   {
     id: 5,
     nome: "Senhor Soneca",
     habilidade: "Pode adormecer instantaneamente",
-    problema: "Dorme em momentos inoportunos e não controla quando acorda"
+    problema: "Dorme em momentos inoportunos e não controla quando acorda",
   },
   {
     id: 6,
     nome: "Mulher-Borracha",
     habilidade: "Pode esticar seus dedos",
-    problema: "Só consegue esticar até 10 centímetros"
+    problema: "Só consegue esticar até 10 centímetros",
   },
   {
     id: 7,
     nome: "Mestre do Cálculo",
     habilidade: "Pode fazer cálculos matemáticos complexos mentalmente",
-    problema: "Fica paralisado enquanto realiza os cálculos"
+    problema: "Fica paralisado enquanto realiza os cálculos",
   },
   {
     id: 8,
     nome: "Homem-Ventilador",
     habilidade: "Pode criar uma brisa suave",
-    problema: "A brisa é tão fraca que não tem nenhum efeito prático"
+    problema: "A brisa é tão fraca que não tem nenhum efeito prático",
   },
   {
     id: 9,
     nome: "Senhora Onda",
     habilidade: "Pode gerar pequenas ondas de rádio",
-    problema: "A onda é tão fraca que mal pode ser captada por dispositivos comuns"
+    problema:
+      "A onda é tão fraca que mal pode ser captada por dispositivos comuns",
   },
   {
     id: 10,
     nome: "Garota Papelão",
     habilidade: "Pode se transformar em uma caixa de papelão",
-    problema: "Incapaz de se mover ou reverter a transformação sem ajuda externa"
-  }
+    problema:
+      "Incapaz de se mover ou reverter a transformação sem ajuda externa",
+  },
 ];
 
+export const simpleUsers = [
+  {
+    id: 1,
+    name: "John",
+    last_name: "Doe",
+    email: "john.doe@example.com",
+  },
+  {
+    id: 2,
+    name: "Jane",
+    last_name: "Smith",
+    email: "jane.smith@example.com",
+  },
+  {
+    id: 3,
+    name: "Michael",
+    last_name: "Johnson",
+    email: "michael.johnson@example.com",
+  },
+  {
+    id: 4,
+    name: "Emily",
+    last_name: "Davis",
+    email: "emily.davis@example.com",
+  },
+  {
+    id: 5,
+    name: "William",
+    last_name: "Brown",
+    email: "william.brown@example.com",
+  },
+];
 
 export const encryptedDataUser = [];
 export const membersProjet = [];

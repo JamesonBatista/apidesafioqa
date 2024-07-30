@@ -14,6 +14,7 @@ import Joi from "joi";
 import jwt from "jsonwebtoken";
 
 import { db, inicializeJSOns } from "./firebase.js";
+import { simpleUsers } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
 const users = [
@@ -129,6 +130,45 @@ app.post("/login-hard", (req, res) => {
     res.status(401).send({ error: "Credenciais inválidas" });
   }
 });
+
+app.post("/users", async (req, res) => {
+  const users = await buscar("simpleCrud");
+
+  const newUser = req.body;
+  newUser.id = users.length ? users[users.length - 1].id + 1 : 1;
+  users.push(newUser);
+  db.ref("simpleCrud").set(users);
+  res.status(201).json(newUser);
+});
+app.put("/users/:id", async (req, res) => {
+  const users = await buscar("simpleCrud");
+  const index = users.findIndex((u) => u.id === parseInt(req.params.id));
+
+  if (index !== -1) {
+    const updatedUser = { ...users[index], ...req.body };
+    users[index] = updatedUser;
+
+    await db.ref("simpleCrud").set(users);
+    res.json(updatedUser);
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+});
+app.delete("/users/:id", async (req, res) => {
+  let users = await buscar("simpleCrud");
+  const index = users.findIndex((u) => u.id === parseInt(req.params.id));
+
+  if (index !== -1) {
+    const deletedUser = users.splice(index, 1)[0];
+
+    await db.ref("simpleCrud").set(users);
+    res.json({message: `User id ${parseInt(req.params.id)} deleted.`});
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+});
+
+// //
 
 app.get("/json_1", async (req, res) => {
   dbJSONget(res, "json-1");
@@ -1110,7 +1150,10 @@ app.delete(
 app.post(
   "/projects/:projectId/member",
   [
-    body("member_name").not().isEmpty().withMessage("O nome do membro é obrigatório"),
+    body("member_name")
+      .not()
+      .isEmpty()
+      .withMessage("O nome do membro é obrigatório"),
     body("office")
       .not()
       .isEmpty()
@@ -4830,8 +4873,22 @@ app.delete(
     }
   }
 );
+//
+app.get("/users", (req, res) => {
+  dbJSONget(res, "simpleCrud");
+});
+app.get("/users/:id", async (req, res) => {
+  const users = await buscar("simpleCrud");
+  const user = users.find((u) => u.id === parseInt(req.params.id));
 
-// //
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+});
+
+
 const htmlApresentation = `
 <!DOCTYPE html>
 <html lang="pt-BR">

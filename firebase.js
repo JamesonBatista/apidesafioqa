@@ -16,6 +16,7 @@ import germany_json, {
   herois,
   heroisInuteis,
   productsGamers,
+  simpleUsers,
 } from "./swagger_jsons.js";
 import {
   json_1,
@@ -117,34 +118,37 @@ const initialData = {
       ...codeemprestimo,
     },
   },
-  projects:{
-	...projects
+  projects: {
+    ...projects,
   },
-  payments:{
-	clients:{
-		...clients
-	},
-	productsgamers:{
-		...productsGamers
-	}
-  },
-  company:{
-	...company
-  },
-  mercado:{
-	...mercado
-  },
-  eventos:{
-    ...eventos
-  },
-  heroes:{
-    herois:{
-      ...herois
+  payments: {
+    clients: {
+      ...clients,
     },
-    "herois-inuteis":{
-      ...heroisInuteis
-    }
-  }
+    productsgamers: {
+      ...productsGamers,
+    },
+  },
+  company: {
+    ...company,
+  },
+  mercado: {
+    ...mercado,
+  },
+  eventos: {
+    ...eventos,
+  },
+  heroes: {
+    herois: {
+      ...herois,
+    },
+    "herois-inuteis": {
+      ...heroisInuteis,
+    },
+  },
+  simpleCrud: {
+    ...simpleUsers,
+  },
 };
 export const inicializeJSOns = async () => {
   try {
