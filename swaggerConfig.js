@@ -42962,7 +42962,7 @@ const swaggerDocument = {
                 schema: {
                   type: "array",
                   items: {
-                    $ref: "#/components/schemas/Product",
+                    $ref: "#/components/schemas/Products",
                   },
                 },
               },
