@@ -32,6 +32,7 @@ function generateToken(user) {
 }
 
 inicializeJSOns();
+
 const dbJSONget = async (res, endpoint) => {
   try {
     const ref = db.ref(endpoint);
@@ -130,6 +131,19 @@ app.post("/login-hard", (req, res) => {
     res.status(401).send({ error: "Credenciais inválidas" });
   }
 });
+app.get("/users", (req, res) => {
+  dbJSONget(res, "simpleCrud");
+});
+app.get("/users/:id", async (req, res) => {
+  const users = await buscar("simpleCrud");
+  const user = users.find((u) => u.id === parseInt(req.params.id));
+
+  if (user) {
+    res.status(200).json(user);
+  } else {
+    res.status(404).json({ message: "User not found" });
+  }
+});
 
 app.post("/users", async (req, res) => {
   const users = await buscar("simpleCrud");
@@ -162,12 +176,170 @@ app.delete("/users/:id", async (req, res) => {
     const deletedUser = users.splice(index, 1)[0];
 
     await db.ref("simpleCrud").set(users);
-    res.json({message: `User id ${parseInt(req.params.id)} deleted.`});
+    res.json({ message: `User id ${parseInt(req.params.id)} deleted.` });
   } else {
     res.status(404).json({ message: "User not found" });
   }
 });
 
+//
+app.get("/animes", (req, res) => {
+  dbJSONget(res, "animes");
+});
+
+app.get(
+  "/animes/:id",
+  [param("id").isInt().withMessage("O ID deve ser um número inteiro")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const id = parseInt(req.params.id);
+    const ref = db.ref(`animes/${id - 1}`);
+    const snapshot = await ref.once("value");
+    const anime = snapshot.val();
+
+    if (!anime) {
+      return res.status(404).send({ message: "Anime not found" });
+    }
+    res.status(200).json(anime);
+  }
+);
+app.post(
+  "/animes",
+  [
+    body("name").isString().withMessage("Name must be a string"),
+    body("yearOfCreation")
+      .isInt({ min: 1900, max: new Date().getFullYear() })
+      .withMessage("Year of creation must be a valid year"),
+    body("topCharacters")
+      .isArray({ min: 5, max: 5 })
+      .withMessage("Top characters must be an array of exactly 5 items"),
+    body("topCharacters.*")
+      .isString()
+      .withMessage("Each character must be a string"),
+  ],
+  async (req, res) => {
+    // Validate the request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { name, yearOfCreation, topCharacters } = req.body;
+
+      // Generate a new ID
+      const newAnimeRef = db.ref("animes").push();
+
+      // Save the new anime
+      await newAnimeRef.set({
+        id: newAnimeRef.key, // Firebase automatically generates a unique key
+        name,
+        yearOfCreation,
+        topCharacters,
+      });
+
+      res.status(201).json({
+        message: "Anime added successfully!",
+        anime: { id: newAnimeRef.key, name, yearOfCreation, topCharacters },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+app.put(
+  "/animes/:id",
+  [
+    param("id").isString().withMessage("ID must be a valid string"),
+    body("name").optional().isString().withMessage("Name must be a string"),
+    body("yearOfCreation")
+      .optional()
+      .isInt({ min: 1900, max: new Date().getFullYear() })
+      .withMessage("Year of creation must be a valid year"),
+    body("topCharacters")
+      .optional()
+      .isArray({ min: 5, max: 5 })
+      .withMessage("Top characters must be an array of exactly 5 items"),
+    body("topCharacters.*")
+      .optional()
+      .isString()
+      .withMessage("Each character must be a string"),
+  ],
+  async (req, res) => {
+    // Validate the request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+
+      // Access the specific anime in the database
+      const ref = db.ref(`animes/${id}`);
+      const snapshot = await ref.once("value");
+      const anime = snapshot.val();
+
+      if (!anime) {
+        return res.status(404).json({ message: "Anime not found" });
+      }
+
+      // Update the anime
+      await ref.update(updates);
+
+      res
+        .status(200)
+        .json({
+          message: "Anime updated successfully!",
+          anime: { id, ...updates },
+        });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+app.delete(
+  '/animes/:id',
+  [
+    param('id').isString().withMessage('ID must be a valid string'),
+  ],
+  async (req, res) => {
+    // Validate the request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { id } = req.params;
+
+      // Access the specific anime in the database
+      const ref = db.ref(`animes/${id}`);
+      const snapshot = await ref.once('value');
+      const anime = snapshot.val();
+
+      if (!anime) {
+        return res.status(404).json({ message: 'Anime not found' });
+      }
+
+      // Delete the anime
+      await ref.remove();
+
+      res.status(200).json({ message: 'Anime deleted successfully!' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+);
+
+//
 // //
 
 app.get("/json_1", async (req, res) => {
@@ -4873,20 +5045,14 @@ app.delete(
     }
   }
 );
+// DESAFIOS
+app.get("/level1", (req, res) => {
+  dbJSONget(res, "challengers/summary");
+});
+app.get("/level2", (req, res) => {
+  dbJSONget(res, "challengers/level2");
+});
 //
-app.get("/users", (req, res) => {
-  dbJSONget(res, "simpleCrud");
-});
-app.get("/users/:id", async (req, res) => {
-  const users = await buscar("simpleCrud");
-  const user = users.find((u) => u.id === parseInt(req.params.id));
-
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(404).json({ message: "User not found" });
-  }
-});
 
 
 const htmlApresentation = `

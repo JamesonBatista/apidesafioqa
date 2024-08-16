@@ -10,11 +10,14 @@ admin.initializeApp({
 });
 export const db = admin.database();
 import germany_json, {
+  animes,
   codeemprestimo,
   company,
+  complicated,
   eventos,
   herois,
   heroisInuteis,
+  level2,
   productsGamers,
   simpleUsers,
 } from "./swagger_jsons.js";
@@ -148,6 +151,17 @@ const initialData = {
   },
   simpleCrud: {
     ...simpleUsers,
+  },
+  animes: {
+    ...animes,
+  },
+  challengers: {
+    summary: {
+      ...complicated,
+    },
+    level2:{
+      ...level2
+    }
   },
 };
 export const inicializeJSOns = async () => {

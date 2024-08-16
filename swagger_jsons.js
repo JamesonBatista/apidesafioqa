@@ -75505,6 +75505,346 @@ export const simpleUsers = [
     email: "william.brown@example.com",
   },
 ];
+export const animes = [
+  {
+    id: 1,
+    name: "Naruto",
+    yearOfCreation: 2002,
+    topCharacters: [
+      "Naruto Uzumaki",
+      "Sasuke Uchiha",
+      "Sakura Haruno",
+      "Kakashi Hatake",
+      "Itachi Uchiha",
+    ],
+  },
+  {
+    id: 2,
+    name: "One Piece",
+    yearOfCreation: 1999,
+    topCharacters: [
+      "Monkey D. Luffy",
+      "Roronoa Zoro",
+      "Nami",
+      "Sanji",
+      "Tony Tony Chopper",
+    ],
+  },
+  {
+    id: 3,
+    name: "Attack on Titan",
+    yearOfCreation: 2013,
+    topCharacters: [
+      "Eren Yeager",
+      "Mikasa Ackerman",
+      "Armin Arlert",
+      "Levi Ackerman",
+      "Erwin Smith",
+    ],
+  },
+  {
+    id: 4,
+    name: "Dragon Ball Z",
+    yearOfCreation: 1989,
+    topCharacters: ["Goku", "Vegeta", "Gohan", "Piccolo", "Frieza"],
+  },
+  {
+    id: 5,
+    name: "Death Note",
+    yearOfCreation: 2006,
+    topCharacters: ["Light Yagami", "L Lawliet", "Misa Amane", "Ryuk", "Near"],
+  },
+];
+
+export const complicated = {
+  level1: [
+    {
+      level2: {
+        data: [
+          {
+            moreData: {
+              level3: [
+                {
+                  info: [
+                    {
+                      details: {
+                        subDetails: [
+                          {
+                            evenMoreDetails: {
+                              extraInfo: [
+                                {
+                                  config: {
+                                    settings: [
+                                      {
+                                        preferences: {
+                                          user: {
+                                            name: "John Doe",
+                                            contact: {
+                                              email: "john.doe@example.com",
+                                              phoneNumbers: [
+                                                {
+                                                  home: "123-456-7890",
+                                                },
+                                                {
+                                                  work: "098-765-4321",
+                                                  workDetails: {
+                                                    department: "Engineering",
+                                                    floor: [
+                                                      {
+                                                        number: 5,
+                                                        office: [
+                                                          {
+                                                            officeNumber: "502",
+                                                            roomDetails: {
+                                                              room: "A",
+                                                              coordinates: [
+                                                                {
+                                                                  latitude:
+                                                                    "35.6895",
+                                                                  longitude:
+                                                                    "139.6917",
+                                                                  location: {
+                                                                    country:
+                                                                      "Japan",
+                                                                    city: "Tokyo",
+                                                                    districts: [
+                                                                      {
+                                                                        districtName:
+                                                                          "Shibuya",
+                                                                        landmarks:
+                                                                          [
+                                                                            {
+                                                                              name: "Shibuya Crossing",
+                                                                              type: "Intersection",
+                                                                              description:
+                                                                                "Famous crossing in Tokyo",
+                                                                            },
+                                                                            {
+                                                                              name: "Hachiko Statue",
+                                                                              type: "Statue",
+                                                                              details:
+                                                                                {
+                                                                                  history:
+                                                                                    "A statue of the loyal dog Hachiko.",
+                                                                                  location:
+                                                                                    [
+                                                                                      {
+                                                                                        exactCoordinates:
+                                                                                          {
+                                                                                            latitude:
+                                                                                              "35.659",
+                                                                                            longitude:
+                                                                                              "139.700",
+                                                                                          },
+                                                                                        notes:
+                                                                                          [
+                                                                                            {
+                                                                                              note1:
+                                                                                                "Meeting point",
+                                                                                              note2:
+                                                                                                {
+                                                                                                  importance:
+                                                                                                    "high",
+                                                                                                  otherNotes:
+                                                                                                    [
+                                                                                                      {
+                                                                                                        extra:
+                                                                                                          "Note inside an array inside an object",
+                                                                                                      },
+                                                                                                    ],
+                                                                                                },
+                                                                                            },
+                                                                                          ],
+                                                                                      },
+                                                                                    ],
+                                                                                },
+                                                                            },
+                                                                          ],
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    ],
+                                                  },
+                                                },
+                                              ],
+                                            },
+                                          },
+                                        },
+                                      },
+                                    ],
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+};
+
+export const level2 = {
+  level1: {
+    level2: [
+      {
+        level3: {
+          level4: [
+            {
+              level5: {
+                level6: [
+                  {
+                    level7: {
+                      level8: [
+                        {
+                          level9: {
+                            level10: {
+                              details: {
+                                id: "12345",
+                                attributes: {
+                                  name: "Complex Structure",
+                                  type: "Example",
+                                  meta: {
+                                    created: "2023-01-01",
+                                    modified: "2023-07-01",
+                                    tags: ["nested", "complex", "json"],
+                                    status: {
+                                      active: true,
+                                      verified: false,
+                                      history: [
+                                        {
+                                          date: "2023-06-01",
+                                          event: "created",
+                                          actor: {
+                                            id: "user-001",
+                                            name: "John Doe",
+                                            role: "admin",
+                                            location: {
+                                              country: "USA",
+                                              city: "New York",
+                                              coordinates: {
+                                                latitude: 40.7128,
+                                                longitude: -74.006,
+                                              },
+                                            },
+                                          },
+                                        },
+                                        {
+                                          date: "2023-07-01",
+                                          event: "modified",
+                                          actor: {
+                                            id: "user-002",
+                                            name: "Jane Smith",
+                                            role: "editor",
+                                            location: {
+                                              country: "Canada",
+                                              city: "Toronto",
+                                              coordinates: {
+                                                latitude: 43.65107,
+                                                longitude: -79.347015,
+                                              },
+                                            },
+                                          },
+                                        },
+                                      ],
+                                    },
+                                    links: [
+                                      {
+                                        rel: "self",
+                                        href: "https://api-desafio-qa.onrender.com/docs/#/",
+                                      },
+                                      {
+                                        rel: "related",
+                                        href: "https://api-desafio-qa.onrender.com/docs/#/",
+                                      },
+                                    ],
+                                    extendedInfo: {
+                                      owner: {
+                                        name: "Complex Corp",
+                                        contact: {
+                                          email: "contact@complexcorp.com",
+                                          phone: "+1-800-555-1234",
+                                          address: {
+                                            street: "123 Main St",
+                                            city: "Metropolis",
+                                            state: "NY",
+                                            postalCode: "12345",
+                                            country: "USA",
+                                          },
+                                        },
+                                      },
+                                      permissions: [
+                                        {
+                                          role: "admin",
+                                          rights: ["read", "write", "delete"],
+                                        },
+                                        {
+                                          role: "user",
+                                          rights: ["read"],
+                                        },
+                                      ],
+                                      documents: [
+                                        {
+                                          title: "Terms of Service",
+                                          url: "https://api-desafio-qa.onrender.com/docs/#/",
+                                          versions: [
+                                            {
+                                              version: "1.0",
+                                              published: "2020-01-01",
+                                            },
+                                            {
+                                              version: "1.1",
+                                              published: "2021-01-01",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          title: "Privacy Policy",
+                                          url: "https://example.com/docs/privacy",
+                                          versions: [
+                                            {
+                                              version: "2.0",
+                                              published: "2020-06-01",
+                                            },
+                                            {
+                                              version: "2.1",
+                                              published: "2021-06-01",
+                                            },
+                                          ],
+                                        },
+                                      ],
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ],
+  },
+};
 
 export const encryptedDataUser = [];
 export const membersProjet = [];

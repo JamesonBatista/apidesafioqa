@@ -11,7 +11,7 @@ const swaggerDocument = {
     version: "1.0.0",
     title: "API de JSONs para Treinamento de Validações de QA",
     description:
-      "Pix: `projetoqaswagger@gmail.com`\n\n\n\n `A princípio na primeira chamada pode acontecer um erro, por tempo de inatividade, mas tente novamente.`\n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Render, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `163` endpoints.",
+      "Pix: `projetoqaswagger@gmail.com`\n\n\n\n `A princípio na primeira chamada pode acontecer um erro, por tempo de inatividade, mas tente novamente.`\n\n Nesse Swagger você consegue validar e passar por vários cenários de testes, tente validar o máximo de JSONs, e boa sorte.\n\nEste swagger é postado na Render, ainda não temos um servidor em nuvem para melhorar a qualidade do serviço, mas em breve faremos isso.\n\n criado por:\n\n `Jam Batista`  [LinkedIn](https://www.linkedin.com/in/jam-batista-98101015b/)\n\n `Gabriel Lopes`  [LinkedIn](https://www.linkedin.com/in/gabriel-lopes-500b71269/)\n\nLogin: \n\n username: admin \n\npassword: password\n\n**Informações**:\n- Os endpoints de POST terão limite de 50 registros, depois disso os 10 primeiros serão deletados.  \n(POST endpoints will have a limit of 50 records, after which the first 10 will be deleted.)\n\n- Alguns endpoint de POST fazem envios de emails, olhe na descrição.  \n(Some POST endpoints send emails, look at the description.)\n\n `Com o tempo, iremos adicionar mais desafios e JSONs para validações.`\n\n\nTotal: `170` endpoints.",
   },
 
   components: {
@@ -105,7 +105,11 @@ const swaggerDocument = {
       description: "Simulação de criação de hérois",
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
- 
+    {
+      name: "Animes",
+      description: "Simulação de criação de Animes",
+      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
+    },
   ],
   paths: {
     "/login": {
@@ -11010,6 +11014,384 @@ const swaggerDocument = {
                 },
               },
             },
+          },
+        },
+      },
+    },
+    "/animes": {
+      get: {
+        tags: ["Animes"],
+        summary: "Get all animes  " + count(),
+        description: "Retrieves a list of all animes in the database.",
+        responses: {
+          200: {
+            description: "A list of animes",
+            schema: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: { type: "string", example: "-uniqueGeneratedId" },
+                  name: { type: "string", example: "Naruto" },
+                  yearOfCreation: { type: "integer", example: 2002 },
+                  topCharacters: {
+                    type: "array",
+                    items: { type: "string" },
+                    example: [
+                      "Naruto Uzumaki",
+                      "Sasuke Uchiha",
+                      "Sakura Haruno",
+                      "Kakashi Hatake",
+                      "Itachi Uchiha",
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+      post: {
+        tags: ["Animes"],
+        summary: "Create a new anime " + count(),
+        description: "Adds a new anime to the database.",
+        parameters: [
+          {
+            in: "body",
+            name: "body",
+            description: "Anime object that needs to be added to the database",
+            required: true,
+            schema: {
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                  example: "Naruto",
+                },
+                yearOfCreation: {
+                  type: "integer",
+                  example: 2002,
+                },
+                topCharacters: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                  },
+                  example: [
+                    "Naruto Uzumaki",
+                    "Sasuke Uchiha",
+                    "Sakura Haruno",
+                    "Kakashi Hatake",
+                    "Itachi Uchiha",
+                  ],
+                },
+              },
+              required: ["name", "yearOfCreation", "topCharacters"],
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: "Anime created successfully",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "Anime added successfully!",
+                },
+                anime: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                      example: "-uniqueGeneratedId",
+                    },
+                    name: {
+                      type: "string",
+                      example: "Naruto",
+                    },
+                    yearOfCreation: {
+                      type: "integer",
+                      example: 2002,
+                    },
+                    topCharacters: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                      },
+                      example: [
+                        "Naruto Uzumaki",
+                        "Sasuke Uchiha",
+                        "Sakura Haruno",
+                        "Kakashi Hatake",
+                        "Itachi Uchiha",
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Invalid input",
+            schema: {
+              type: "object",
+              properties: {
+                errors: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                      },
+                      param: {
+                        type: "string",
+                      },
+                      location: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/animes/{id}": {
+      get: {
+        tags: ["Animes"],
+        summary: "Get a specific anime by ID " + count(),
+        description: "Retrieve a specific anime from the database by its ID.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            description: "ID of the anime to retrieve",
+            required: true,
+            type: "string",
+          },
+        ],
+        responses: {
+          200: {
+            description: "A specific anime",
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", example: "-uniqueGeneratedId" },
+                name: { type: "string", example: "Naruto" },
+                yearOfCreation: { type: "integer", example: 2002 },
+                topCharacters: {
+                  type: "array",
+                  items: { type: "string" },
+                  example: [
+                    "Naruto Uzumaki",
+                    "Sasuke Uchiha",
+                    "Sakura Haruno",
+                    "Kakashi Hatake",
+                    "Itachi Uchiha",
+                  ],
+                },
+              },
+            },
+          },
+          404: {
+            description: "Anime not found",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+      put: {
+        tags: ["Animes"],
+        summary: "Update an existing anime " + count(),
+        description: "Updates an existing anime in the database.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            description: "ID of the anime to update",
+            required: true,
+            type: "string",
+          },
+          {
+            in: "body",
+            name: "body",
+            description: "Anime object that needs to be updated",
+            required: true,
+            schema: {
+              type: "object",
+              properties: {
+                name: {
+                  type: "string",
+                  example: "Naruto Shippuden",
+                },
+                yearOfCreation: {
+                  type: "integer",
+                  example: 2007,
+                },
+                topCharacters: {
+                  type: "array",
+                  items: {
+                    type: "string",
+                  },
+                  example: [
+                    "Naruto Uzumaki",
+                    "Sasuke Uchiha",
+                    "Sakura Haruno",
+                    "Kakashi Hatake",
+                    "Itachi Uchiha",
+                  ],
+                },
+              },
+            },
+          },
+        ],
+        responses: {
+          200: {
+            description: "Anime updated successfully",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "Anime updated successfully!",
+                },
+                anime: {
+                  type: "object",
+                  properties: {
+                    id: {
+                      type: "string",
+                      example: "-uniqueGeneratedId",
+                    },
+                    name: {
+                      type: "string",
+                      example: "Naruto Shippuden",
+                    },
+                    yearOfCreation: {
+                      type: "integer",
+                      example: 2007,
+                    },
+                    topCharacters: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                      },
+                      example: [
+                        "Naruto Uzumaki",
+                        "Sasuke Uchiha",
+                        "Sakura Haruno",
+                        "Kakashi Hatake",
+                        "Itachi Uchiha",
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Invalid input",
+            schema: {
+              type: "object",
+              properties: {
+                errors: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      msg: {
+                        type: "string",
+                      },
+                      param: {
+                        type: "string",
+                      },
+                      location: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Anime not found",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+      delete: {
+        tags: ["Animes"],
+        summary: "Delete an anime " + count(),
+        description: "Deletes an anime from the database.",
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            description: "ID of the anime to delete",
+            required: true,
+            type: "string",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Anime deleted successfully",
+            schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  example: "Anime deleted successfully!",
+                },
+              },
+            },
+          },
+          404: {
+            description: "Anime not found",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/level1": {
+      get: {
+        tags: ["FOR Challenger"],
+        summary: "challenger for   " + count(),
+        description: "",
+        responses: {
+          200: {
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/level2": {
+      get: {
+        tags: ["FOR Challenger"],
+        summary: "challenger for   " + count(),
+        description: "",
+        responses: {
+          200: {
+          },
+          500: {
+            description: "Internal server error",
           },
         },
       },
