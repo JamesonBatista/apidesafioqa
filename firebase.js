@@ -155,14 +155,6 @@ const initialData = {
   animes: {
     ...animes,
   },
-  challengers: {
-    summary: {
-      ...complicated,
-    },
-    level2:{
-      ...level2
-    }
-  },
 };
 export const inicializeJSOns = async () => {
   try {

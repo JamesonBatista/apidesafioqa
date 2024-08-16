@@ -14,7 +14,7 @@ import Joi from "joi";
 import jwt from "jsonwebtoken";
 
 import { db, inicializeJSOns } from "./firebase.js";
-import { simpleUsers } from "./swagger_jsons.js";
+import { complicated, level2, simpleUsers } from "./swagger_jsons.js";
 app.use(bodyParser.json());
 app.use(express.static("public"));
 const users = [
@@ -5047,10 +5047,10 @@ app.delete(
 );
 // DESAFIOS
 app.get("/level1", (req, res) => {
-  dbJSONget(res, "challengers/summary");
+ res.status(200).send(complicated)
 });
 app.get("/level2", (req, res) => {
-  dbJSONget(res, "challengers/level2");
+  res.status(200).send(level2)
 });
 //
 
