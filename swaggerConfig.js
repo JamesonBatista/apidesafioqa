@@ -80,11 +80,6 @@ const swaggerDocument = {
       externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
     },
     {
-      name: "Criptografia",
-      description: "Simulação de criptografia de dados certo e errados",
-      externalDocs: { description: "Swagger.io", url: "http://swagger.io" },
-    },
-    {
       name: "Company",
       description:
         "Simulação de criação de Empresa, Funcionários, Produtos, e Serviços",

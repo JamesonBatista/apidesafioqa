@@ -182,7 +182,7 @@ app.delete("/users/:id", async (req, res) => {
   }
 });
 
-//
+// animes
 app.get("/animes", (req, res) => {
   dbJSONget(res, "animes");
 });
@@ -338,9 +338,11 @@ app.delete(
     }
   }
 );
+//
 
 //
-// //
+
+//
 
 app.get("/json_1", async (req, res) => {
   dbJSONget(res, "json-1");
